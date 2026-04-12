@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
+import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.service.FunctionService;
 import com.jsh.erp.service.SystemConfigService;
@@ -174,8 +175,9 @@ public class FunctionController extends BaseController {
             List<Function> dataList = functionService.getRoleFunction(pNumber);
             if (dataList.size() != 0) {
                 User userInfo = userService.getCurrentUser();
-                //获取当前用户所属的租户所拥有的功能id的map
-                Map<Long, Long> funIdMap = functionService.getCurrentTenantFunIdMap();
+                // admin 是系统管理员，直接拥有全部菜单，不走租户菜单限制
+                Map<Long, Long> funIdMap = BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName())
+                        ? null : functionService.getCurrentTenantFunIdMap();
                 dataArray = getMenuByFunction(dataList, fc, approvalFlag, funIdMap, userInfo);
                 //增加首页菜单项
                 JSONObject homeItem = new JSONObject();
@@ -196,7 +198,9 @@ public class FunctionController extends BaseController {
         JSONArray dataArray = new JSONArray();
         for (Function function : dataList) {
             //如果不是超管也不是租户就需要校验，防止分配下级用户的功能权限，大于租户的权限
-            if("admin".equals(userInfo.getLoginName()) || userInfo.getId().equals(userInfo.getTenantId()) || funIdMap.get(function.getId())!=null) {
+            boolean isAdmin = BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName());
+            boolean isTenant = userInfo.getId() != null && userInfo.getId().equals(userInfo.getTenantId());
+            if(isAdmin || isTenant || (funIdMap != null && funIdMap.get(function.getId()) != null)) {
                 //如果关闭多级审核，遇到任务审核菜单直接跳过
                 if("0".equals(approvalFlag) && "/workflow".equals(function.getUrl())) {
                     continue;
@@ -215,7 +219,7 @@ public class FunctionController extends BaseController {
                         dataArray.add(item);
                     }
                 } else {
-                    if (fc.indexOf("[" + function.getId().toString() + "]") != -1) {
+                    if (isAdmin || fc.indexOf("[" + function.getId().toString() + "]") != -1) {
                         dataArray.add(item);
                     }
                 }
@@ -238,7 +242,7 @@ public class FunctionController extends BaseController {
             User userInfo = userService.getCurrentUser();
             //获取当前用户所拥有的功能id列表
             List<Long> funIdList = functionService.getCurrentUserFunIdList();
-            if("admin".equals(userInfo.getLoginName())) {
+            if(BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName())) {
                 funIdList = null;
             }
             List<Function> dataListFun = functionService.findRoleFunction("0", null);
@@ -342,7 +346,7 @@ public class FunctionController extends BaseController {
                 if (null != dataList) {
                     for (Function function : dataList) {
                         //如果不是超管需要校验，防止分配下级用户的按钮权限，大于自身的权限
-                        if("admin".equals(userInfo.getLoginName()) || funIdMap.get(function.getId())!=null) {
+                        if(BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName()) || (funIdMap != null && funIdMap.get(function.getId())!=null)) {
                             JSONObject item = new JSONObject();
                             item.put("id", function.getId());
                             item.put("name", function.getName());
