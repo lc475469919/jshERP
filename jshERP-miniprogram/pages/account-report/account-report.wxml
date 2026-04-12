@@ -1,0 +1,64 @@
+<view class="page">
+  <view class="type-tabs">
+    <view class="type-tab {{type === '客户' ? 'active' : ''}}" data-type="客户" bindtap="changeType">客户应收</view>
+    <view class="type-tab {{type === '供应商' ? 'active' : ''}}" data-type="供应商" bindtap="changeType">供应商应付</view>
+  </view>
+
+  <view class="filter-card">
+    <view class="date-row">
+      <picker mode="date" value="{{beginTime}}" bindchange="onBeginDateChange">
+        <view class="date-picker">{{beginTime}}</view>
+      </picker>
+      <view class="date-separator">至</view>
+      <picker mode="date" value="{{endTime}}" bindchange="onEndDateChange">
+        <view class="date-picker">{{endTime}}</view>
+      </picker>
+    </view>
+    <view class="quick-row">
+      <view data-range="month" bindtap="setQuickRange">本月</view>
+      <view data-range="quarter" bindtap="setQuickRange">近三月</view>
+      <view data-range="year" bindtap="setQuickRange">本年</view>
+    </view>
+    <view class="debt-row">
+      <view class="debt-tab {{hasDebt === '1' ? 'active' : ''}}" data-debt="1" bindtap="changeDebt">有欠款</view>
+      <view class="debt-tab {{hasDebt === '0' ? 'active' : ''}}" data-debt="0" bindtap="changeDebt">无欠款</view>
+    </view>
+  </view>
+
+  <view class="summary-card">
+    <view>
+      <view class="summary-label">期初</view>
+      <view class="summary-value">{{firstMoney || 0}}</view>
+    </view>
+    <view>
+      <view class="summary-label">{{type === '客户' ? '期末应收' : '期末应付'}}</view>
+      <view class="summary-value">{{lastMoney || 0}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!list.length}}" class="state-text">暂无账款数据</view>
+
+  <view wx:for="{{list}}" wx:key="id" class="account-card" data-id="{{item.id}}" bindtap="openBills">
+    <view class="account-main">
+      <view class="account-name">{{item.displayName}}</view>
+      <view class="account-need">{{item.allNeedText}}</view>
+    </view>
+    <view class="account-meta">
+      <text wx:if="{{item.contacts}}">联系人：{{item.contacts}}</text>
+      <text>电话：{{item.phoneText}}</text>
+      <text wx:if="{{item.email}}">邮箱：{{item.email}}</text>
+    </view>
+    <view class="amount-row">
+      <view>期初：{{item.preNeedText}}</view>
+      <view>本期欠款：{{item.debtText}}</view>
+      <view>{{type === '客户' ? '本期收款' : '本期付款'}}：{{item.backText}}</view>
+    </view>
+    <view class="card-actions">
+      <view class="detail-hint">查看欠款单据</view>
+      <button class="secondary-button card-button" data-id="{{item.id}}" catchtap="openPartner">往来详情</button>
+    </view>
+  </view>
+
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">加载更多</view>
+</view>

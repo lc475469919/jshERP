@@ -1,0 +1,40 @@
+<view class="page">
+  <view class="search-bar">
+    <input class="search-input" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="search" placeholder="仓库名称" />
+    <button class="secondary-button search-button" bindtap="search">查询</button>
+  </view>
+
+  <button class="primary-button add-button" bindtap="createDepot">新增仓库</button>
+
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!list.length}}" class="state-text">暂无仓库</view>
+
+  <view wx:for="{{list}}" wx:key="id" class="depot-card">
+    <view class="depot-main">
+      <view>
+        <view class="depot-name">{{item.displayName}}</view>
+        <view class="depot-tag-row">
+          <text class="depot-tag">{{item.statusText}}</text>
+          <text class="depot-tag" wx:if="{{item.defaultText}}">{{item.defaultText}}</text>
+        </view>
+      </view>
+      <view class="depot-type">{{item.typeText}}</view>
+    </view>
+    <view class="depot-meta">
+      <text>负责人：{{item.principalText}}</text>
+      <text bindtap="copyAddress" data-address="{{item.addressText}}">地址：{{item.addressText}}</text>
+      <text>排序：{{item.sort || '-'}}</text>
+      <text wx:if="{{item.remark}}">备注：{{item.remark}}</text>
+    </view>
+    <view class="amount-row">
+      <view>仓储费：{{item.warehousing || 0}}</view>
+      <view>搬运费：{{item.truckage || 0}}</view>
+    </view>
+    <view class="card-actions">
+      <button wx:if="{{!item.isDefault}}" class="secondary-button card-button wide" data-id="{{item.id}}" bindtap="setDefaultDepot">设为默认</button>
+      <button class="secondary-button card-button" data-id="{{item.id}}" bindtap="editDepot">编辑</button>
+    </view>
+  </view>
+
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">加载更多</view>
+</view>

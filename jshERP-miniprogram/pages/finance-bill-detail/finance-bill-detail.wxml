@@ -1,0 +1,61 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+
+  <view class="detail-card">
+    <view class="detail-title-row">
+      <view>
+        <view class="detail-title">{{detail.displayType}}</view>
+        <view class="detail-number" bindtap="copyBillNo">{{detail.displayNo}}</view>
+      </view>
+      <view class="detail-amount">{{detail.amountText || 0}}</view>
+    </view>
+    <view class="detail-grid">
+      <view>时间：{{detail.displayTime || '-'}}</view>
+      <view>账户：{{detail.displayAccount || '-'}}</view>
+      <view>往来单位：{{detail.displayOrgan || '-'}}</view>
+      <view>优惠：{{detail.discountText || 0}}</view>
+      <view>状态：{{detail.statusText || '-'}}</view>
+      <view>备注：{{detail.remark || '-'}}</view>
+    </view>
+    <button wx:if="{{canSubmitApproval}}" class="approval-button" loading="{{submittingApproval}}" bindtap="submitApproval">
+      {{submittingApproval ? '提交中' : '提交审批'}}
+    </button>
+    <button wx:if="{{canDelete}}" class="danger-button" loading="{{deleting}}" bindtap="deleteBill">
+      {{deleting ? '删除中' : '删除财务单据'}}
+    </button>
+  </view>
+
+  <view wx:if="{{approvalTask}}" class="approval-card status-border-{{approvalTask.status}}">
+    <view class="approval-head">
+      <view class="approval-title">审批记录</view>
+      <view class="approval-status">{{approvalTask.statusText}}</view>
+    </view>
+    <view class="approval-grid">
+      <view>审批岗位：{{approvalTask.roleText}}</view>
+      <view>提交人：{{approvalTask.submitterText}}</view>
+      <view>提交时间：{{approvalTask.timeText || '-'}}</view>
+      <view>审批人：{{approvalTask.approverText}}</view>
+      <view wx:if="{{approvalTask.approveTimeText}}">审批时间：{{approvalTask.approveTimeText}}</view>
+      <view wx:if="{{approvalTask.approveRemark}}">审批意见：{{approvalTask.approveRemark}}</view>
+    </view>
+  </view>
+
+  <view class="section-title">明细</view>
+  <view wx:if="{{!rows.length && !loading}}" class="state-text">暂无明细</view>
+
+  <view wx:for="{{rows}}" wx:key="billNumber" class="item-card">
+    <view class="item-main">
+      <view>
+        <view class="item-title">{{item.billText}}</view>
+        <view class="item-sub">收支项目：{{item.itemText}}</view>
+      </view>
+      <view class="item-amount">{{item.amountText}}</view>
+    </view>
+    <view class="item-grid">
+      <view>账户：{{item.accountText}}</view>
+      <view>应收付：{{item.needDebtText}}</view>
+      <view>已收付：{{item.finishDebtText}}</view>
+      <view>备注：{{item.remarkText || '-'}}</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,51 @@
+<view class="page">
+  <view class="filter-card">
+    <picker mode="selector" range="{{depotList}}" range-key="depotName" value="{{depotIndex}}" bindchange="onDepotChange">
+      <view class="depot-picker">{{currentDepotName}}</view>
+    </picker>
+    <view class="date-row">
+      <picker mode="date" value="{{beginTime}}" bindchange="onBeginDateChange">
+        <view class="date-picker">{{beginTime}}</view>
+      </picker>
+      <view class="date-separator">至</view>
+      <picker mode="date" value="{{endTime}}" bindchange="onEndDateChange">
+        <view class="date-picker">{{endTime}}</view>
+      </picker>
+    </view>
+    <view class="search-bar">
+      <input class="search-input" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="search" placeholder="商品名称、条码、规格" />
+      <button class="secondary-button search-button" bindtap="search">查询</button>
+    </view>
+    <view class="quick-row">
+      <view data-range="month" bindtap="setQuickRange">本月</view>
+      <view data-range="quarter" bindtap="setQuickRange">近三月</view>
+      <view data-range="year" bindtap="setQuickRange">本年</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!list.length}}" class="state-text">暂无库存数据</view>
+
+  <view wx:for="{{list}}" wx:key="id" class="stock-card" data-id="{{item.id}}" bindtap="openMaterial">
+    <view class="stock-main">
+      <view>
+        <view class="stock-name">{{item.displayName}}</view>
+        <view class="stock-code" wx:if="{{item.barCode}}">条码：{{item.barCode}}</view>
+      </view>
+      <view class="stock-count">{{item.stockText}}</view>
+    </view>
+    <view class="stock-meta">
+      <text wx:if="{{item.specText}}">规格：{{item.specText}}</text>
+      <text>单位：{{item.unitText}}</text>
+      <text>期初：{{item.prevSum || 0}}</text>
+    </view>
+    <view class="stock-row">
+      <view>入库：{{item.inText}}</view>
+      <view>出库：{{item.outText}}</view>
+      <view>金额：{{item.amountText}}</view>
+    </view>
+    <view class="detail-hint">查看商品</view>
+  </view>
+
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">加载更多</view>
+</view>

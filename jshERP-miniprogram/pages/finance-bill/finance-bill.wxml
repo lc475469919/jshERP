@@ -1,0 +1,66 @@
+<view class="page">
+  <scroll-view class="type-scroll" scroll-x>
+    <view class="type-row">
+      <view wx:for="{{typeFilters}}" wx:key="value" class="type-chip {{type === item.value ? 'active' : ''}}" data-type="{{item.value}}" bindtap="changeType">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <scroll-view class="status-scroll" scroll-x>
+    <view class="status-row">
+      <view wx:for="{{statusFilters}}" wx:key="value" class="status-chip {{status === item.value ? 'active' : ''}}" data-status="{{item.value}}" bindtap="changeStatus">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <view class="filter-card">
+    <view class="date-row">
+      <picker mode="date" value="{{beginTime}}" bindchange="onBeginDateChange">
+        <view class="date-picker">{{beginTime}}</view>
+      </picker>
+      <view class="date-separator">至</view>
+      <picker mode="date" value="{{endTime}}" bindchange="onEndDateChange">
+        <view class="date-picker">{{endTime}}</view>
+      </picker>
+    </view>
+    <view class="quick-row">
+      <view data-range="month" bindtap="setQuickRange">本月</view>
+      <view data-range="quarter" bindtap="setQuickRange">近三月</view>
+      <view data-range="year" bindtap="setQuickRange">本年</view>
+    </view>
+    <view class="search-bar">
+      <input class="search-input" value="{{billNo}}" bindinput="onBillNoInput" confirm-type="search" bindconfirm="search" placeholder="财务单号" />
+      <button class="secondary-button search-button" bindtap="search">查询</button>
+    </view>
+  </view>
+
+  <view class="create-panel">
+    <button class="primary-button create-action" bindtap="createBill">新增当前类型</button>
+    <button class="secondary-button create-action" data-type="收款" bindtap="createBill">收款</button>
+    <button class="secondary-button create-action" data-type="付款" bindtap="createBill">付款</button>
+    <button class="secondary-button create-action" data-type="收入" bindtap="createBill">收入</button>
+    <button class="secondary-button create-action" data-type="支出" bindtap="createBill">支出</button>
+    <button class="secondary-button create-action" data-type="转账" bindtap="createBill">转账</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!list.length}}" class="state-text">暂无财务单据</view>
+
+  <view wx:for="{{list}}" wx:key="id" class="bill-card" data-id="{{item.id}}" data-number="{{item.billNo}}" bindtap="openDetail">
+    <view class="bill-main">
+      <view>
+        <view class="bill-title">{{item.displayType}} · {{item.displayNo}}</view>
+        <view class="bill-time">{{item.displayTime}}</view>
+      </view>
+      <view>
+        <view class="bill-amount">{{item.amountText}}</view>
+        <view class="status-pill status-{{item.status}}">{{item.statusText}}</view>
+      </view>
+    </view>
+    <view class="bill-meta">
+      <text>账户：{{item.displayAccount}}</text>
+      <text>往来单位：{{item.displayOrgan}}</text>
+      <text>状态：{{item.statusText}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">加载更多</view>
+</view>

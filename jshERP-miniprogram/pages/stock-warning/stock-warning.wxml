@@ -1,0 +1,45 @@
+<view class="page">
+  <view class="filter-card">
+    <picker mode="selector" range="{{depotList}}" range-key="depotName" value="{{depotIndex}}" bindchange="onDepotChange">
+      <view class="depot-picker">{{currentDepotName}}</view>
+    </picker>
+    <view class="search-bar">
+      <input class="search-input" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="search" placeholder="商品名称、条码、规格" />
+      <button class="secondary-button search-button" bindtap="search">查询</button>
+    </view>
+  </view>
+
+  <view class="summary-card">
+    <view class="summary-label">预警商品</view>
+    <view class="summary-value">{{total || 0}}</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!list.length}}" class="state-text">暂无库存预警</view>
+
+  <view wx:for="{{list}}" wx:key="id" class="warning-card" data-id="{{item.id}}" bindtap="openMaterial">
+    <view class="warning-main">
+      <view>
+        <view class="warning-name">{{item.displayName}}</view>
+        <view class="warning-code" wx:if="{{item.barCode}}">条码：{{item.barCode}}</view>
+      </view>
+      <view class="warning-badge {{item.warningType}}">{{item.warningText}}</view>
+    </view>
+    <view class="warning-meta">
+      <text wx:if="{{item.depotName}}">仓库：{{item.depotName}}</text>
+      <text wx:if="{{item.specText}}">规格：{{item.specText}}</text>
+      <text>单位：{{item.unitText}}</text>
+    </view>
+    <view class="amount-row">
+      <view>库存：{{item.currentText}}</view>
+      <view>最低：{{item.lowText}}</view>
+      <view>最高：{{item.highText}}</view>
+    </view>
+    <view class="card-actions">
+      <view class="detail-hint">查看商品</view>
+      <button class="secondary-button card-button" data-id="{{item.id}}" catchtap="editMaterial">编辑商品</button>
+    </view>
+  </view>
+
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">加载更多</view>
+</view>

@@ -8,3 +8,11 @@
 
 ## front
 **/*.lock
+
+## local runtime artifacts
+*.log
+*.pid
+*.out
+
+## miniprogram local private config
+jshERP-miniprogram/project.private.config.json

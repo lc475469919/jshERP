@@ -1,0 +1,35 @@
+<view class="login-page">
+  <view class="brand">
+    <view class="brand-title">{{platformName}}</view>
+    <view class="brand-subtitle">进销存移动工作台</view>
+  </view>
+
+  <view class="login-panel">
+    <view class="field">
+      <text class="label">服务地址</text>
+      <input class="input" value="{{baseUrl}}" data-field="baseUrl" bindinput="onInput" placeholder="http://localhost:9999/jshERP-boot" />
+    </view>
+
+    <view class="field">
+      <text class="label">账号</text>
+      <input class="input" value="{{loginName}}" data-field="loginName" bindinput="onInput" placeholder="请输入账号" />
+    </view>
+
+    <view class="field">
+      <text class="label">密码</text>
+      <input class="input" value="{{password}}" data-field="password" bindinput="onInput" password placeholder="请输入密码" />
+    </view>
+
+    <view wx:if="{{checkcodeFlag === '1'}}" class="field captcha-field">
+      <view class="captcha-input">
+        <text class="label">验证码</text>
+        <input class="input" value="{{code}}" data-field="code" bindinput="onInput" placeholder="请输入验证码" />
+      </view>
+      <image class="captcha-image" src="{{captchaImage}}" mode="aspectFit" bindtap="loadCaptcha" />
+    </view>
+
+    <button class="primary-button login-button" loading="{{loading}}" bindtap="submitLogin">登录</button>
+
+    <view class="tip">本地开发可使用 jsh / 123456。真机调试需要把服务地址换成电脑局域网 IP，并在开发工具里关闭合法域名校验。</view>
+  </view>
+</view>

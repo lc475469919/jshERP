@@ -1,0 +1,69 @@
+<view class="page">
+  <scroll-view class="bill-tabs" scroll-x="true" enhanced="true" show-scrollbar="false">
+    <view class="bill-tab-row">
+      <view wx:for="{{billTypes}}" wx:key="name" class="bill-tab {{activeIndex === index ? 'active' : ''}}" data-index="{{index}}" bindtap="changeType">{{item.name}}</view>
+    </view>
+  </scroll-view>
+
+  <view class="search-panel">
+    <view class="date-row">
+      <picker mode="date" value="{{beginTime}}" bindchange="onBeginDateChange">
+        <view class="date-picker">{{beginTime}}</view>
+      </picker>
+      <view class="date-separator">至</view>
+      <picker mode="date" value="{{endTime}}" bindchange="onEndDateChange">
+        <view class="date-picker">{{endTime}}</view>
+      </picker>
+    </view>
+    <view class="quick-row">
+      <view data-range="month" bindtap="setQuickRange">本月</view>
+      <view data-range="quarter" bindtap="setQuickRange">近三月</view>
+      <view data-range="year" bindtap="setQuickRange">本年</view>
+    </view>
+    <input class="search-input" value="{{number}}" bindinput="onNumberInput" confirm-type="search" bindconfirm="search" placeholder="单据编号" />
+    <input class="search-input" value="{{materialParam}}" bindinput="onMaterialInput" confirm-type="search" bindconfirm="search" placeholder="商品名称、条码或规格" />
+    <view class="search-actions">
+      <button class="secondary-button search-action" bindtap="scanMaterial">扫码</button>
+      <button class="secondary-button search-action" bindtap="search">查询</button>
+    </view>
+  </view>
+
+  <view class="create-panel">
+    <button class="primary-button create-action" bindtap="createBill">新增当前类型</button>
+    <button class="secondary-button create-action" data-kind="saleOut" bindtap="createBill">销售出库</button>
+    <button class="secondary-button create-action" data-kind="purchaseIn" bindtap="createBill">采购入库</button>
+    <button class="secondary-button create-action" data-kind="saleBack" bindtap="createBill">销售退货</button>
+    <button class="secondary-button create-action" data-kind="purchaseBack" bindtap="createBill">采购退货</button>
+    <button class="secondary-button create-action" data-kind="allocationOut" bindtap="createBill">调拨出库</button>
+  </view>
+
+  <scroll-view class="status-tabs" scroll-x="true" enhanced="true" show-scrollbar="false">
+    <view class="status-row">
+      <view wx:for="{{statusFilters}}" wx:key="value" class="status-tab {{status === item.value ? 'active' : ''}}" data-status="{{item.value}}" bindtap="changeStatus">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!list.length}}" class="state-text">暂无单据</view>
+
+  <view wx:for="{{list}}" wx:key="id" class="bill-card" data-id="{{item.id}}" data-number="{{item.number}}" bindtap="openDetail">
+    <view class="bill-main">
+      <view class="bill-number">{{item.number || '未编号单据'}}</view>
+      <view class="bill-status status-{{item.status}}">{{item.statusText}}</view>
+    </view>
+    <view class="bill-meta">
+      <text>{{item.typeText}}</text>
+      <text>{{item.partnerText}}</text>
+      <text wx:if="{{item.timeText}}">{{item.timeText}}</text>
+      <text wx:if="{{item.materialsList}}">{{item.materialsList}}</text>
+      <text wx:if="{{item.remark}}">备注：{{item.remark}}</text>
+    </view>
+    <view class="amount-row">
+      <view>金额：{{item.amountText}}</view>
+      <view wx:if="{{item.debt || item.needDebt || item.lastDebt}}">欠款：{{item.lastDebt || item.needDebt || item.debt}}</view>
+    </view>
+    <view class="detail-hint">查看详情</view>
+  </view>
+
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">加载更多</view>
+</view>

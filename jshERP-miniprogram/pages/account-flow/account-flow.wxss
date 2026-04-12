@@ -1,0 +1,131 @@
+.summary-card,
+.filter-card,
+.flow-card {
+  background: #ffffff;
+  border: 1rpx solid #e1e7ea;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+}
+
+.summary-title {
+  color: #1f2a2e;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.summary-sub {
+  color: #6b7a80;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+}
+
+.date-row {
+  align-items: center;
+  color: #405057;
+  display: flex;
+  font-size: 24rpx;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+}
+
+.date-picker {
+  background: #f5f7f8;
+  border: 1rpx solid #dbe4e7;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  line-height: 64rpx;
+  min-width: 260rpx;
+  padding: 0 18rpx;
+  text-align: center;
+}
+
+.date-separator {
+  color: #6b7a80;
+}
+
+.quick-row {
+  color: #0f766e;
+  display: flex;
+  font-size: 24rpx;
+  gap: 28rpx;
+  justify-content: flex-end;
+  margin-bottom: 18rpx;
+}
+
+.search-bar {
+  align-items: center;
+  display: flex;
+  gap: 16rpx;
+}
+
+.search-input {
+  background: #f5f7f8;
+  border: 1rpx solid #dbe4e7;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  flex: 1;
+  height: 80rpx;
+  padding: 0 20rpx;
+}
+
+.search-button {
+  font-size: 26rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  margin: 0;
+  padding: 0;
+  width: 132rpx;
+}
+
+.state-text {
+  color: #6b7a80;
+  padding: 80rpx 0;
+  text-align: center;
+}
+
+.flow-main {
+  align-items: flex-start;
+  display: flex;
+  gap: 20rpx;
+  justify-content: space-between;
+}
+
+.flow-number {
+  color: #1f2a2e;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.flow-type {
+  color: #6b7a80;
+  font-size: 24rpx;
+  margin-top: 8rpx;
+}
+
+.flow-amount {
+  color: #0f766e;
+  font-size: 30rpx;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.flow-meta {
+  border-top: 1rpx solid #edf1f2;
+  color: #405057;
+  display: flex;
+  flex-direction: column;
+  font-size: 24rpx;
+  gap: 8rpx;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+}
+
+.load-more {
+  color: #0f766e;
+  padding: 28rpx 0 56rpx;
+  text-align: center;
+}

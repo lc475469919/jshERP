@@ -1,0 +1,95 @@
+.type-tabs,
+.message-card {
+  background: #ffffff;
+  border: 1rpx solid #e1e7ea;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.type-tabs {
+  display: flex;
+  padding: 6rpx;
+}
+
+.type-tab {
+  border-radius: 8rpx;
+  color: #405057;
+  flex: 1;
+  font-size: 28rpx;
+  line-height: 68rpx;
+  text-align: center;
+}
+
+.type-tab.active {
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.read-all-button {
+  font-size: 26rpx;
+  height: 76rpx;
+  line-height: 76rpx;
+  margin: 0 0 20rpx;
+  width: 100%;
+}
+
+.state-text {
+  color: #6b7a80;
+  padding: 80rpx 0;
+  text-align: center;
+}
+
+.message-card {
+  padding: 24rpx;
+}
+
+.message-main {
+  align-items: flex-start;
+  display: flex;
+  gap: 20rpx;
+  justify-content: space-between;
+}
+
+.message-title {
+  color: #1f2a2e;
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.message-type {
+  background: #e7f6ef;
+  border-radius: 8rpx;
+  color: #0f766e;
+  font-size: 22rpx;
+  line-height: 44rpx;
+  padding: 0 16rpx;
+  white-space: nowrap;
+}
+
+.message-time {
+  color: #6b7a80;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+}
+
+.message-content {
+  border-top: 1rpx solid #edf1f2;
+  color: #405057;
+  font-size: 26rpx;
+  line-height: 1.6;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  word-break: break-all;
+}
+
+.read-button {
+  font-size: 24rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+  margin: 20rpx 0 0;
+  width: 100%;
+}

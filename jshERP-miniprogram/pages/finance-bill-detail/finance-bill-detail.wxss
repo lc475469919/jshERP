@@ -1,0 +1,124 @@
+.detail-card,
+.approval-card,
+.item-card {
+  background: #ffffff;
+  border: 1rpx solid #e1e7ea;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+}
+
+.state-text {
+  color: #6b7a80;
+  padding: 80rpx 0;
+  text-align: center;
+}
+
+.detail-title-row,
+.item-main {
+  align-items: flex-start;
+  display: flex;
+  gap: 20rpx;
+  justify-content: space-between;
+}
+
+.detail-title,
+.item-title {
+  color: #1f2a2e;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.detail-number,
+.item-sub {
+  color: #6b7a80;
+  font-size: 24rpx;
+  margin-top: 8rpx;
+  word-break: break-all;
+}
+
+.detail-amount,
+.item-amount {
+  color: #0f766e;
+  font-size: 34rpx;
+  font-weight: 700;
+  max-width: 260rpx;
+  text-align: right;
+  word-break: break-all;
+}
+
+.detail-grid,
+.item-grid {
+  border-top: 1rpx solid #edf1f2;
+  color: #405057;
+  display: grid;
+  font-size: 24rpx;
+  gap: 12rpx;
+  grid-template-columns: 1fr;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  word-break: break-all;
+}
+
+.section-title {
+  color: #1f2a2e;
+  font-size: 30rpx;
+  font-weight: 700;
+  margin: 28rpx 0 16rpx;
+}
+
+.approval-button,
+.danger-button {
+  background: #0f766e;
+  border-radius: 8rpx;
+  color: #ffffff;
+  font-size: 28rpx;
+  margin-top: 24rpx;
+}
+
+.danger-button {
+  background: #b42318;
+}
+
+.approval-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.approval-title {
+  color: #1f2a2e;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.approval-status {
+  color: #0f766e;
+  font-size: 24rpx;
+}
+
+.approval-grid {
+  border-top: 1rpx solid #edf1f2;
+  color: #405057;
+  display: grid;
+  font-size: 24rpx;
+  gap: 12rpx;
+  grid-template-columns: 1fr;
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  word-break: break-all;
+}
+
+.status-border-pending {
+  border-left: 8rpx solid #f59e0b;
+}
+
+.status-border-approved {
+  border-left: 8rpx solid #0f766e;
+}
+
+.status-border-rejected {
+  border-left: 8rpx solid #b42318;
+}

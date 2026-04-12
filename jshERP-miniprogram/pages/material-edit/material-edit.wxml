@@ -1,0 +1,73 @@
+<view class="page">
+  <view class="form-section">
+    <view class="field">
+      <view class="field-label">商品名称</view>
+      <input class="text-input" value="{{name}}" data-field="name" bindinput="onInput" placeholder="必填" />
+    </view>
+    <view class="field">
+      <view class="field-label">商品分类</view>
+      <picker mode="selector" range="{{categories}}" range-key="title" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <view class="picker-value">{{categories[categoryIndex].title}}</view>
+      </picker>
+      <view class="field-action" bindtap="createCategory">新增分类</view>
+    </view>
+    <view class="field barcode-field">
+      <view>
+        <view class="field-label">条码</view>
+        <input class="text-input" value="{{barCode}}" data-field="barCode" bindinput="onInput" placeholder="必填" />
+      </view>
+      <button class="secondary-button scan-button" bindtap="scanBarCode">扫码</button>
+    </view>
+    <view class="field">
+      <view class="field-label">多单位</view>
+      <picker mode="selector" range="{{units}}" range-key="name" value="{{unitIndex}}" bindchange="onUnitChange">
+        <view class="picker-value">{{unitIndex >= 0 ? units[unitIndex].name : '不使用多单位'}}</view>
+      </picker>
+      <view class="field-action" bindtap="createUnit">新增计量单位</view>
+    </view>
+    <view class="field">
+      <view class="field-label">单位</view>
+      <input class="text-input" value="{{unit}}" data-field="unit" bindinput="onInput" placeholder="例如：个、件、箱" />
+    </view>
+    <view class="field-row">
+      <view class="field half">
+        <view class="field-label">规格</view>
+        <input class="text-input" value="{{standard}}" data-field="standard" bindinput="onInput" placeholder="可不填" />
+      </view>
+      <view class="field half">
+        <view class="field-label">型号</view>
+        <input class="text-input" value="{{model}}" data-field="model" bindinput="onInput" placeholder="可不填" />
+      </view>
+    </view>
+    <view class="field">
+      <view class="field-label">颜色</view>
+      <input class="text-input" value="{{color}}" data-field="color" bindinput="onInput" placeholder="可不填" />
+    </view>
+    <view class="field-row">
+      <view class="field half">
+        <view class="field-label">采购价</view>
+        <input class="text-input" type="digit" value="{{purchaseDecimal}}" data-field="purchaseDecimal" bindinput="onInput" placeholder="默认空" />
+      </view>
+      <view class="field half">
+        <view class="field-label">销售价</view>
+        <input class="text-input" type="digit" value="{{wholesaleDecimal}}" data-field="wholesaleDecimal" bindinput="onInput" placeholder="默认空" />
+      </view>
+    </view>
+    <view class="field-row">
+      <view class="field half">
+        <view class="field-label">零售价</view>
+        <input class="text-input" type="digit" value="{{commodityDecimal}}" data-field="commodityDecimal" bindinput="onInput" placeholder="默认空" />
+      </view>
+      <view class="field half">
+        <view class="field-label">最低售价</view>
+        <input class="text-input" type="digit" value="{{lowDecimal}}" data-field="lowDecimal" bindinput="onInput" placeholder="默认空" />
+      </view>
+    </view>
+    <view class="field">
+      <view class="field-label">备注</view>
+      <textarea class="textarea-input" value="{{remark}}" data-field="remark" bindinput="onInput" placeholder="可不填" />
+    </view>
+  </view>
+
+  <button class="primary-button save-button" loading="{{saving}}" disabled="{{saving}}" bindtap="saveMaterial">{{isEdit ? '保存修改' : '保存商品'}}</button>
+</view>

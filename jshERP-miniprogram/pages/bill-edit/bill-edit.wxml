@@ -1,0 +1,112 @@
+<view class="page">
+  <view class="kind-tabs">
+    <view class="kind-tab {{kind === 'saleOut' ? 'active' : ''}}" data-kind="saleOut" bindtap="switchKind">销售出库</view>
+    <view class="kind-tab {{kind === 'purchaseIn' ? 'active' : ''}}" data-kind="purchaseIn" bindtap="switchKind">采购入库</view>
+    <view class="kind-tab {{kind === 'saleBack' ? 'active' : ''}}" data-kind="saleBack" bindtap="switchKind">销售退货</view>
+    <view class="kind-tab {{kind === 'purchaseBack' ? 'active' : ''}}" data-kind="purchaseBack" bindtap="switchKind">采购退货</view>
+    <view class="kind-tab {{kind === 'allocationOut' ? 'active' : ''}}" data-kind="allocationOut" bindtap="switchKind">调拨出库</view>
+  </view>
+
+  <view class="form-section">
+    <view class="field">
+      <view class="field-label">单据编号</view>
+      <view class="readonly-value">{{number || '生成中...'}}</view>
+    </view>
+    <view wx:if="{{billKind.usePartner !== false}}" class="field">
+      <view class="field-label">{{billKind.partnerType}}</view>
+      <picker mode="selector" range="{{partners}}" range-key="supplier" value="{{partnerIndex}}" bindchange="onPartnerChange">
+        <view class="picker-value">{{partnerIndex >= 0 ? partners[partnerIndex].supplier : '请选择'}}</view>
+      </picker>
+      <view class="field-action" bindtap="createPartner">新增{{billKind.partnerType}}</view>
+    </view>
+    <view class="field">
+      <view class="field-label">{{billKind.useTargetDepot ? '调出仓库' : '仓库'}}</view>
+      <picker mode="selector" range="{{depots}}" range-key="name" value="{{depotIndex}}" bindchange="onDepotChange">
+        <view class="picker-value">{{depotIndex >= 0 ? depots[depotIndex].name : '请选择'}}</view>
+      </picker>
+      <view class="field-action" bindtap="createDepot">新增仓库</view>
+    </view>
+    <view wx:if="{{billKind.useTargetDepot}}" class="field">
+      <view class="field-label">调入仓库</view>
+      <picker mode="selector" range="{{depots}}" range-key="name" value="{{targetDepotIndex}}" bindchange="onTargetDepotChange">
+        <view class="picker-value">{{targetDepotIndex >= 0 ? depots[targetDepotIndex].name : '请选择'}}</view>
+      </picker>
+      <view class="field-action" bindtap="createDepot">新增仓库</view>
+    </view>
+    <view wx:if="{{billKind.useAccount !== false}}" class="field">
+      <view class="field-label">结算账户</view>
+      <picker mode="selector" range="{{accounts}}" range-key="name" value="{{accountIndex}}" bindchange="onAccountChange">
+        <view class="picker-value">{{accountIndex >= 0 ? accounts[accountIndex].name : '请选择'}}</view>
+      </picker>
+      <view class="field-action" bindtap="createAccount">新增账户</view>
+    </view>
+    <view wx:if="{{billKind.personType}}" class="field">
+      <view class="field-label">{{billKind.personType}}</view>
+      <picker mode="selector" range="{{persons}}" range-key="name" value="{{personIndex}}" bindchange="onPersonChange">
+        <view class="picker-value">{{personIndex >= 0 ? persons[personIndex].name : '请选择'}}</view>
+      </picker>
+      <view class="field-action" bindtap="createPerson">新增{{billKind.personType}}</view>
+    </view>
+    <view class="field">
+      <view class="field-label">备注</view>
+      <input class="text-input" value="{{remark}}" bindinput="onRemarkInput" placeholder="可不填" />
+    </view>
+  </view>
+
+  <view class="material-search">
+    <input class="search-input" value="{{materialKeyword}}" bindinput="onMaterialInput" confirm-type="search" bindconfirm="searchMaterial" placeholder="输入商品名称、条码或规格" />
+    <button class="secondary-button search-button" bindtap="scanMaterial">扫码</button>
+    <button class="primary-button search-button" bindtap="searchMaterial">查商品</button>
+  </view>
+  <button class="secondary-button add-material-button" bindtap="createMaterial">新增商品</button>
+
+  <view wx:if="{{materialResults.length}}" class="result-list">
+    <view wx:for="{{materialResults}}" wx:key="mBarCode" class="result-item" data-index="{{index}}" bindtap="addMaterial">
+      <view class="result-name">{{item.name || item.materialName || '未命名商品'}}</view>
+      <view class="result-meta">
+        <text wx:if="{{item.mBarCode}}">条码：{{item.mBarCode}}</text>
+        <text wx:if="{{item.standard || item.model}}">{{item.standard}} {{item.model}}</text>
+        <text>采购价：{{item.purchaseDecimal || 0}} / 销售价：{{item.wholesaleDecimal || 0}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="items-section">
+    <view class="section-title">商品明细</view>
+    <view wx:if="{{!items.length}}" class="state-text">请先添加商品</view>
+    <view wx:for="{{items}}" wx:key="barCode" class="item-card">
+      <view class="item-head">
+        <view>
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-code">{{item.barCode}}</view>
+        </view>
+        <view class="remove" data-index="{{index}}" bindtap="removeItem">删除</view>
+      </view>
+      <view class="item-grid">
+        <view>
+          <view class="mini-label">数量</view>
+          <input class="mini-input" type="digit" value="{{item.operNumber}}" data-index="{{index}}" bindinput="onQuantityInput" />
+        </view>
+        <view>
+          <view class="mini-label">单价</view>
+          <input class="mini-input" type="digit" value="{{item.unitPrice}}" data-index="{{index}}" bindinput="onPriceInput" />
+        </view>
+        <view>
+          <view class="mini-label">金额</view>
+          <view class="amount-value">{{item.allPrice}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="summary-bar">
+    <view>
+      <view class="summary-label">合计</view>
+      <view class="summary-amount">{{totalAmount}}</view>
+    </view>
+    <view class="summary-actions">
+      <button class="secondary-button save-button" loading="{{saving && !submitAfterSave}}" disabled="{{saving || loading}}" bindtap="saveBill">保存</button>
+      <button class="primary-button save-button" data-submit="1" loading="{{saving && submitAfterSave}}" disabled="{{saving || loading}}" bindtap="saveBill">保存并提交</button>
+    </view>
+  </view>
+</view>

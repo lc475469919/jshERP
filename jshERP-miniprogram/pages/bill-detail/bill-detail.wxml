@@ -1,0 +1,107 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+
+  <view class="detail-card">
+    <view class="detail-head">
+      <view>
+        <view class="detail-title">{{detail.title || '单据详情'}}</view>
+        <view class="detail-number">{{detail.number || number}}</view>
+      </view>
+      <view class="detail-status status-{{detail.status}}">{{detail.statusText || '未知'}}</view>
+    </view>
+
+    <view class="info-grid">
+      <view>
+        <view class="info-label">往来单位</view>
+        <view class="info-value">{{detail.partnerText || '-'}}</view>
+      </view>
+      <view>
+        <view class="info-label">单据日期</view>
+        <view class="info-value">{{detail.timeText || '-'}}</view>
+      </view>
+      <view>
+        <view class="info-label">经手人</view>
+        <view class="info-value">{{detail.creatorName || detail.userName || '-'}}</view>
+      </view>
+      <view>
+        <view class="info-label">结算账户</view>
+        <view class="info-value">{{detail.accountName || '-'}}</view>
+      </view>
+    </view>
+
+    <view class="contact-row" wx:if="{{detail.contactText}}">{{detail.contactText}}</view>
+    <view class="remark-row" wx:if="{{detail.remark}}">备注：{{detail.remark}}</view>
+    <view class="remark-row" wx:if="{{detail.linkNumber}}">关联单号：{{detail.linkNumber}}</view>
+    <button wx:if="{{canSubmitApproval}}" class="approval-button" loading="{{submittingApproval}}" bindtap="submitApproval">
+      {{submittingApproval ? '提交中' : '提交审批'}}
+    </button>
+    <button wx:if="{{canDelete}}" class="danger-button" loading="{{deleting}}" bindtap="deleteBill">
+      {{deleting ? '删除中' : '删除单据'}}
+    </button>
+  </view>
+
+  <view wx:if="{{approvalTask}}" class="approval-card status-border-{{approvalTask.status}}">
+    <view class="approval-head">
+      <view class="approval-title">审批记录</view>
+      <view class="approval-status">{{approvalTask.statusText}}</view>
+    </view>
+    <view class="approval-grid">
+      <view>审批岗位：{{approvalTask.roleText}}</view>
+      <view>提交人：{{approvalTask.submitterText}}</view>
+      <view>提交时间：{{approvalTask.timeText || '-'}}</view>
+      <view>审批人：{{approvalTask.approverText}}</view>
+      <view wx:if="{{approvalTask.approveTimeText}}">审批时间：{{approvalTask.approveTimeText}}</view>
+      <view wx:if="{{approvalTask.approveRemark}}">审批意见：{{approvalTask.approveRemark}}</view>
+    </view>
+  </view>
+
+  <view class="amount-panel">
+    <view>
+      <view class="amount-label">合计金额</view>
+      <view class="amount-value">{{detail.amountText || 0}}</view>
+    </view>
+    <view>
+      <view class="amount-label">欠款</view>
+      <view class="amount-value">{{detail.debtText || 0}}</view>
+    </view>
+    <view>
+      <view class="amount-label">商品数</view>
+      <view class="amount-value">{{detail.materialCount || items.length}}</view>
+    </view>
+  </view>
+
+  <view class="section-title">商品明细</view>
+  <view wx:if="{{!items.length && !loading}}" class="state-text">暂无商品明细</view>
+  <view wx:for="{{items}}" wx:key="id" class="item-card">
+    <view class="item-main">
+      <view class="item-name">{{item.displayName}}</view>
+      <view class="item-qty">x {{item.quantityText}}</view>
+    </view>
+    <view class="item-meta">
+      <text wx:if="{{item.barCode}}">条码：{{item.barCode}}</text>
+      <text wx:if="{{item.specText}}">规格：{{item.specText}}</text>
+      <text wx:if="{{item.depotName}}">仓库：{{item.depotName}}</text>
+      <text wx:if="{{item.unit}}">单位：{{item.unit}}</text>
+    </view>
+    <view class="item-price">
+      <view>单价：{{item.unitPrice || item.taxUnitPrice || '-'}}</view>
+      <view>金额：{{item.priceText}}</view>
+    </view>
+  </view>
+
+  <view class="total-row" wx:if="{{totalRow}}">
+    <view>合计数量：{{totalRow.operNumber || 0}}</view>
+    <view>合计金额：{{totalRow.allPrice || totalRow.taxLastMoney || 0}}</view>
+  </view>
+
+  <view wx:if="{{financeBills.length}}" class="section-title">关联财务单</view>
+  <view wx:for="{{financeBills}}" wx:key="id" class="finance-card" data-id="{{item.id}}" data-number="{{item.billNo}}" bindtap="openFinanceBill">
+    <view class="finance-main">
+      <view>
+        <view class="finance-title">{{item.displayType}} · {{item.displayNo}}</view>
+        <view class="finance-account">账户：{{item.accountText}}</view>
+      </view>
+      <view class="finance-amount">{{item.amountText}}</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,72 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/home/home",
+    "pages/material/material",
+    "pages/material-edit/material-edit",
+    "pages/material-detail/material-detail",
+    "pages/bill/bill",
+    "pages/bill-edit/bill-edit",
+    "pages/bill-detail/bill-detail",
+    "pages/partner/partner",
+    "pages/partner-edit/partner-edit",
+    "pages/partner-detail/partner-detail",
+    "pages/stock-report/stock-report",
+    "pages/buy-sale-report/buy-sale-report",
+    "pages/account-report/account-report",
+    "pages/account-bills/account-bills",
+    "pages/account-list/account-list",
+    "pages/account-edit/account-edit",
+    "pages/account-flow/account-flow",
+    "pages/finance-bill/finance-bill",
+    "pages/finance-bill-edit/finance-bill-edit",
+    "pages/finance-bill-detail/finance-bill-detail",
+    "pages/approval/approval",
+    "pages/message/message",
+    "pages/depot/depot",
+    "pages/depot-edit/depot-edit",
+    "pages/basic-data/basic-data",
+    "pages/person-edit/person-edit",
+    "pages/inout-item-edit/inout-item-edit",
+    "pages/unit-edit/unit-edit",
+    "pages/category-edit/category-edit",
+    "pages/stock-warning/stock-warning",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "管伊佳ERP",
+    "navigationBarBackgroundColor": "#0f766e",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7f8"
+  },
+  "tabBar": {
+    "color": "#5f6b70",
+    "selectedColor": "#0f766e",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/material/material",
+        "text": "商品"
+      },
+      {
+        "pagePath": "pages/bill/bill",
+        "text": "单据"
+      },
+      {
+        "pagePath": "pages/partner/partner",
+        "text": "往来"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
