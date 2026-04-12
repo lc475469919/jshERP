@@ -44,9 +44,6 @@
 
       <a-form-item>
         <a-checkbox :checked="checked" @change="handleChange">记住密码</a-checkbox>
-        <router-link v-if="registerFlag==='1'" :to="{ name: 'register'}" class="forge-password" style="float: right;margin-right: 10px;" >
-          注册租户
-        </router-link>
       </a-form-item>
 
       <a-form-item :style="btnStyle">
@@ -243,7 +240,7 @@
         }
         if(res.data && res.data.user) {
           if(res.data.user.loginName === 'admin'){
-            let desc = 'admin只是平台运维用户，真正的管理员是租户(测试账号为jsh），admin不能编辑任何业务数据，只能配置平台菜单和创建租户'
+            let desc = 'admin 是系统管理员，拥有全部功能权限'
             this.$message.info(desc,30)
           } else {
             getPlatformConfigByKey({ "platformKey": "bill_excel_url" }).then((res) => {
@@ -252,23 +249,6 @@
                   Vue.ls.set('isShowExcel', true);
                 } else {
                   Vue.ls.set('isShowExcel', false);
-                }
-              }
-            })
-            getAction("/user/infoWithTenant",{}).then(res=>{
-              if(res && res.code === 200) {
-                let currentTime = new Date(); //新建一个日期对象，默认现在的时间
-                let expireTime = new Date(res.data.expireTime); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
-                let type = res.data.type  //租户类型，0免费租户，1付费租户
-                let difftime = expireTime - currentTime; //计算时间差
-                let tipInfo = '您好，服务即将到期，请及时续费！'
-                //0免费租户-如果距离到期还剩5天就进行提示续费
-                if(type === '0' && difftime<86400000*5) {
-                  this.$message.warning(tipInfo,8)
-                }
-                //1付费租户-如果距离到期还剩15天就进行提示续费
-                if(type === '1' && difftime<86400000*15) {
-                  this.$message.warning(tipInfo,8)
                 }
               }
             })
@@ -312,18 +292,6 @@
             this.Logout();
           } else if(res.data.msgTip === 'user is black'){
             err.message = '用户被禁用';
-            this.requestFailed(err)
-            this.Logout();
-          } else if(res.data.msgTip === 'tenant is black'){
-            if(loginName === 'jsh') {
-              err.message = 'jsh用户已停用，请注册租户进行体验！';
-            } else {
-              err.message = '用户所属的租户被禁用';
-            }
-            this.requestFailed(err)
-            this.Logout();
-          } else if(res.data.msgTip === 'tenant is expire'){
-            err.message = '试用期已结束，请联系客服续费';
             this.requestFailed(err)
             this.Logout();
           } else if(res.data.msgTip === 'access service error'){

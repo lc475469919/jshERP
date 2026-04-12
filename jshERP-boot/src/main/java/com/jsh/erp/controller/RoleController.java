@@ -150,7 +150,7 @@ public class RoleController extends BaseController {
     }
 
     @GetMapping(value = "/tenantRoleList")
-    @ApiOperation(value = "查询租户角色列表")
+    @ApiOperation(value = "查询主账号可用角色列表")
     public List<Role> tenantRoleList(HttpServletRequest request)throws Exception {
         return roleService.tenantRoleList();
     }

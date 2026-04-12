@@ -121,8 +121,7 @@
     <a-row :gutter="24">
       <a-col :sm="24" :md="24" :xl="24" :style="{ paddingRight: '0px',marginBottom: '6px' }">
         <a-card :bordered="false" :body-style="{padding: '5'}" data-step="7" data-title="服务和版权"
-                data-intro="展示服务到期时间（快到期时会出现续费链接，请注意及时续费）、
-          用户数量（是指最多可以录入的用户数量）、版权信息">
+                data-intro="展示系统信息、当前用户数量、版权信息">
           <div class="hidden-xs" style="float:right;">
             <a-popover
               trigger="hover"
@@ -135,11 +134,7 @@
             </a-popover>
             &copy; 2015-2030 {{systemTitle}} V3.6
           </div>
-          <a-tag v-if="tenant.type==0" color="blue">试用到期：{{tenant.expireTime}}</a-tag>
-          <a-tag v-if="tenant.type==0" color="blue">试用用户：{{tenant.userCurrentNum}}/{{tenant.userNumLimit}}</a-tag>
-          <a-tag v-if="tenant.type==1" color="blue">服务到期：{{tenant.expireTime}}</a-tag>
-          <a-tag v-if="tenant.type==1" color="blue">授权用户：{{tenant.userCurrentNum}}/{{tenant.userNumLimit}}</a-tag>
-          <a v-if="hasExpire" style="color: red;" :href="payFeeUrl" target="_blank">立即续费</a>
+          <a-tag color="blue">当前用户：{{tenant.userCurrentNum}}</a-tag>
         </a-card>
       </a-col>
     </a-row>
@@ -192,11 +187,7 @@
         hasExpire: false,
         payFeeUrl: '',
         tenant: {
-          type: '',
-          expireTime: '',
-          userCurrentNum: '',
-          userNumLimit: '',
-          tenantId: ''
+          userCurrentNum: ''
         }
       }
     },
@@ -234,35 +225,7 @@
         getAction("/user/infoWithTenant",{}).then(res=>{
           if(res && res.code === 200) {
             this.tenant = res.data
-            let currentTime = new Date(); //新建一个日期对象，默认现在的时间
-            let expireTime = new Date(res.data.expireTime); //设置过去的一个时间点，"yyyy-MM-dd HH:mm:ss"格式化日期
-            let difftime = expireTime - currentTime; //计算时间差
-            //如果距离到期还剩5天就进行提示续费
-            if(difftime<86400000*5) {
-              this.hasExpire = true
-              //针对免费租户发送试用到期的消息提醒
-              if(res.data.type === '0') {
-                //先检查有无发送过，只发送一次
-                getAction("/msg/getMsgCountByType",{'type': '试用到期'}).then(res=>{
-                  if(res && res.code === 200) {
-                    if(res.data.count === 0) {
-                      //发送消息
-                      let msgParam = {
-                        'msgTitle': '试用到期提醒',
-                        'msgContent': '试用期即将结束，请您及时续费，过期将会影响正常使用！',
-                        'type': '试用到期',
-                        'userId': this.tenant.tenantId
-                      }
-                      postAction("/msg/add",msgParam).then(res=>{
-                        if(res && res.code === 200) {
-
-                        }
-                      })
-                    }
-                  }
-                })
-              }
-            }
+            this.hasExpire = false
           }
         })
       },

@@ -241,7 +241,7 @@ INSERT INTO `jsh_function` VALUES (13, '000102', '角色管理', '0001', '/syste
 INSERT INTO `jsh_function` VALUES (14, '000103', '用户管理', '0001', '/system/user', '/system/UserList', b'0', '0140', b'1', '电脑版', '1', 'profile', '0');
 INSERT INTO `jsh_function` VALUES (15, '000104', '日志管理', '0001', '/system/log', '/system/LogList', b'0', '0160', b'1', '电脑版', '', 'profile', '0');
 INSERT INTO `jsh_function` VALUES (16, '000105', '功能管理', '0001', '/system/function', '/system/FunctionList', b'0', '0166', b'1', '电脑版', '1', 'profile', '0');
-INSERT INTO `jsh_function` VALUES (18, '000109', '租户管理', '0001', '/system/tenant', '/system/TenantList', b'0', '0167', b'1', '电脑版', '1', 'profile', '0');
+INSERT INTO `jsh_function` VALUES (18, '000109', '账号兼容管理', '0001', '/system/tenant', '/system/TenantList', b'0', '0167', b'0', '电脑版', '1', 'profile', '1');
 INSERT INTO `jsh_function` VALUES (21, '0101', '商品管理', '0', '/material', '/layouts/TabLayout', b'0', '0620', b'1', '电脑版', NULL, 'shopping', '0');
 INSERT INTO `jsh_function` VALUES (22, '010101', '商品类别', '0101', '/material/material_category', '/material/MaterialCategoryList', b'0', '0230', b'1', '电脑版', '1', 'profile', '0');
 INSERT INTO `jsh_function` VALUES (23, '010102', '商品信息', '0101', '/material/material', '/material/MaterialList', b'0', '0240', b'1', '电脑版', '1,3', 'profile', '0');
@@ -678,7 +678,7 @@ INSERT INTO `jsh_platform_config` VALUES (2, 'activation_code', '激活码', '')
 INSERT INTO `jsh_platform_config` VALUES (3, 'platform_url', '官方网站', 'http://www.gyjerp.com/');
 INSERT INTO `jsh_platform_config` VALUES (4, 'bill_print_flag', '三联打印启用标记', '0');
 INSERT INTO `jsh_platform_config` VALUES (5, 'bill_print_url', '三联打印地址', '');
-INSERT INTO `jsh_platform_config` VALUES (6, 'pay_fee_url', '租户续费地址', '');
+INSERT INTO `jsh_platform_config` VALUES (6, 'pay_fee_url', '预留链接地址', '');
 INSERT INTO `jsh_platform_config` VALUES (7, 'register_flag', '注册启用标记', '1');
 INSERT INTO `jsh_platform_config` VALUES (8, 'app_activation_code', '手机端激活码', '');
 INSERT INTO `jsh_platform_config` VALUES (9, 'send_workflow_url', '发起流程地址', '');
@@ -695,6 +695,11 @@ INSERT INTO `jsh_platform_config` VALUES (19, 'email_from', '邮件发送端-发
 INSERT INTO `jsh_platform_config` VALUES (20, 'email_auth_code', '邮件发送端-授权码', '');
 INSERT INTO `jsh_platform_config` VALUES (21, 'email_smtp_host', '邮件发送端-SMTP服务器', '');
 INSERT INTO `jsh_platform_config` VALUES (22, 'checkcode_flag', '验证码启用标记', '1');
+INSERT INTO `jsh_platform_config` VALUES (23, 'miniprogram_appid', '小程序 AppID', '');
+INSERT INTO `jsh_platform_config` VALUES (24, 'miniprogram_api_base_url', '小程序后端 API 地址', 'http://localhost:9999/jshERP-boot');
+INSERT INTO `jsh_platform_config` VALUES (25, 'miniprogram_request_domain', '小程序 request 合法域名', 'http://localhost:9999');
+INSERT INTO `jsh_platform_config` VALUES (26, 'miniprogram_preview_qrcode', '小程序体验二维码地址', '');
+INSERT INTO `jsh_platform_config` VALUES (27, 'miniprogram_remark', '小程序备注', '开发环境需在微信开发者工具勾选不校验合法域名；发布版需配置 HTTPS 合法域名。');
 
 -- ----------------------------
 -- Table structure for jsh_role
@@ -719,7 +724,7 @@ CREATE TABLE `jsh_role`  (
 -- Records of jsh_role
 -- ----------------------------
 INSERT INTO `jsh_role` VALUES (4, '管理员', '全部数据', NULL, NULL, NULL, b'1', NULL, NULL, '0');
-INSERT INTO `jsh_role` VALUES (10, '租户', '全部数据', NULL, NULL, '', b'1', NULL, NULL, '0');
+INSERT INTO `jsh_role` VALUES (10, '主账号', '全部数据', NULL, NULL, '', b'1', NULL, NULL, '0');
 INSERT INTO `jsh_role` VALUES (16, '销售经理', '全部数据', NULL, NULL, 'ddd', b'1', NULL, 63, '0');
 INSERT INTO `jsh_role` VALUES (17, '销售代表', '个人数据', NULL, NULL, 'rrr', b'1', NULL, 63, '0');
 
@@ -917,17 +922,17 @@ CREATE TABLE `jsh_tenant`  (
   `id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `tenant_id` bigint(0) NULL DEFAULT NULL COMMENT '用户id',
   `login_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '登录名',
-  `user_num_limit` int(0) NULL DEFAULT NULL COMMENT '用户数量限制',
-  `type` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '租户类型，0免费租户，1付费租户',
+  `user_num_limit` int(0) NULL DEFAULT NULL COMMENT '用户数量上限',
+  `type` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '账号类型，0标准账号，1主账号',
   `enabled` bit(1) NULL DEFAULT b'1' COMMENT '启用 0-禁用  1-启用',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
-  `expire_time` datetime(0) NULL DEFAULT NULL COMMENT '到期时间',
+  `expire_time` datetime(0) NULL DEFAULT NULL COMMENT '有效期',
   `remark` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
   `delete_flag` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '删除标记，0未删除，1删除',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `create_time`(`create_time`) USING BTREE,
   INDEX `tenant_id`(`tenant_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '租户' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '账号兼容表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of jsh_tenant
@@ -1055,5 +1060,133 @@ INSERT INTO `jsh_user_business` VALUES (57, 'UserCustomer', '121', '[56]', NULL,
 INSERT INTO `jsh_user_business` VALUES (67, 'UserRole', '131', '[17]', NULL, 63, '0');
 INSERT INTO `jsh_user_business` VALUES (68, 'RoleFunctions', '16', '[210]', NULL, 63, '0');
 INSERT INTO `jsh_user_business` VALUES (69, 'RoleFunctions', '17', '[210][225][211][241][32][33][199][242][38][41][200][201][239][202][40][232][233][197][44][203][204][205][206][212]', '[{\"funId\":\"241\",\"btnStr\":\"1,2\"},{\"funId\":\"33\",\"btnStr\":\"1,2\"},{\"funId\":\"199\",\"btnStr\":\"1,2\"},{\"funId\":\"242\",\"btnStr\":\"1,2\"},{\"funId\":\"41\",\"btnStr\":\"1,2\"},{\"funId\":\"200\",\"btnStr\":\"1,2\"},{\"funId\":\"210\",\"btnStr\":\"1,2\"},{\"funId\":\"211\",\"btnStr\":\"1,2\"},{\"funId\":\"197\",\"btnStr\":\"1\"},{\"funId\":\"203\",\"btnStr\":\"1\"},{\"funId\":\"204\",\"btnStr\":\"1\"},{\"funId\":\"205\",\"btnStr\":\"1\"},{\"funId\":\"206\",\"btnStr\":\"1\"},{\"funId\":\"212\",\"btnStr\":\"1\"},{\"funId\":\"201\",\"btnStr\":\"1,2\"},{\"funId\":\"202\",\"btnStr\":\"1,2\"},{\"funId\":\"40\",\"btnStr\":\"1,2\"},{\"funId\":\"232\",\"btnStr\":\"1,2\"},{\"funId\":\"233\",\"btnStr\":\"1,2\"}]', 63, '0');
+
+-- ----------------------------
+-- Table structure for jsh_approval_config
+-- ----------------------------
+DROP TABLE IF EXISTS `jsh_approval_config`;
+CREATE TABLE `jsh_approval_config` (
+  `id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `module_key` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '模块编码',
+  `module_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '模块名称',
+  `bill_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '单据类型',
+  `bill_sub_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '单据子类型',
+  `approver_role_id` bigint(0) NULL DEFAULT NULL COMMENT '审批角色id',
+  `approver_role_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批角色名称',
+  `enabled` bit(1) NULL DEFAULT b'1' COMMENT '是否启用',
+  `tenant_id` bigint(0) NULL DEFAULT NULL COMMENT '租户id',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `delete_flag` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '删除标记',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_module_tenant`(`module_key`, `tenant_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '审批配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of jsh_approval_config
+-- ----------------------------
+INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('purchase', '采购模块', NULL, '采购', NULL, '采购经理', b'1', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('sale', '销售模块', NULL, '销售', 16, '销售经理', b'1', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('retail', '零售模块', NULL, '零售', 16, '销售经理', b'1', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('stock', '库存模块', NULL, '库存', NULL, '仓库主管', b'1', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('finance', '财务模块', NULL, '财务', NULL, '财务经理', b'1', 63, NOW(), NOW(), '0');
+
+-- ----------------------------
+-- Table structure for jsh_approval_task
+-- ----------------------------
+DROP TABLE IF EXISTS `jsh_approval_task`;
+CREATE TABLE `jsh_approval_task` (
+  `id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `bill_table` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '单据表类型',
+  `bill_id` bigint(0) NOT NULL COMMENT '单据id',
+  `bill_no` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '单据编号',
+  `bill_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '单据类型',
+  `bill_sub_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '单据子类型',
+  `module_key` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模块编码',
+  `module_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模块名称',
+  `bill_amount` decimal(24,6) NULL DEFAULT NULL COMMENT '单据金额',
+  `submitter_id` bigint(0) NULL DEFAULT NULL COMMENT '提交人id',
+  `submitter_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '提交人',
+  `approver_role_id` bigint(0) NULL DEFAULT NULL COMMENT '审批角色id',
+  `approver_role_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批角色名称',
+  `approver_id` bigint(0) NULL DEFAULT NULL COMMENT '审批人id',
+  `approver_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批人',
+  `status` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'pending' COMMENT 'pending/approved/rejected',
+  `remark` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '提交说明',
+  `approve_remark` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批意见',
+  `current_step_no` int(0) NULL DEFAULT 1 COMMENT '当前审批步骤',
+  `total_step` int(0) NULL DEFAULT 1 COMMENT '总审批步骤',
+  `tenant_id` bigint(0) NULL DEFAULT NULL COMMENT '租户id',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `approve_time` datetime(0) NULL DEFAULT NULL COMMENT '审批时间',
+  `delete_flag` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '删除标记',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_approval_bill`(`bill_table`, `bill_id`) USING BTREE,
+  INDEX `idx_approval_role`(`approver_role_id`, `approver_role_name`, `status`) USING BTREE,
+  INDEX `idx_approval_submitter`(`submitter_id`, `status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '审批任务表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for jsh_approval_config_step
+-- ----------------------------
+DROP TABLE IF EXISTS `jsh_approval_config_step`;
+CREATE TABLE `jsh_approval_config_step` (
+  `id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `module_key` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '模块编码',
+  `step_no` int(0) NOT NULL COMMENT '审批步骤',
+  `approver_role_id` bigint(0) NULL DEFAULT NULL COMMENT '审批角色id',
+  `approver_role_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批角色名称',
+  `tenant_id` bigint(0) NULL DEFAULT NULL COMMENT '租户id',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `delete_flag` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '删除标记',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_config_step_module`(`module_key`, `tenant_id`, `step_no`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '审批流程步骤配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of jsh_approval_config_step
+-- ----------------------------
+INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('purchase', 1, NULL, '采购经理', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('sale', 1, 16, '销售经理', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('retail', 1, 16, '销售经理', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('stock', 1, NULL, '仓库主管', 63, NOW(), NOW(), '0');
+INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('finance', 1, NULL, '财务经理', 63, NOW(), NOW(), '0');
+
+-- ----------------------------
+-- Table structure for jsh_approval_task_step
+-- ----------------------------
+DROP TABLE IF EXISTS `jsh_approval_task_step`;
+CREATE TABLE `jsh_approval_task_step` (
+  `id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `task_id` bigint(0) NOT NULL COMMENT '审批任务id',
+  `module_key` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模块编码',
+  `step_no` int(0) NOT NULL COMMENT '审批步骤',
+  `approver_role_id` bigint(0) NULL DEFAULT NULL COMMENT '审批角色id',
+  `approver_role_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批角色名称',
+  `approver_id` bigint(0) NULL DEFAULT NULL COMMENT '审批人id',
+  `approver_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批人',
+  `status` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'waiting' COMMENT 'waiting/pending/approved/rejected',
+  `approve_remark` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '审批意见',
+  `tenant_id` bigint(0) NULL DEFAULT NULL COMMENT '租户id',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `approve_time` datetime(0) NULL DEFAULT NULL COMMENT '审批时间',
+  `delete_flag` varchar(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0' COMMENT '删除标记',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_task_step`(`task_id`, `step_no`) USING BTREE,
+  INDEX `idx_task_step_role`(`approver_role_id`, `approver_role_name`, `status`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '审批任务步骤表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Approval menu permission
+-- ----------------------------
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (262, '000122', '审批配置', '0001', '/system/approval_config', '/system/ApprovalConfigList', 0, '1220', 1, '电脑版', '', 'profile', '0');
+UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[262]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10') AND `value` NOT LIKE '%[262]%';
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (263, '000123', '小程序配置', '0001', '/system/miniprogram_config', '/system/MiniProgramConfig', 0, '1230', 1, '电脑版', '', 'profile', '0');
+UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[263]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10') AND `value` NOT LIKE '%[263]%';
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (264, '000124', '审批中心', '0001', '/system/approval_task', '/system/ApprovalTaskList', 0, '1210', 1, '电脑版', '', 'audit', '0');
+UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[264]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10', '16', '17') AND `value` NOT LIKE '%[264]%';
 
 SET FOREIGN_KEY_CHECKS = 1;

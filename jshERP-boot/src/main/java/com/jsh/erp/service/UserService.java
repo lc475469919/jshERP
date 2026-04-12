@@ -2,7 +2,6 @@ package com.jsh.erp.service;
 
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.datasource.mappers.TenantMapper;
-import com.jsh.erp.exception.BusinessParamCheckingException;
 import com.jsh.erp.utils.*;
 import org.springframework.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
@@ -16,7 +15,6 @@ import com.jsh.erp.exception.BusinessRunTimeException;
 import com.jsh.erp.exception.JshException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -30,6 +28,8 @@ import java.util.*;
 @Service
 public class UserService {
     private Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final int SINGLE_COMPANY_USER_LIMIT = 999999;
+    private static final int LONG_TERM_EXPIRE_DAYS = 36500;
 
     @Resource
     private UserMapper userMapper;
@@ -43,9 +43,6 @@ public class UserService {
     private LogService logService;
     @Resource
     private UserService userService;
-    @Resource
-    private TenantService tenantService;
-    @Resource
     private UserBusinessService userBusinessService;
     @Resource
     private RoleService roleService;
@@ -55,12 +52,6 @@ public class UserService {
     private PlatformConfigService platformConfigService;
     @Resource
     private RedisService redisService;
-
-    @Value("${tenant.userNumLimit}")
-    private Integer userNumLimit;
-
-    @Value("${tenant.tryDayLimit}")
-    private Integer tryDayLimit;
 
     public User getUser(long id)throws Exception {
         User result=null;
@@ -118,7 +109,7 @@ public class UserService {
                 for (UserEx ue : list) {
                     String userType = "";
                     if (ue.getId().equals(ue.getTenantId())) {
-                        userType = "租户";
+                        userType = "主账号";
                     } else if (ue.getTenantId() == null) {
                         userType = "超管";
                     } else {
@@ -360,10 +351,10 @@ public class UserService {
                 msgTip = "access service error";
                 break;
             case ExceptionCodeConstants.UserExceptionCode.BLACK_TENANT:
-                msgTip = "tenant is black";
+                msgTip = "user is black";
                 break;
             case ExceptionCodeConstants.UserExceptionCode.EXPIRE_TENANT:
-                msgTip = "tenant is expire";
+                msgTip = "user is black";
                 break;
             case ExceptionCodeConstants.UserExceptionCode.USER_CONDITION_FIT:
                 msgTip = "user can login";
@@ -412,16 +403,6 @@ public class UserService {
             } else if(list.size() ==1) {
                 if(list.get(0).getStatus()!=0) {
                     return ExceptionCodeConstants.UserExceptionCode.BLACK_USER;
-                }
-                Long tenantId = list.get(0).getTenantId();
-                Tenant tenant = tenantService.getTenantByTenantId(tenantId);
-                if(tenant!=null) {
-                    if(tenant.getEnabled()!=null && !tenant.getEnabled()) {
-                        return ExceptionCodeConstants.UserExceptionCode.BLACK_TENANT;
-                    }
-                    if(tenant.getExpireTime()!=null && tenant.getExpireTime().getTime()<System.currentTimeMillis()){
-                        return ExceptionCodeConstants.UserExceptionCode.EXPIRE_TENANT;
-                    }
                 }
             }
         } catch (Exception e) {
@@ -650,10 +631,10 @@ public class UserService {
             Tenant tenant = JSONObject.parseObject(tenantObj.toJSONString(), Tenant.class);
             tenant.setCreateTime(new Date());
             if(tenant.getUserNumLimit()==null) {
-                tenant.setUserNumLimit(userNumLimit); //默认用户限制数量
+                tenant.setUserNumLimit(SINGLE_COMPANY_USER_LIMIT); //兼容旧字段，不再限制用户数量
             }
             if(tenant.getExpireTime()==null) {
-                tenant.setExpireTime(Tools.addDays(new Date(), tryDayLimit)); //租户允许试用的天数
+                tenant.setExpireTime(Tools.addDays(new Date(), LONG_TERM_EXPIRE_DAYS)); //兼容旧字段，不再做试用到期
             }
             tenantMapper.insertSelective(tenant);
             logger.info("===============创建租户信息完成===============");
@@ -909,23 +890,12 @@ public class UserService {
     public int batchSetStatus(Byte status, String ids, HttpServletRequest request)throws Exception {
         int result=0;
         List<User> list = getUserListByIds(ids);
-        //选中的用户的数量
-        int selectUserSize = list.size();
-        //查询启用状态的用户的数量
-        int enableUserSize = getUser(request).size();
         User userInfo = userService.getCurrentUser();
-        Tenant tenant = tenantService.getTenantByTenantId(userInfo.getTenantId());
-        if(tenant!=null) {
-            if (selectUserSize + enableUserSize > tenant.getUserNumLimit() && status == 0) {
-                throw new BusinessParamCheckingException(ExceptionConstants.USER_ENABLE_OVER_LIMIT_FAILED_CODE,
-                        ExceptionConstants.USER_ENABLE_OVER_LIMIT_FAILED_MSG);
-            }
-        }
         StringBuilder userStr = new StringBuilder();
         List<Long> idList = new ArrayList<>();
         for(User user: list) {
-            if(user.getId().equals(user.getTenantId())) {
-                //租户不能进行禁用
+            if(status == 2 && userInfo.getId().equals(user.getId())) {
+                //当前登录人不能批量禁用自己
             } else {
                 idList.add(user.getId());
                 userStr.append(user.getLoginName()).append(" ");

@@ -12,15 +12,15 @@
                 </a-form-item>
               </a-col>
               <a-col :md="6" :sm="24">
-                <a-form-item label="租户类型" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                  <a-select v-model="queryParam.type" placeholder="请选择租户类型">
-                    <a-select-option value="0">试用租户</a-select-option>
-                    <a-select-option value="1">付费租户</a-select-option>
+                <a-form-item label="账号类型" :labelCol="labelCol" :wrapperCol="wrapperCol">
+                  <a-select v-model="queryParam.type" placeholder="请选择账号类型">
+                    <a-select-option value="0">标准账号</a-select-option>
+                    <a-select-option value="1">主账号</a-select-option>
                   </a-select>
                 </a-form-item>
               </a-col>
               <a-col :md="6" :sm="24">
-                <a-form-item label="租户状态" :labelCol="labelCol" :wrapperCol="wrapperCol">
+                <a-form-item label="账号状态" :labelCol="labelCol" :wrapperCol="wrapperCol">
                   <a-select v-model="queryParam.enabled" placeholder="请选择操作状态">
                     <a-select-option value="1">启用</a-select-option>
                     <a-select-option value="0">禁用</a-select-option>
@@ -74,8 +74,8 @@
             </span>
             <!-- 状态渲染模板 -->
             <template slot="customRenderType" slot-scope="type">
-              <a-tag v-if="type==0">试用租户</a-tag>
-              <a-tag v-if="type==1" color="green">付费租户</a-tag>
+              <a-tag v-if="type==0">标准账号</a-tag>
+              <a-tag v-if="type==1" color="green">主账号</a-tag>
             </template>
             <template slot="customRenderEnabled" slot-scope="enabled">
               <a-tag v-if="enabled" color="green">启用</a-tag>
@@ -138,16 +138,16 @@
           },
           { title: '登录名称', dataIndex: 'loginName', width: 100, align: "center"},
           { title: '用户数量', dataIndex: 'userCount', width: 60, align: "center"},
-          { title: '用户数量限制', dataIndex: 'userNumLimit', width: 80, align: "center"},
-          { title: '租户角色', dataIndex: 'roleName', width: 80, align: "center"},
-          { title: '租户类型',dataIndex: 'type',width:60,align:"center",
+          { title: '用户数量上限', dataIndex: 'userNumLimit', width: 80, align: "center"},
+          { title: '账号角色', dataIndex: 'roleName', width: 80, align: "center"},
+          { title: '账号类型',dataIndex: 'type',width:60,align:"center",
             scopedSlots: { customRender: 'customRenderType' }
           },
-          { title: '租户状态',dataIndex: 'enabled',width:60,align:"center",
+          { title: '账号状态',dataIndex: 'enabled',width:60,align:"center",
             scopedSlots: { customRender: 'customRenderEnabled' }
           },
           { title: '创建时间', dataIndex: 'createTimeStr', width: 100, align: "center"},
-          { title: '到期时间', dataIndex: 'expireTimeStr', width: 100, align: "center"},
+          { title: '有效期', dataIndex: 'expireTimeStr', width: 100, align: "center"},
           { title: '备注', dataIndex: 'remark', width: 200, align: "center", ellipsis:true}
         ],
         url: {

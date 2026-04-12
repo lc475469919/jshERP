@@ -21,24 +21,24 @@
             <a-input placeholder="请输入登录名称" v-decorator.trim="[ 'loginName', validatorRules.loginName]" :readOnly="!!model.id"
                      suffix="初始密码：123456" />
           </a-form-item>
-          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="用户数量限制">
-            <a-input-number style="width:100%" placeholder="请输入用户数量限制" v-decorator.trim="[ 'userNumLimit' ]" />
+          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="用户数量上限">
+            <a-input-number style="width:100%" placeholder="请输入用户数量上限" v-decorator.trim="[ 'userNumLimit' ]" />
           </a-form-item>
-          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="租户角色" v-if="model.id">
-            <a-select style="width:100%" placeholder="请选择租户角色" v-decorator.trim="[ 'roleId' ]">
+          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="账号角色" v-if="model.id">
+            <a-select style="width:100%" placeholder="请选择账号角色" v-decorator.trim="[ 'roleId' ]">
               <a-select-option v-for="(item,index) in tenantRoleList" :key="index" :value="item.id">
                 {{ item.name }}
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="租户类型" v-if="model.id">
-            <a-select style="width:100%" placeholder="请选择租户类型" v-decorator.trim="[ 'type' ]">
-              <a-select-option value="0">试用租户</a-select-option>
-              <a-select-option value="1">付费租户</a-select-option>
+          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="账号类型" v-if="model.id">
+            <a-select style="width:100%" placeholder="请选择账号类型" v-decorator.trim="[ 'type' ]">
+              <a-select-option value="0">标准账号</a-select-option>
+              <a-select-option value="1">主账号</a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="到期时间">
-            <j-date style="width:100%" placeholder="请选择到期时间" v-decorator.trim="[ 'expireTime' ]" :show-time="true"/>
+          <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="有效期">
+            <j-date style="width:100%" placeholder="请选择有效期" v-decorator.trim="[ 'expireTime' ]" :show-time="true"/>
           </a-form-item>
           <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="备注">
             <a-textarea :rows="2" placeholder="请输入备注（微信号）" v-decorator.trim="[ 'remark' ]" />
@@ -65,7 +65,7 @@
         title:"操作",
         visible: false,
         model: {},
-        tenantRoleList: [],  //租户角色列表
+        tenantRoleList: [],  //账号角色列表
         labelCol: {
           xs: { span: 24 },
           sm: { span: 5 },

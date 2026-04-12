@@ -27,7 +27,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/tenant")
-@Api(tags = {"租户管理"})
+@Api(tags = {"账号兼容管理"})
 public class TenantController extends BaseController {
 
     @Resource

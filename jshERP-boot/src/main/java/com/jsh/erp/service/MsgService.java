@@ -250,10 +250,14 @@ public class MsgService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void batchUpdateStatus(String ids, String status) throws Exception{
         List<Long> idList = StringUtil.strToLongList(ids);
+        User userInfo = userService.getCurrentUser();
         Msg msg = new Msg();
         msg.setStatus(status);
         MsgExample example = new MsgExample();
-        example.createCriteria().andIdIn(idList);
+        MsgExample.Criteria criteria = example.createCriteria().andIdIn(idList);
+        if(userInfo != null && !BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName())) {
+            criteria.andUserIdEqualTo(userInfo.getId());
+        }
         try{
             msgMapper.updateByExampleSelective(msg, example);
         }catch(Exception e){
@@ -307,7 +311,8 @@ public class MsgService {
                 Msg msg = new Msg();
                 msg.setStatus("2");
                 MsgExample example = new MsgExample();
-                example.createCriteria();
+                example.createCriteria().andUserIdEqualTo(userInfo.getId())
+                        .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
                 msgMapper.updateByExampleSelective(msg, example);
             }
         }catch(Exception e){

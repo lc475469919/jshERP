@@ -7,7 +7,6 @@ import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
-import com.jsh.erp.datasource.entities.Tenant;
 import com.jsh.erp.datasource.entities.User;
 import com.jsh.erp.datasource.entities.UserEx;
 import com.jsh.erp.datasource.vo.TreeNodeEx;
@@ -49,9 +48,6 @@ public class UserController extends BaseController {
 
     @Resource
     private RoleService roleService;
-
-    @Resource
-    private TenantService tenantService;
 
     @Resource
     private UserBusinessService userBusinessService;
@@ -315,18 +311,8 @@ public class UserController extends BaseController {
     @ResponseBody
     public Object addUser(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
-        User userInfo = userService.getCurrentUser();
-        Tenant tenant = tenantService.getTenantByTenantId(userInfo.getTenantId());
-        Long count = userService.countUser(null,null);
-        if(tenant!=null) {
-            if(count>= tenant.getUserNumLimit()) {
-                throw new BusinessParamCheckingException(ExceptionConstants.USER_OVER_LIMIT_FAILED_CODE,
-                        ExceptionConstants.USER_OVER_LIMIT_FAILED_MSG);
-            } else {
-                UserEx ue= JSONObject.parseObject(obj.toJSONString(), UserEx.class);
-                userService.addUserAndOrgUserRel(ue, request);
-            }
-        }
+        UserEx ue= JSONObject.parseObject(obj.toJSONString(), UserEx.class);
+        userService.addUserAndOrgUserRel(ue, request);
         return result;
     }
 
@@ -553,12 +539,12 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 获取当前用户的用户数量和租户信息
+     * 获取当前用户数量和单公司模式信息
      * @param request
      * @return
      */
     @GetMapping(value = "/infoWithTenant")
-    @ApiOperation(value = "获取当前用户的用户数量和租户信息")
+    @ApiOperation(value = "获取当前用户数量和单公司模式信息")
     public BaseResponseInfo infoWithTenant(HttpServletRequest request){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -567,17 +553,12 @@ public class UserController extends BaseController {
             User user = userService.getUser(userId);
             //获取当前用户数
             int userCurrentNum = userService.getUser(request).size();
-            Tenant tenant = tenantService.getTenantByTenantId(user.getTenantId());
-            if(tenant.getExpireTime()!=null && tenant.getExpireTime().getTime()<System.currentTimeMillis()){
-                //租户已经过期，移除token
-                redisService.deleteObjectBySession(request,"userId");
-                redisService.deleteObjectBySession(request,"clientIp");
-            }
-            data.put("type", tenant.getType()); //租户类型，0免费租户，1付费租户
-            data.put("expireTime", Tools.parseDateToStr(tenant.getExpireTime()));
+            data.put("type", "1");
+            data.put("expireTime", "");
             data.put("userCurrentNum", userCurrentNum);
-            data.put("userNumLimit", tenant.getUserNumLimit());
-            data.put("tenantId", tenant.getTenantId());
+            data.put("userNumLimit", 999999);
+            data.put("tenantId", user.getTenantId() == null ? user.getId() : user.getTenantId());
+            data.put("singleCompanyMode", true);
             res.code = 200;
             res.data = data;
         } catch (Exception e) {

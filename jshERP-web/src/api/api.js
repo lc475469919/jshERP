@@ -3,7 +3,7 @@ import { getAction, deleteAction, putAction, postAction, httpAction } from '@/ap
 //首页统计
 const getBuyAndSaleStatistics = (params)=>getAction("/depotHead/getBuyAndSaleStatistics",params);
 const buyOrSalePrice = (params)=>getAction("/depotItem/buyOrSalePrice",params);
-//租户管理
+//兼容旧账号管理接口
 const checkTenant = (params)=>getAction("/tenant/checkIsNameExist",params);
 const addTenant = (params)=>postAction("/tenant/add",params);
 const editTenant = (params)=>putAction("/tenant/update",params);
