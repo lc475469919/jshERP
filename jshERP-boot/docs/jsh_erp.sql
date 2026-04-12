@@ -1085,11 +1085,7 @@ CREATE TABLE `jsh_approval_config` (
 -- ----------------------------
 -- Records of jsh_approval_config
 -- ----------------------------
-INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('purchase', '采购模块', NULL, '采购', NULL, '采购经理', b'1', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('sale', '销售模块', NULL, '销售', 16, '销售经理', b'1', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('retail', '零售模块', NULL, '零售', 16, '销售经理', b'1', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('stock', '库存模块', NULL, '库存', NULL, '仓库主管', b'1', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config` (`module_key`, `module_name`, `bill_type`, `bill_sub_type`, `approver_role_id`, `approver_role_name`, `enabled`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('finance', '财务模块', NULL, '财务', NULL, '财务经理', b'1', 63, NOW(), NOW(), '0');
+-- 审批流按租户在页面中自行配置，不预置固定模块流程。
 
 -- ----------------------------
 -- Table structure for jsh_approval_task
@@ -1148,11 +1144,7 @@ CREATE TABLE `jsh_approval_config_step` (
 -- ----------------------------
 -- Records of jsh_approval_config_step
 -- ----------------------------
-INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('purchase', 1, NULL, '采购经理', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('sale', 1, 16, '销售经理', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('retail', 1, 16, '销售经理', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('stock', 1, NULL, '仓库主管', 63, NOW(), NOW(), '0');
-INSERT INTO `jsh_approval_config_step` (`module_key`, `step_no`, `approver_role_id`, `approver_role_name`, `tenant_id`, `create_time`, `update_time`, `delete_flag`) VALUES ('finance', 1, NULL, '财务经理', 63, NOW(), NOW(), '0');
+-- 审批步骤按租户在页面中自行配置，不预置固定模块流程。
 
 -- ----------------------------
 -- Table structure for jsh_approval_task_step
@@ -1184,7 +1176,6 @@ CREATE TABLE `jsh_approval_task_step` (
 -- ----------------------------
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (262, '000122', '审批配置', '0001', '/system/approval_config', '/system/ApprovalConfigList', 0, '1220', 1, '电脑版', '', 'profile', '0');
 UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[262]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10') AND `value` NOT LIKE '%[262]%';
-INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (263, '000123', '小程序配置(并入平台配置)', '0001', '/system/platform_config', '/system/PlatformConfigList', 0, '1230', 0, '电脑版', '', 'profile', '1');
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (264, '000124', '审批中心', '0001', '/system/approval_task', '/system/ApprovalTaskList', 0, '1210', 1, '电脑版', '', 'audit', '0');
 UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[264]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10', '16', '17') AND `value` NOT LIKE '%[264]%';
 

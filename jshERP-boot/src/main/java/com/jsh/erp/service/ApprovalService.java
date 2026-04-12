@@ -26,21 +26,33 @@ public class ApprovalService {
     private static final String TASK_APPROVED = "approved";
     private static final String TASK_REJECTED = "rejected";
 
-    private static final Map<String, String> DEFAULT_ROLE_MAP = new HashMap<>();
-    private static final Map<String, String> DEFAULT_NAME_MAP = new HashMap<>();
+    private static final Map<String, String> DEFAULT_BILL_NAME_MAP = new HashMap<>();
+    private static final String[] DEFAULT_BILL_CODES = new String[] {
+            "LSCK", "LSTH", "CGDD", "CGRK", "CGTH", "XSDD", "XSCK", "XSTH",
+            "QTRK", "QTCK", "DBCK", "ZZD", "CXD", "SYF", "QGD", "SR", "ZC", "SK", "FK", "ZZ"
+    };
 
     static {
-        DEFAULT_ROLE_MAP.put("purchase", "采购经理");
-        DEFAULT_ROLE_MAP.put("sale", "销售经理");
-        DEFAULT_ROLE_MAP.put("retail", "销售经理");
-        DEFAULT_ROLE_MAP.put("stock", "仓库主管");
-        DEFAULT_ROLE_MAP.put("finance", "财务经理");
-
-        DEFAULT_NAME_MAP.put("purchase", "采购模块");
-        DEFAULT_NAME_MAP.put("sale", "销售模块");
-        DEFAULT_NAME_MAP.put("retail", "零售模块");
-        DEFAULT_NAME_MAP.put("stock", "库存模块");
-        DEFAULT_NAME_MAP.put("finance", "财务模块");
+        DEFAULT_BILL_NAME_MAP.put("LSCK", "零售出库");
+        DEFAULT_BILL_NAME_MAP.put("LSTH", "零售退货");
+        DEFAULT_BILL_NAME_MAP.put("QGD", "请购单");
+        DEFAULT_BILL_NAME_MAP.put("CGDD", "采购订单");
+        DEFAULT_BILL_NAME_MAP.put("CGRK", "采购入库");
+        DEFAULT_BILL_NAME_MAP.put("CGTH", "采购退货");
+        DEFAULT_BILL_NAME_MAP.put("XSDD", "销售订单");
+        DEFAULT_BILL_NAME_MAP.put("XSCK", "销售出库");
+        DEFAULT_BILL_NAME_MAP.put("XSTH", "销售退货");
+        DEFAULT_BILL_NAME_MAP.put("QTRK", "其它入库单");
+        DEFAULT_BILL_NAME_MAP.put("QTCK", "其它出库单");
+        DEFAULT_BILL_NAME_MAP.put("DBCK", "调拨出库");
+        DEFAULT_BILL_NAME_MAP.put("ZZD", "组装单");
+        DEFAULT_BILL_NAME_MAP.put("CXD", "拆卸单");
+        DEFAULT_BILL_NAME_MAP.put("SR", "收入单");
+        DEFAULT_BILL_NAME_MAP.put("ZC", "支出单");
+        DEFAULT_BILL_NAME_MAP.put("SK", "收款单");
+        DEFAULT_BILL_NAME_MAP.put("FK", "付款单");
+        DEFAULT_BILL_NAME_MAP.put("ZZ", "转账单");
+        DEFAULT_BILL_NAME_MAP.put("SYF", "收预付款单");
     }
 
     @Resource
@@ -57,11 +69,12 @@ public class ApprovalService {
     private UserService userService;
 
     public BaseResponseInfo listConfigs() throws Exception {
-        List<ApprovalConfig> configs = approvalMapperEx.selectConfigs(getTenantId());
+        Long tenantId = getTenantId();
+        List<ApprovalConfig> configs = approvalMapperEx.selectConfigs(tenantId);
         JSONArray data = new JSONArray();
         for (ApprovalConfig config : configs) {
             JSONObject row = JSONObject.parseObject(JSONObject.toJSONString(config));
-            row.put("steps", approvalMapperEx.selectConfigSteps(config.getModuleKey(), getTenantId()));
+            row.put("steps", approvalMapperEx.selectConfigSteps(config.getModuleKey(), tenantId));
             data.add(row);
         }
         BaseResponseInfo res = new BaseResponseInfo();
@@ -74,20 +87,58 @@ public class ApprovalService {
     public BaseResponseInfo saveConfig(JSONObject jsonObject) throws Exception {
         ApprovalConfig config = JSONObject.parseObject(jsonObject.toJSONString(), ApprovalConfig.class);
         if (StringUtil.isEmpty(config.getModuleKey())) {
-            throw new RuntimeException("模块不能为空");
+            throw new RuntimeException("适用单据不能为空");
+        }
+        if (StringUtil.isEmpty(config.getModuleName())) {
+            config.setModuleName(DEFAULT_BILL_NAME_MAP.get(config.getModuleKey()));
+        }
+        if (StringUtil.isEmpty(config.getBillSubType())) {
+            config.setBillSubType(config.getModuleName());
         }
         config.setTenantId(getTenantId());
         config.setEnabled(config.getEnabled() == null || config.getEnabled());
+        ApprovalConfig oldConfig = null;
         if (config.getId() == null) {
             approvalMapperEx.insertConfig(config);
         } else {
+            oldConfig = getExistingConfig(config.getId());
             approvalMapperEx.updateConfig(config);
+        }
+        if (oldConfig != null && !config.getModuleKey().equals(oldConfig.getModuleKey())) {
+            approvalMapperEx.deleteConfigSteps(oldConfig.getModuleKey(), getTenantId());
         }
         saveConfigSteps(config, jsonObject.getJSONArray("steps"));
         BaseResponseInfo res = new BaseResponseInfo();
         res.code = 200;
         res.data = config;
         return res;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public BaseResponseInfo deleteConfig(JSONObject jsonObject) throws Exception {
+        Long id = jsonObject.getLong("id");
+        if (id == null) {
+            throw new RuntimeException("审批配置不能为空");
+        }
+        ApprovalConfig config = getExistingConfig(id);
+        if (config == null) {
+            throw new RuntimeException("审批配置不存在");
+        }
+        approvalMapperEx.deleteConfig(id, getTenantId());
+        approvalMapperEx.deleteConfigSteps(config.getModuleKey(), getTenantId());
+        BaseResponseInfo res = new BaseResponseInfo();
+        res.code = 200;
+        return res;
+    }
+
+    private ApprovalConfig getExistingConfig(Long id) throws Exception {
+        List<ApprovalConfig> configs = approvalMapperEx.selectConfigs(getTenantId());
+        for (ApprovalConfig config : configs) {
+            if (id.equals(config.getId())) {
+                return config;
+            }
+        }
+        return null;
     }
 
     private void saveConfigSteps(ApprovalConfig config, JSONArray steps) throws Exception {
@@ -281,7 +332,7 @@ public class ApprovalService {
             if ("1".equals(bill.getStatus())) {
                 throw new RuntimeException("已审核单据不能提交审批");
             }
-            String moduleKey = parseDepotModuleKey(bill);
+            String moduleKey = parseBillCode(bill.getNumber(), parseDepotModuleKey(bill));
             fillTaskBase(task, moduleKey, bill.getType(), bill.getSubType(), bill.getNumber(),
                     bill.getDiscountLastMoney() == null ? bill.getTotalPrice() : bill.getDiscountLastMoney());
             return task;
@@ -295,7 +346,8 @@ public class ApprovalService {
             if ("1".equals(bill.getStatus())) {
                 throw new RuntimeException("已审核单据不能提交审批");
             }
-            fillTaskBase(task, "finance", bill.getType(), "", bill.getBillNo(),
+            String moduleKey = parseBillCode(bill.getBillNo(), parseAccountModuleKey(bill));
+            fillTaskBase(task, moduleKey, bill.getType(), "", bill.getBillNo(),
                     bill.getTotalPrice() == null ? bill.getChangeAmount() : bill.getTotalPrice());
             return task;
         }
@@ -306,12 +358,15 @@ public class ApprovalService {
     private void fillTaskBase(ApprovalTask task, String moduleKey, String billType, String billSubType,
                               String billNo, BigDecimal billAmount) throws Exception {
         ApprovalConfig config = approvalMapperEx.selectConfigByModule(getTenantId(), moduleKey);
+        if (config == null) {
+            throw new RuntimeException("该单据类型未配置审批流程");
+        }
         if (config != null && Boolean.FALSE.equals(config.getEnabled())) {
-            throw new RuntimeException("该模块未启用审批");
+            throw new RuntimeException("该单据类型未启用审批");
         }
         List<ApprovalTaskStep> steps = getApprovalSteps(moduleKey, config);
         task.setModuleKey(moduleKey);
-        task.setModuleName(config != null ? config.getModuleName() : DEFAULT_NAME_MAP.get(moduleKey));
+        task.setModuleName(config.getModuleName());
         task.setBillType(billType);
         task.setBillSubType(billSubType);
         task.setBillNo(billNo);
@@ -333,7 +388,7 @@ public class ApprovalService {
         step.setStepNo(1);
         step.setApproverRoleId(config == null ? null : config.getApproverRoleId());
         step.setApproverRoleName(config != null && StringUtil.isNotEmpty(config.getApproverRoleName())
-                ? config.getApproverRoleName() : DEFAULT_ROLE_MAP.get(moduleKey));
+                ? config.getApproverRoleName() : null);
         if (step.getApproverRoleId() == null && StringUtil.isEmpty(step.getApproverRoleName())) {
             throw new RuntimeException("该模块未配置审批角色");
         }
@@ -376,6 +431,48 @@ public class ApprovalService {
 
     private String parseDepotModuleKey(DepotHead bill) {
         String subType = bill.getSubType();
+        if ("请购单".equals(subType)) {
+            return "QGD";
+        }
+        if ("采购订单".equals(subType)) {
+            return "CGDD";
+        }
+        if ("采购".equals(subType)) {
+            return "CGRK";
+        }
+        if ("采购退货".equals(subType)) {
+            return "CGTH";
+        }
+        if ("销售订单".equals(subType)) {
+            return "XSDD";
+        }
+        if ("销售".equals(subType)) {
+            return "XSCK";
+        }
+        if ("销售退货".equals(subType)) {
+            return "XSTH";
+        }
+        if ("零售".equals(subType)) {
+            return "LSCK";
+        }
+        if ("零售退货".equals(subType)) {
+            return "LSTH";
+        }
+        if ("调拨".equals(subType)) {
+            return "DBCK";
+        }
+        if ("组装单".equals(subType)) {
+            return "ZZD";
+        }
+        if ("拆卸单".equals(subType)) {
+            return "CXD";
+        }
+        if ("其它".equals(subType) && "入库".equals(bill.getType())) {
+            return "QTRK";
+        }
+        if ("其它".equals(subType) && "出库".equals(bill.getType())) {
+            return "QTCK";
+        }
         if (subType != null && subType.contains("采购")) {
             return "purchase";
         }
@@ -386,6 +483,41 @@ public class ApprovalService {
             return "retail";
         }
         return "stock";
+    }
+
+    private String parseAccountModuleKey(AccountHead bill) {
+        String type = bill.getType();
+        if ("收入".equals(type)) {
+            return "SR";
+        }
+        if ("支出".equals(type)) {
+            return "ZC";
+        }
+        if ("收款".equals(type)) {
+            return "SK";
+        }
+        if ("付款".equals(type)) {
+            return "FK";
+        }
+        if ("转账".equals(type)) {
+            return "ZZ";
+        }
+        if ("收预付款".equals(type)) {
+            return "SYF";
+        }
+        return "finance";
+    }
+
+    private String parseBillCode(String billNo, String fallback) {
+        if (StringUtil.isEmpty(billNo)) {
+            return fallback;
+        }
+        for (String billCode : DEFAULT_BILL_CODES) {
+            if (billNo.startsWith(billCode)) {
+                return billCode;
+            }
+        }
+        return fallback;
     }
 
     private void setBillStatus(String billTable, Long billId, String status) {

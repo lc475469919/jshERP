@@ -852,6 +852,19 @@ public class UserService {
      */
     public JSONArray getBtnStrArrById(Long userId) throws Exception {
         JSONArray btnStrArr = new JSONArray();
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user != null && BusinessConstants.DEFAULT_MANAGER.equals(user.getLoginName())) {
+            List<Function> functionList = functionService.getFunction();
+            for (Function function : functionList) {
+                if (StringUtil.isNotEmpty(function.getUrl()) && StringUtil.isNotEmpty(function.getPushBtn())) {
+                    JSONObject btnStrObj = new JSONObject();
+                    btnStrObj.put("url", function.getUrl());
+                    btnStrObj.put("btnStr", function.getPushBtn());
+                    btnStrArr.add(btnStrObj);
+                }
+            }
+            return btnStrArr;
+        }
         List<UserBusiness> userRoleList = userBusinessService.getBasicData(userId.toString(), "UserRole");
         if(userRoleList!=null && userRoleList.size()>0) {
             String roleValue = userRoleList.get(0).getValue();

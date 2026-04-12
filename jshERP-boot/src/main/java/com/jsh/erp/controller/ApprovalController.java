@@ -28,6 +28,12 @@ public class ApprovalController {
         return approvalService.saveConfig(jsonObject);
     }
 
+    @PostMapping(value = "/config/delete")
+    @ApiOperation(value = "删除审批配置")
+    public BaseResponseInfo deleteConfig(@RequestBody JSONObject jsonObject) throws Exception {
+        return approvalService.deleteConfig(jsonObject);
+    }
+
     @PostMapping(value = "/task/submit")
     @ApiOperation(value = "提交审批")
     public BaseResponseInfo submit(@RequestBody JSONObject jsonObject) throws Exception {

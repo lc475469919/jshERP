@@ -191,7 +191,7 @@
         originalMultiLevelApprovalFlag: '0', //原始多级审核状态
         multiBillTypeSelect: [], //单据类型
         originalMultiBillTypeSelect: [], //原始单据类型
-        isShowApproval: false, //是否展示多级审核
+        isShowApproval: true, //是否展示多级审核
         multiAccountFlagSwitch: false, //多账户
         moveAvgPriceFlagSwitch: false, //移动平均价
         auditPrintFlagSwitch: false, //先审核后打印
@@ -333,14 +333,6 @@
         })
       },
       loadPlugins() {
-        //校验是否存在多级审批插件
-        getAction('/plugin/checkByPluginId', { pluginIds: 'workflow' }).then((res)=> {
-          if (res.code === 200) {
-            if(res.data) {
-              this.isShowApproval = true
-            }
-          }
-        })
         //校验是否存在盘点插件
         getAction('/plugin/checkByPluginId', { pluginIds: 'stock-check' }).then((res)=> {
           if (res.code === 200) {

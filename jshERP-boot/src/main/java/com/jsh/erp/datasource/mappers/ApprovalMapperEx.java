@@ -16,6 +16,8 @@ public interface ApprovalMapperEx {
 
     int updateConfig(ApprovalConfig config);
 
+    int deleteConfig(@Param("id") Long id, @Param("tenantId") Long tenantId);
+
     int deleteConfigSteps(@Param("moduleKey") String moduleKey, @Param("tenantId") Long tenantId);
 
     int insertConfigStep(ApprovalTaskStep step);

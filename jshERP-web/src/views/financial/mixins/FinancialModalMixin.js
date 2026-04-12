@@ -1,6 +1,6 @@
-import {findBySelectSup,findBySelectCus,findBySelectRetail,findBySelectOrgan,getPlatformConfigByKey,getAccount,
+import {findBySelectSup,findBySelectCus,findBySelectRetail,findBySelectOrgan,getAccount,
   getPersonByType,findInOutItemByParam,getCurrentSystemConfig} from '@/api/api'
-import { getAction } from '@/api/manage'
+import { getAction, postAction } from '@/api/manage'
 import { getCheckFlag, getNowFormatDateTime } from "@/utils/util"
 import { USER_INFO } from "@/store/mutation-types"
 import Vue from 'vue'
@@ -432,17 +432,24 @@ export const FinancialModalMixin = {
     },
     //发起流程
     handleWorkflow() {
-      if(this.model && this.model.billNo) {
-        getPlatformConfigByKey({ "platformKey": "send_workflow_url" }).then((res) => {
-          if (res && res.code === 200) {
-            let sendWorkflowUrl = res.data.platformValue + '&no=' + this.model.billNo + '&type=2'
-            this.$refs.modalWorkflow.show(this.model, sendWorkflowUrl, this.model.billNo, 2, 320)
-            this.$refs.modalWorkflow.title = "发起流程"
-          }
-        })
-      } else {
-        this.$message.warning('请先保存单据后再提交流程！');
+      if(!this.model || !this.model.id) {
+        this.$message.warning('请先保存单据后再提交审批！')
+        return
       }
+      postAction('/approval/task/submit', {
+        billTable: 'account_head',
+        billId: this.model.id,
+        remark: ''
+      }).then((res) => {
+        if (res && res.code === 200) {
+          this.$message.success('已提交审批')
+          this.close()
+        } else {
+          this.$message.warning(res && res.data ? res.data : '提交审批失败')
+        }
+      }).catch(() => {
+        this.$message.warning('提交审批失败')
+      })
     },
     //加载快捷按钮：供应商、客户、结算账户、经手人
     initQuickBtn() {

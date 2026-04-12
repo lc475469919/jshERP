@@ -88,18 +88,32 @@
 
     <update id="updateConfig">
         update jsh_approval_config
-        set approver_role_id = #{approverRoleId},
+        set module_key = #{moduleKey},
+            module_name = #{moduleName},
+            bill_type = #{billType},
+            bill_sub_type = #{billSubType},
+            approver_role_id = #{approverRoleId},
             approver_role_name = #{approverRoleName},
             enabled = #{enabled},
             update_time = now()
         where id = #{id}
     </update>
 
+    <update id="deleteConfig">
+        update jsh_approval_config
+        set delete_flag = '1',
+            update_time = now()
+        where id = #{id}
+        <if test="tenantId != null">
+            and (tenant_id = #{tenantId} or tenant_id is null)
+        </if>
+    </update>
+
     <delete id="deleteConfigSteps">
         delete from jsh_approval_config_step
         where module_key = #{moduleKey}
         <if test="tenantId != null">
-            and tenant_id = #{tenantId}
+            and (tenant_id = #{tenantId} or tenant_id is null)
         </if>
     </delete>
 
