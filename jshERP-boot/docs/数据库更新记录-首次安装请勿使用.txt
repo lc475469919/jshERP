@@ -1965,19 +1965,17 @@ insert into jsh_function (`number`, `name`, `parent_number`, `url`, `component`,
 select '000122', '审批配置', '0001', '/system/approval_config', '/system/ApprovalConfigList', b'0', '1220', b'1', '电脑版', '', 'profile', '0' from dual
 where not exists (select 1 from jsh_function where `number`='000122');
 insert into jsh_function (`number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
-select '000123', '小程序配置', '0001', '/system/miniprogram_config', '/system/MiniProgramConfig', b'0', '1230', b'1', '电脑版', '', 'profile', '0' from dual
+select '000123', '小程序配置(并入平台配置)', '0001', '/system/platform_config', '/system/PlatformConfigList', b'0', '1230', b'0', '电脑版', '', 'profile', '1' from dual
 where not exists (select 1 from jsh_function where `number`='000123');
 insert into jsh_function (`number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
 select '000124', '审批中心', '0001', '/system/approval_task', '/system/ApprovalTaskList', b'0', '1210', b'1', '电脑版', '', 'audit', '0' from dual
 where not exists (select 1 from jsh_function where `number`='000124');
+update jsh_function
+set `name`='小程序配置(并入平台配置)', `url`='/system/platform_config', `component`='/system/PlatformConfigList', `enabled`=b'0', `delete_flag`='1'
+where `number`='000123';
 
 update jsh_user_business ub
 join jsh_function f on f.`number`='000122'
-set ub.`value` = concat(ifnull(ub.`value`, ''), concat('[', f.id, ']'))
-where ub.type='RoleFunctions' and ub.key_id in ('4','10')
-  and ub.`value` not like concat('%[', f.id, ']%');
-update jsh_user_business ub
-join jsh_function f on f.`number`='000123'
 set ub.`value` = concat(ifnull(ub.`value`, ''), concat('[', f.id, ']'))
 where ub.type='RoleFunctions' and ub.key_id in ('4','10')
   and ub.`value` not like concat('%[', f.id, ']%');

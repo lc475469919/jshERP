@@ -1184,8 +1184,7 @@ CREATE TABLE `jsh_approval_task_step` (
 -- ----------------------------
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (262, '000122', '审批配置', '0001', '/system/approval_config', '/system/ApprovalConfigList', 0, '1220', 1, '电脑版', '', 'profile', '0');
 UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[262]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10') AND `value` NOT LIKE '%[262]%';
-INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (263, '000123', '小程序配置', '0001', '/system/miniprogram_config', '/system/MiniProgramConfig', 0, '1230', 1, '电脑版', '', 'profile', '0');
-UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[263]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10') AND `value` NOT LIKE '%[263]%';
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (263, '000123', '小程序配置(并入平台配置)', '0001', '/system/platform_config', '/system/PlatformConfigList', 0, '1230', 0, '电脑版', '', 'profile', '1');
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`) VALUES (264, '000124', '审批中心', '0001', '/system/approval_task', '/system/ApprovalTaskList', 0, '1210', 1, '电脑版', '', 'audit', '0');
 UPDATE `jsh_user_business` SET `value` = CONCAT(IFNULL(`value`, ''), '[264]') WHERE `type` = 'RoleFunctions' AND `key_id` IN ('4', '10', '16', '17') AND `value` NOT LIKE '%[264]%';
 
