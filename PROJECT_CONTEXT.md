@@ -55,7 +55,8 @@ Latest basic-data fix on 2026-04-13:
 - Supplier/customer list query errors were traced to `UserService.getRoleTypeByUserId`, where `userBusinessService` was not injected and empty role bindings were not handled safely.
 - Mini program basic data now exposes delete actions for person, in/out item, unit, and material category.
 - Mini program partner/customer/supplier list now exposes edit and delete actions.
-- Re-verified: backend `mvn test`, mini program JS `node --check`, and web `npm run build` passed.
+- Rebuilt backend jar with `mvn package -DskipTests` after fixing local startup to prefer OpenJDK 8 and adding `allowPublicKeyRetrieval=true` to the MySQL URL.
+- Re-verified: backend `mvn test`, mini program JS `node --check`, web `npm run build`, authenticated supplier/customer/person/in-out-item/unit queries, and material category tree with `id=0` passed.
 
 The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
 

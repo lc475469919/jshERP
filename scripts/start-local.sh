@@ -4,7 +4,19 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_DIR="$ROOT_DIR/jshERP-boot"
 FRONTEND_DIR="$ROOT_DIR/jshERP-web"
-JAVA_BIN="${JAVA_BIN:-java}"
+if [ -n "${JAVA_BIN:-}" ]; then
+  JAVA_CMD="$JAVA_BIN"
+elif [ -x "/usr/local/opt/openjdk@8/bin/java" ]; then
+  JAVA_CMD="/usr/local/opt/openjdk@8/bin/java"
+elif [ -x "/opt/homebrew/opt/openjdk@8/bin/java" ]; then
+  JAVA_CMD="/opt/homebrew/opt/openjdk@8/bin/java"
+elif [ -x "/usr/local/opt/openjdk/bin/java" ]; then
+  JAVA_CMD="/usr/local/opt/openjdk/bin/java"
+elif [ -x "/opt/homebrew/opt/openjdk/bin/java" ]; then
+  JAVA_CMD="/opt/homebrew/opt/openjdk/bin/java"
+else
+  JAVA_CMD="java"
+fi
 
 BACKEND_LOG="$ROOT_DIR/backend.log"
 FRONTEND_LOG="$ROOT_DIR/frontend.log"
@@ -37,7 +49,7 @@ start_backend() {
   echo "Starting backend on http://localhost:9999/jshERP-boot ..."
   (
     cd "$BACKEND_DIR"
-    nohup "$JAVA_BIN" -jar target/jshERP.jar > "$BACKEND_LOG" 2>&1 &
+    nohup "$JAVA_CMD" -jar target/jshERP.jar > "$BACKEND_LOG" 2>&1 &
     echo $! > "$BACKEND_PID_FILE"
   )
   echo "Backend PID: $(cat "$BACKEND_PID_FILE")"
