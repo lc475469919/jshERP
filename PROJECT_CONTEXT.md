@@ -21,7 +21,13 @@ If the chat history is unavailable, read this file first, then inspect `git stat
 
 ## Current Git State
 
-As of 2026-04-13, local `master` is ahead of `origin/master` by 9 commits:
+As of 2026-04-13, local `master` has unpushed work. Run this to get the current list:
+
+```bash
+git log --oneline origin/master..HEAD
+```
+
+Known unpushed work includes:
 
 - `5c756005 docs: add local development scripts`
 - `d1657026 fix(web): remove unused sass chart stylesheet`
