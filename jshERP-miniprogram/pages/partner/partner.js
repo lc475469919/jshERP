@@ -62,6 +62,44 @@ Page({
     })
   },
 
+  editPartner(event) {
+    const id = event.currentTarget.dataset.id
+    const partner = this.data.list.find((item) => String(item.id) === String(id))
+    if (!id || !partner) {
+      wx.showToast({ title: '往来单位信息不完整', icon: 'none' })
+      return
+    }
+    wx.setStorageSync('Partner-Edit', partner)
+    wx.navigateTo({
+      url: `/pages/partner-edit/partner-edit?id=${id}&type=${encodeURIComponent(partner.type || this.data.type)}`
+    })
+  },
+
+  deletePartner(event) {
+    const id = event.currentTarget.dataset.id
+    const partner = this.data.list.find((item) => String(item.id) === String(id))
+    if (!id || !partner) {
+      wx.showToast({ title: '往来单位信息不完整', icon: 'none' })
+      return
+    }
+    wx.showModal({
+      title: '确认删除',
+      content: `确定删除“${partner.supplier || '该往来单位'}”吗？`,
+      confirmColor: '#b91c1c',
+      success: (res) => {
+        if (!res.confirm) {
+          return
+        }
+        request.del('/supplier/delete', { id }).then(() => {
+          wx.showToast({ title: '删除成功', icon: 'success' })
+          this.loadList(true)
+        }).catch((err) => {
+          wx.showToast({ title: err.message || '删除失败', icon: 'none' })
+        })
+      }
+    })
+  },
+
   openDetail(event) {
     const id = event.currentTarget.dataset.id
     const partner = this.data.list.find((item) => String(item.id) === String(id))

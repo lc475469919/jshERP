@@ -2,10 +2,10 @@ const request = require('../../utils/request')
 const storage = require('../../utils/storage')
 
 const TYPES = [
-  { label: '经手人', value: 'person', path: '/person/list' },
-  { label: '收支项目', value: 'inOutItem', path: '/inOutItem/list' },
-  { label: '计量单位', value: 'unit', path: '/unit/list' },
-  { label: '商品分类', value: 'category', path: '/materialCategory/getMaterialCategoryTree' }
+  { label: '经手人', value: 'person', path: '/person/list', deletePath: '/person/delete' },
+  { label: '收支项目', value: 'inOutItem', path: '/inOutItem/list', deletePath: '/inOutItem/delete' },
+  { label: '计量单位', value: 'unit', path: '/unit/list', deletePath: '/unit/delete' },
+  { label: '商品分类', value: 'category', path: '/materialCategory/getMaterialCategoryTree', deletePath: '/materialCategory/delete' }
 ]
 
 function flattenCategoryTree(nodes, level) {
@@ -153,6 +153,32 @@ Page({
       wx.setStorageSync('Category-Edit', item)
       wx.navigateTo({ url: `/pages/category-edit/category-edit?id=${id}` })
     }
+  },
+
+  deleteCurrent(event) {
+    const id = event.currentTarget.dataset.id
+    const item = this.data.list.find((row) => String(row.id) === String(id))
+    const currentType = TYPES.find((type) => type.value === this.data.type) || TYPES[0]
+    if (!id || !item || !currentType.deletePath) {
+      wx.showToast({ title: '基础资料信息不完整', icon: 'none' })
+      return
+    }
+    wx.showModal({
+      title: '确认删除',
+      content: `确定删除“${item.titleText || '该资料'}”吗？`,
+      confirmColor: '#b91c1c',
+      success: (res) => {
+        if (!res.confirm) {
+          return
+        }
+        request.del(currentType.deletePath, { id }).then(() => {
+          wx.showToast({ title: '删除成功', icon: 'success' })
+          this.loadList(true)
+        }).catch((err) => {
+          wx.showToast({ title: err.message || '删除失败', icon: 'none' })
+        })
+      }
+    })
   },
 
   loadMore() {

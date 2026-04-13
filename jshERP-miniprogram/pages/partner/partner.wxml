@@ -30,7 +30,11 @@
       <view wx:if="{{type === '供应商'}}">应付：{{item.allNeedPay || 0}}</view>
       <view>税率：{{item.taxRate || 0}}%</view>
     </view>
-    <view class="detail-hint">查看详情</view>
+    <view class="card-actions">
+      <button class="secondary-button card-button" data-id="{{item.id}}" catchtap="editPartner">编辑</button>
+      <button class="danger-button card-button" data-id="{{item.id}}" catchtap="deletePartner">删除</button>
+    </view>
+    <view class="detail-hint">点击卡片查看详情</view>
   </view>
 
   <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">加载更多</view>

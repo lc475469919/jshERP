@@ -43,6 +43,7 @@ public class UserService {
     private LogService logService;
     @Resource
     private UserService userService;
+    @Resource
     private UserBusinessService userBusinessService;
     @Resource
     private RoleService roleService;
@@ -814,18 +815,23 @@ public class UserService {
         Role role = new Role();
         List<UserBusiness> list = userBusinessService.getBasicData(String.valueOf(userId), "UserRole");
         UserBusiness ub = null;
-        if(list.size() > 0) {
+        if(list != null && list.size() > 0) {
             ub = list.get(0);
             String values = ub.getValue();
             String roleId = null;
             if(values!=null) {
                 values = values.replaceAll("\\[\\]",",").replace("[","").replace("]","");
             }
+            if(StringUtil.isEmpty(values)) {
+                return role;
+            }
             String [] valueArray=values.split(",");
             if(valueArray.length>0) {
                 roleId = valueArray[0];
             }
-            role = roleService.getRoleWithoutTenant(Long.parseLong(roleId));
+            if(StringUtil.isNotEmpty(roleId)) {
+                role = roleService.getRoleWithoutTenant(Long.parseLong(roleId));
+            }
         }
         return role;
     }

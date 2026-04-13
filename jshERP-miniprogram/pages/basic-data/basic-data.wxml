@@ -30,6 +30,7 @@
     </view>
     <view class="card-actions">
       <button class="secondary-button card-button" data-id="{{item.id}}" bindtap="editCurrent">编辑</button>
+      <button class="danger-button card-button" data-id="{{item.id}}" bindtap="deleteCurrent">删除</button>
     </view>
   </view>
 

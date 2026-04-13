@@ -108,6 +108,7 @@
 .card-actions {
   border-top: 1rpx solid #edf1f2;
   display: flex;
+  gap: 16rpx;
   justify-content: flex-end;
   margin-top: 18rpx;
   padding-top: 18rpx;
@@ -119,6 +120,12 @@
   line-height: 64rpx;
   margin: 0;
   width: 140rpx;
+}
+
+.danger-button {
+  background: #ffffff;
+  border: 1rpx solid #f3b4b4;
+  color: #b91c1c;
 }
 
 .load-more {

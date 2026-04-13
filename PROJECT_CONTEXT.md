@@ -50,6 +50,13 @@ Known non-blocking frontend warnings:
 
 - asset size limit warnings
 
+Latest basic-data fix on 2026-04-13:
+
+- Supplier/customer list query errors were traced to `UserService.getRoleTypeByUserId`, where `userBusinessService` was not injected and empty role bindings were not handled safely.
+- Mini program basic data now exposes delete actions for person, in/out item, unit, and material category.
+- Mini program partner/customer/supplier list now exposes edit and delete actions.
+- Re-verified: backend `mvn test`, mini program JS `node --check`, and web `npm run build` passed.
+
 The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
 
 - active: `jshERP-web/src/components/chart/chart.less`
