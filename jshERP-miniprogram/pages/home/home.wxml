@@ -73,10 +73,6 @@
       <view class="quick-title">财务单据</view>
       <view class="quick-text">查收付款单</view>
     </view>
-    <view class="quick-card" bindtap="goProduction">
-      <view class="quick-title">生产管理</view>
-      <view class="quick-text">查BOM和生产单</view>
-    </view>
     <view class="quick-card" bindtap="goDepot">
       <view class="quick-title">仓库资料</view>
       <view class="quick-text">查仓库信息</view>

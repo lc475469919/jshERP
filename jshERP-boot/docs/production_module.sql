@@ -81,3 +81,26 @@ CREATE TABLE IF NOT EXISTS `jsh_production_order_item` (
   KEY `idx_production_order_item_order` (`order_id`, `delete_flag`),
   KEY `idx_production_order_item_material` (`material_id`, `material_extend_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='生产单用料';
+
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 270, '0901', '生产管理', '0', '/production', '/layouts/TabLayout', b'0', '0410', b'1', '电脑版', '', 'tool', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '0901' AND ifnull(`delete_flag`, '0') != '1');
+
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 271, '090101', 'BOM管理', '0901', '/production/bom', '/production/BomList', b'0', '0411', b'1', '电脑版', '1', 'profile', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090101' AND ifnull(`delete_flag`, '0') != '1');
+
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 272, '090102', '生产单', '0901', '/production/order', '/production/OrderList', b'0', '0412', b'1', '电脑版', '1', 'profile', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090102' AND ifnull(`delete_flag`, '0') != '1');
+
+UPDATE `jsh_user_business`
+SET `value` = concat(
+  `value`,
+  if(`value` like '%[270]%', '', '[270]'),
+  if(`value` like '%[271]%', '', '[271]'),
+  if(`value` like '%[272]%', '', '[272]')
+)
+WHERE `type` = 'RoleFunctions'
+  AND `value` IS NOT NULL
+  AND `value` <> '';

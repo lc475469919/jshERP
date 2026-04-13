@@ -8,7 +8,7 @@ Continue building the customized jshERP work around:
 
 - approval workflow support
 - WeChat mini program client
-- lightweight production management: BOM and production order query/save APIs plus mini program entry page
+- lightweight production management: BOM and production order query/save APIs plus desktop Web pages
 - single-company/local runtime setup
 
 If the chat history is unavailable, read this file first, then inspect `git status` and recent commits.
@@ -63,8 +63,9 @@ Latest production module work on 2026-04-13:
 
 - Added backend production BOM and production order skeleton: entities, MyBatis annotation mappers, `ProductionService`, and `ProductionController`.
 - Added DB migration at `jshERP-boot/docs/production_module.sql` for `jsh_production_bom`, `jsh_production_bom_item`, `jsh_production_order`, and `jsh_production_order_item`.
-- Added mini program production page at `jshERP-miniprogram/pages/production/production` and a home quick entry.
-- Verified: backend `mvn test`, backend `mvn package -DskipTests`, mini program JS `node --check`, local migration import, authenticated production BOM list/save/delete, production order list/save/delete, and material calculation passed.
+- Added desktop Web production pages at `jshERP-web/src/views/production/BomList.vue` and `jshERP-web/src/views/production/OrderList.vue`; mini program production work is paused and no production entry is registered there.
+- Added desktop menu entries for `生产管理`, `BOM管理`, and `生产单` in `production_module.sql`, including existing-role permission updates.
+- Verified: backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, mini program JS `node --check`, local migration import, authenticated menu query, authenticated production BOM list/save/delete, production order list/save/delete, and material calculation passed.
 - Note: production insert SQL lets the tenant interceptor inject `tenant_id`; do not add `tenant_id` manually to those insert statements or MyBatis will generate duplicate columns.
 
 The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
@@ -97,7 +98,7 @@ There was an older backend log error for `/jshERP-boot/user/info` missing reques
 3. If continuing implementation, inspect the latest local commit with `git show --stat HEAD`.
 4. Ask the user which track to continue if it is not obvious:
    - mini program testing and API wiring
-   - production module UI expansion and inventory stock-in/stock-out integration
+   - production module desktop UI expansion and inventory stock-in/stock-out integration
    - approval workflow behavior
    - pushing local commits to remote
    - local runtime/startup cleanup
