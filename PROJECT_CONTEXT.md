@@ -8,6 +8,7 @@ Continue building the customized jshERP work around:
 
 - approval workflow support
 - WeChat mini program client
+- lightweight production management: BOM and production order query/save APIs plus mini program entry page
 - single-company/local runtime setup
 
 If the chat history is unavailable, read this file first, then inspect `git status` and recent commits.
@@ -58,6 +59,14 @@ Latest basic-data fix on 2026-04-13:
 - Rebuilt backend jar with `mvn package -DskipTests` after fixing local startup to prefer OpenJDK 8 and adding `allowPublicKeyRetrieval=true` to the MySQL URL.
 - Re-verified: backend `mvn test`, mini program JS `node --check`, web `npm run build`, authenticated supplier/customer/person/in-out-item/unit queries, and material category tree with `id=0` passed.
 
+Latest production module work on 2026-04-13:
+
+- Added backend production BOM and production order skeleton: entities, MyBatis annotation mappers, `ProductionService`, and `ProductionController`.
+- Added DB migration at `jshERP-boot/docs/production_module.sql` for `jsh_production_bom`, `jsh_production_bom_item`, `jsh_production_order`, and `jsh_production_order_item`.
+- Added mini program production page at `jshERP-miniprogram/pages/production/production` and a home quick entry.
+- Verified: backend `mvn test`, backend `mvn package -DskipTests`, mini program JS `node --check`, local migration import, authenticated production BOM list/save/delete, production order list/save/delete, and material calculation passed.
+- Note: production insert SQL lets the tenant interceptor inject `tenant_id`; do not add `tenant_id` manually to those insert statements or MyBatis will generate duplicate columns.
+
 The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
 
 - active: `jshERP-web/src/components/chart/chart.less`
@@ -88,6 +97,7 @@ There was an older backend log error for `/jshERP-boot/user/info` missing reques
 3. If continuing implementation, inspect the latest local commit with `git show --stat HEAD`.
 4. Ask the user which track to continue if it is not obvious:
    - mini program testing and API wiring
+   - production module UI expansion and inventory stock-in/stock-out integration
    - approval workflow behavior
    - pushing local commits to remote
    - local runtime/startup cleanup

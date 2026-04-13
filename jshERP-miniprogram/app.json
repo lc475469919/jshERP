@@ -21,6 +21,7 @@
     "pages/finance-bill/finance-bill",
     "pages/finance-bill-edit/finance-bill-edit",
     "pages/finance-bill-detail/finance-bill-detail",
+    "pages/production/production",
     "pages/approval/approval",
     "pages/message/message",
     "pages/depot/depot",

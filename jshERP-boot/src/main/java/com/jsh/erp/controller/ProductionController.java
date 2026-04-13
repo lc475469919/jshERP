@@ -1,0 +1,128 @@
+package com.jsh.erp.controller;
+
+import com.alibaba.fastjson.JSONObject;
+import com.jsh.erp.base.BaseController;
+import com.jsh.erp.base.TableDataInfo;
+import com.jsh.erp.datasource.entities.ProductionBom;
+import com.jsh.erp.datasource.entities.ProductionOrder;
+import com.jsh.erp.service.ProductionService;
+import com.jsh.erp.utils.BaseResponseInfo;
+import com.jsh.erp.utils.Constants;
+import com.jsh.erp.utils.ErpInfo;
+import com.jsh.erp.utils.StringUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
+import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
+
+@RestController
+@RequestMapping(value = "/production")
+@Api(tags = {"生产管理"})
+public class ProductionController extends BaseController {
+    @Resource
+    private ProductionService productionService;
+
+    @GetMapping(value = "/bom/list")
+    @ApiOperation(value = "BOM列表")
+    public TableDataInfo bomList(@RequestParam(value = Constants.SEARCH, required = false) String search,
+                                 HttpServletRequest request) throws Exception {
+        String keyword = StringUtil.getInfo(search, "keyword");
+        List<ProductionBom> list = productionService.selectBomList(keyword);
+        return getDataTable(list);
+    }
+
+    @GetMapping(value = "/bom/enabledList")
+    @ApiOperation(value = "启用BOM列表")
+    public BaseResponseInfo enabledBomList(HttpServletRequest request) throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        res.code = 200;
+        res.data = productionService.selectEnabledBomList();
+        return res;
+    }
+
+    @GetMapping(value = "/bom/info")
+    @ApiOperation(value = "BOM详情")
+    public String bomInfo(@RequestParam("id") Long id, HttpServletRequest request) {
+        Map<String, Object> objectMap = new HashMap<>();
+        objectMap.put("info", productionService.getBomDetail(id));
+        return returnJson(objectMap, ErpInfo.OK.name, ErpInfo.OK.code);
+    }
+
+    @PostMapping(value = "/bom/save")
+    @ApiOperation(value = "保存BOM")
+    public String saveBom(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.saveBom(obj, request);
+        return returnStr(objectMap, result);
+    }
+
+    @DeleteMapping(value = "/bom/delete")
+    @ApiOperation(value = "删除BOM")
+    public String deleteBom(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.deleteBom(id, request);
+        return returnStr(objectMap, result);
+    }
+
+    @GetMapping(value = "/order/list")
+    @ApiOperation(value = "生产单列表")
+    public TableDataInfo orderList(@RequestParam(value = Constants.SEARCH, required = false) String search,
+                                   HttpServletRequest request) throws Exception {
+        String keyword = StringUtil.getInfo(search, "keyword");
+        String status = StringUtil.getInfo(search, "status");
+        List<ProductionOrder> list = productionService.selectOrderList(keyword, status);
+        return getDataTable(list);
+    }
+
+    @GetMapping(value = "/order/info")
+    @ApiOperation(value = "生产单详情")
+    public String orderInfo(@RequestParam("id") Long id, HttpServletRequest request) {
+        Map<String, Object> objectMap = new HashMap<>();
+        objectMap.put("info", productionService.getOrderDetail(id));
+        return returnJson(objectMap, ErpInfo.OK.name, ErpInfo.OK.code);
+    }
+
+    @PostMapping(value = "/order/save")
+    @ApiOperation(value = "保存生产单")
+    public String saveOrder(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.saveOrder(obj, request);
+        return returnStr(objectMap, result);
+    }
+
+    @DeleteMapping(value = "/order/delete")
+    @ApiOperation(value = "删除生产单")
+    public String deleteOrder(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.deleteOrder(id, request);
+        return returnStr(objectMap, result);
+    }
+
+    @GetMapping(value = "/order/calculateMaterials")
+    @ApiOperation(value = "按BOM计算生产用料")
+    public BaseResponseInfo calculateMaterials(@RequestParam("bomId") Long bomId,
+                                               @RequestParam(value = "planQuantity", required = false) BigDecimal planQuantity,
+                                               HttpServletRequest request) {
+        BaseResponseInfo res = new BaseResponseInfo();
+        res.code = 200;
+        res.data = productionService.calculateMaterials(bomId, planQuantity);
+        return res;
+    }
+
+    @PostMapping(value = "/order/status")
+    @ApiOperation(value = "更新生产单状态")
+    public String updateOrderStatus(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.updateOrderStatus(obj.getLong("id"), obj.getString("status"), request);
+        return returnStr(objectMap, result);
+    }
+}

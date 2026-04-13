@@ -94,6 +94,10 @@ Page({
     wx.navigateTo({ url: '/pages/finance-bill/finance-bill' })
   },
 
+  goProduction() {
+    wx.navigateTo({ url: '/pages/production/production' })
+  },
+
   goApproval() {
     wx.navigateTo({ url: '/pages/approval/approval' })
   },
