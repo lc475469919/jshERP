@@ -50,10 +50,17 @@ The previous `Failed to resolve loader: sass-loader` warning was caused by a dup
 
 ## Local Run Notes
 
-Recent logs showed:
+Use the project-local scripts first:
 
-- backend API started at `http://127.0.0.1:9999/jshERP-boot/doc.html`
-- frontend dev server started at `http://localhost:3000/`
+- start: `cd /Users/mac/jshERP && scripts/start-local.sh`
+- stop: `cd /Users/mac/jshERP && scripts/stop-local.sh`
+- details: `LOCAL_DEV.md`
+
+The expected local URLs are:
+
+- backend API: `http://localhost:9999/jshERP-boot`
+- backend docs: `http://localhost:9999/jshERP-boot/doc.html`
+- frontend dev server: `http://localhost:3000/`
 - test user from backend log: `jsh`
 - test password from backend log: `123456`
 
