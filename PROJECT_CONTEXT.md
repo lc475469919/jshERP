@@ -37,14 +37,16 @@ The working tree was clean before this file was added.
 Last verified on 2026-04-13:
 
 - Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn test` passed.
-- Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
+- Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed after removing the duplicate unused `jshERP-web/src/components/chart/chart.scss`.
 
 Known non-blocking frontend warnings:
 
 - asset size limit warnings
-- `Failed to resolve loader: sass-loader`
 
-The codebase did not show actual `.scss` or `.sass` source references during inspection, so the `sass-loader` warning is currently not treated as a blocker.
+The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
+
+- active: `jshERP-web/src/components/chart/chart.less`
+- removed: `jshERP-web/src/components/chart/chart.scss`
 
 ## Local Run Notes
 
