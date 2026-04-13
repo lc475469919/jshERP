@@ -1,0 +1,79 @@
+# jshERP Project Context
+
+This file is the handoff note for future Codex sessions. Keep it short and update it whenever the direction changes.
+
+## Current Goal
+
+Continue building the customized jshERP work around:
+
+- approval workflow support
+- WeChat mini program client
+- single-company/local runtime setup
+
+If the chat history is unavailable, read this file first, then inspect `git status` and recent commits.
+
+## Repository Layout
+
+- `jshERP-boot/`: Spring Boot backend.
+- `jshERP-web/`: Vue 2 admin web frontend.
+- `jshERP-miniprogram/`: WeChat mini program MVP.
+- `/Users/mac/jshERP-runtime/`: local runtime data/logs, including MySQL runtime files.
+
+## Current Git State
+
+As of 2026-04-13, local `master` is ahead of `origin/master` by 6 commits:
+
+- `0886089c feat(approval): add approval workflow service and admin pages`
+- `9aea73be feat(miniprogram): add mini program client and desktop config page`
+- `07abf4f5 refactor(account): switch to single-company model and add db migration scripts`
+- `3f12e196 chore(env): update local runtime configuration`
+- `ae07792c feat(platform): merge mini program settings into platform config`
+- `8925a2e2 update`
+
+The working tree was clean before this file was added.
+
+## Verification
+
+Last verified on 2026-04-13:
+
+- Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn test` passed.
+- Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
+
+Known non-blocking frontend warnings:
+
+- asset size limit warnings
+- `Failed to resolve loader: sass-loader`
+
+The codebase did not show actual `.scss` or `.sass` source references during inspection, so the `sass-loader` warning is currently not treated as a blocker.
+
+## Local Run Notes
+
+Recent logs showed:
+
+- backend API started at `http://127.0.0.1:9999/jshERP-boot/doc.html`
+- frontend dev server started at `http://localhost:3000/`
+- test user from backend log: `jsh`
+- test password from backend log: `123456`
+
+There was an older backend log error for `/jshERP-boot/user/info` missing request parameter `id`; re-check only if login/user-info behavior is the next task.
+
+## Next Session Checklist
+
+1. Read this file.
+2. Run `git status --short --branch`.
+3. If continuing implementation, inspect the latest local commit with `git show --stat HEAD`.
+4. Ask the user which track to continue if it is not obvious:
+   - mini program testing and API wiring
+   - approval workflow behavior
+   - pushing local commits to remote
+   - local runtime/startup cleanup
+
+## Update Rule
+
+When important work is completed, update:
+
+- `Current Goal`
+- `Verification`
+- `Next Session Checklist`
+
+Then commit the context update with the related code change.
