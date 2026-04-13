@@ -21,16 +21,17 @@ If the chat history is unavailable, read this file first, then inspect `git stat
 
 ## Current Git State
 
-As of 2026-04-13, local `master` is ahead of `origin/master` by 6 commits:
+As of 2026-04-13, local `master` is ahead of `origin/master` by 9 commits:
 
-- `0886089c feat(approval): add approval workflow service and admin pages`
-- `9aea73be feat(miniprogram): add mini program client and desktop config page`
-- `07abf4f5 refactor(account): switch to single-company model and add db migration scripts`
-- `3f12e196 chore(env): update local runtime configuration`
-- `ae07792c feat(platform): merge mini program settings into platform config`
+- `5c756005 docs: add local development scripts`
+- `d1657026 fix(web): remove unused sass chart stylesheet`
+- `8f76d598 docs: add project context handoff`
 - `8925a2e2 update`
-
-The working tree was clean before this file was added.
+- `ae07792c feat(platform): merge mini program settings into platform config`
+- `3f12e196 chore(env): update local runtime configuration`
+- `07abf4f5 refactor(account): switch to single-company model and add db migration scripts`
+- `9aea73be feat(miniprogram): add mini program client and desktop config page`
+- `0886089c feat(approval): add approval workflow service and admin pages`
 
 ## Verification
 
