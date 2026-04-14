@@ -120,11 +120,11 @@ public class ProductionService {
         int result;
         if (order.getId() == null) {
             result = productionOrderMapper.insertOrder(order);
-            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_ADD + "生产单[" + order.getOrderNo() + "]", request);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_ADD + "生产任务[" + order.getOrderNo() + "]", request);
         } else {
             result = productionOrderMapper.updateOrder(order);
             productionOrderMapper.deleteOrderItems(order.getId());
-            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产单[" + order.getOrderNo() + "]", request);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产任务[" + order.getOrderNo() + "]", request);
         }
         saveOrderItems(order.getId(), obj.getJSONArray("items"));
         return result;
@@ -135,7 +135,7 @@ public class ProductionService {
         ProductionOrder order = productionOrderMapper.selectOrderById(id);
         productionOrderMapper.deleteOrderItems(id);
         int result = productionOrderMapper.deleteOrder(id);
-        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_DELETE + "生产单[" + (order == null ? id : order.getOrderNo()) + "]", request);
+        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_DELETE + "生产任务[" + (order == null ? id : order.getOrderNo()) + "]", request);
         return result;
     }
 
@@ -171,7 +171,7 @@ public class ProductionService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int updateOrderStatus(Long id, String status, HttpServletRequest request) throws Exception {
         int result = productionOrderMapper.updateOrderStatus(id, status);
-        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产单状态[" + status + "]", request);
+        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产任务状态[" + status + "]", request);
         return result;
     }
 

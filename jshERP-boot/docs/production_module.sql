@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `jsh_production_bom_item` (
 
 CREATE TABLE IF NOT EXISTS `jsh_production_order` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `order_no` varchar(64) DEFAULT NULL COMMENT '生产单号',
+  `order_no` varchar(64) DEFAULT NULL COMMENT '生产任务编号',
   `bom_id` bigint DEFAULT NULL COMMENT 'BOM主表id',
   `material_id` bigint DEFAULT NULL COMMENT '成品商品id',
   `material_extend_id` bigint DEFAULT NULL COMMENT '成品扩展id',
@@ -61,11 +61,11 @@ CREATE TABLE IF NOT EXISTS `jsh_production_order` (
   PRIMARY KEY (`id`),
   KEY `idx_production_order_tenant` (`tenant_id`, `delete_flag`, `status`),
   KEY `idx_production_order_bom` (`bom_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='生产单';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='生产任务';
 
 CREATE TABLE IF NOT EXISTS `jsh_production_order_item` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `order_id` bigint NOT NULL COMMENT '生产单id',
+  `order_id` bigint NOT NULL COMMENT '生产任务id',
   `bom_item_id` bigint DEFAULT NULL COMMENT 'BOM明细id',
   `material_id` bigint DEFAULT NULL COMMENT '原料商品id',
   `material_extend_id` bigint DEFAULT NULL COMMENT '原料扩展id',
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `jsh_production_order_item` (
   PRIMARY KEY (`id`),
   KEY `idx_production_order_item_order` (`order_id`, `delete_flag`),
   KEY `idx_production_order_item_material` (`material_id`, `material_extend_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='生产单用料';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='生产任务用料';
 
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
 SELECT 270, '0901', '生产管理', '0', '/production', '/layouts/TabLayout', b'0', '0410', b'1', '电脑版', '', 'tool', '0'
@@ -91,8 +91,12 @@ SELECT 271, '090101', 'BOM管理', '0901', '/production/bom', '/production/BomLi
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090101' AND ifnull(`delete_flag`, '0') != '1');
 
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
-SELECT 272, '090102', '生产单', '0901', '/production/order', '/production/OrderList', b'0', '0412', b'1', '电脑版', '1', 'profile', '0'
+SELECT 272, '090102', '生产任务', '0901', '/production/order', '/production/OrderList', b'0', '0412', b'1', '电脑版', '1', 'profile', '0'
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090102' AND ifnull(`delete_flag`, '0') != '1');
+
+UPDATE `jsh_function`
+SET `name` = '生产任务'
+WHERE `number` = '090102' AND ifnull(`delete_flag`, '0') != '1';
 
 UPDATE `jsh_user_business`
 SET `value` = concat(

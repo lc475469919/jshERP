@@ -74,7 +74,7 @@ public class ProductionController extends BaseController {
     }
 
     @GetMapping(value = "/order/list")
-    @ApiOperation(value = "生产单列表")
+    @ApiOperation(value = "生产任务列表")
     public TableDataInfo orderList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                    HttpServletRequest request) throws Exception {
         String keyword = StringUtil.getInfo(search, "keyword");
@@ -84,7 +84,7 @@ public class ProductionController extends BaseController {
     }
 
     @GetMapping(value = "/order/info")
-    @ApiOperation(value = "生产单详情")
+    @ApiOperation(value = "生产任务详情")
     public String orderInfo(@RequestParam("id") Long id, HttpServletRequest request) {
         Map<String, Object> objectMap = new HashMap<>();
         objectMap.put("info", productionService.getOrderDetail(id));
@@ -92,7 +92,7 @@ public class ProductionController extends BaseController {
     }
 
     @PostMapping(value = "/order/save")
-    @ApiOperation(value = "保存生产单")
+    @ApiOperation(value = "保存生产任务")
     public String saveOrder(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int result = productionService.saveOrder(obj, request);
@@ -100,7 +100,7 @@ public class ProductionController extends BaseController {
     }
 
     @DeleteMapping(value = "/order/delete")
-    @ApiOperation(value = "删除生产单")
+    @ApiOperation(value = "删除生产任务")
     public String deleteOrder(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int result = productionService.deleteOrder(id, request);
@@ -119,7 +119,7 @@ public class ProductionController extends BaseController {
     }
 
     @PostMapping(value = "/order/status")
-    @ApiOperation(value = "更新生产单状态")
+    @ApiOperation(value = "更新生产任务状态")
     public String updateOrderStatus(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int result = productionService.updateOrderStatus(obj.getLong("id"), obj.getString("status"), request);

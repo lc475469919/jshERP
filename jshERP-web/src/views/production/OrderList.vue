@@ -7,7 +7,7 @@
             <a-row :gutter="24">
               <a-col :md="6" :sm="24">
                 <a-form-item label="关键字" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                  <a-input v-model="queryParam.keyword" placeholder="生产单号、成品名称"></a-input>
+                  <a-input v-model="queryParam.keyword" placeholder="任务编号、成品名称"></a-input>
                 </a-form-item>
               </a-col>
               <a-col :md="6" :sm="24">
@@ -31,7 +31,7 @@
           </a-form>
         </div>
         <div class="table-operator" style="margin-top: 5px">
-          <a-button type="primary" icon="plus" @click="handleAdd">新增</a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd">新增生产任务</a-button>
         </div>
         <a-table
           size="middle"
@@ -65,7 +65,7 @@
           <a-form>
             <a-row :gutter="16">
               <a-col :md="8" :sm="24">
-                <a-form-item label="生产单号">
+                <a-form-item label="任务编号">
                   <a-input v-model="model.orderNo" placeholder="留空自动生成"></a-input>
                 </a-form-item>
               </a-col>
@@ -191,7 +191,7 @@
         loading: false,
         saving: false,
         modalVisible: false,
-        modalTitle: '新增生产单',
+        modalTitle: '新增生产任务',
         model: {},
         items: [],
         rowSeed: 1,
@@ -206,7 +206,7 @@
         },
         columns: [
           { title: '操作', dataIndex: 'action', align: 'center', width: 120, scopedSlots: { customRender: 'action' } },
-          { title: '生产单号', dataIndex: 'orderNo', width: 160 },
+          { title: '任务编号', dataIndex: 'orderNo', width: 160 },
           { title: '成品名称', dataIndex: 'materialName', width: 160 },
           { title: '成品单位', dataIndex: 'materialUnit', width: 90 },
           { title: '计划数量', dataIndex: 'planQuantity', width: 100 },
@@ -273,14 +273,14 @@
         this.loadData()
       },
       handleAdd() {
-        this.modalTitle = '新增生产单'
+        this.modalTitle = '新增生产任务'
         this.model = { status: '草稿', planQuantity: 1, finishedQuantity: 0 }
         this.items = []
         this.modalVisible = true
         this.loadBomList()
       },
       handleEdit(record) {
-        this.modalTitle = '编辑生产单'
+        this.modalTitle = '编辑生产任务'
         getAction('/production/order/info', { id: record.id }).then((res) => {
           if (res.code === 200) {
             const detail = res.data.info || {}

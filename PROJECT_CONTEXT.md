@@ -8,7 +8,7 @@ Continue building the customized jshERP work around:
 
 - approval workflow support
 - WeChat mini program client
-- lightweight production management: BOM and production order query/save APIs plus desktop Web pages
+- lightweight production management: BOM and production task query/save APIs plus desktop Web pages
 - single-company/local runtime setup
 
 If the chat history is unavailable, read this file first, then inspect `git status` and recent commits.
@@ -22,7 +22,7 @@ If the chat history is unavailable, read this file first, then inspect `git stat
 
 ## Current Git State
 
-As of 2026-04-13, local `master` has unpushed work. Run this to get the current list:
+As of 2026-04-14, local `master` has unpushed work. Run this to get the current list:
 
 ```bash
 git log --oneline origin/master..HEAD
@@ -30,6 +30,12 @@ git log --oneline origin/master..HEAD
 
 Known unpushed work includes:
 
+- `8abe6292 feat(web): add production management pages`
+- `ad9c0205 feat: add lightweight production module skeleton`
+- `c634623f fix: stabilize local backend startup`
+- `f5322b49 fix: restore basic data queries and actions`
+- `7fec8f51 docs: avoid stale commit count in context`
+- `82f16787 docs: refresh project context commits`
 - `5c756005 docs: add local development scripts`
 - `d1657026 fix(web): remove unused sass chart stylesheet`
 - `8f76d598 docs: add project context handoff`
@@ -42,10 +48,10 @@ Known unpushed work includes:
 
 ## Verification
 
-Last verified on 2026-04-13:
+Last verified on 2026-04-14:
 
 - Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn test` passed.
-- Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed after removing the duplicate unused `jshERP-web/src/components/chart/chart.scss`.
+- Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
 
 Known non-blocking frontend warnings:
 
@@ -67,6 +73,12 @@ Latest production module work on 2026-04-13:
 - Added desktop menu entries for `生产管理`, `BOM管理`, and `生产单` in `production_module.sql`, including existing-role permission updates.
 - Verified: backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, mini program JS `node --check`, local migration import, authenticated menu query, authenticated production BOM list/save/delete, production order list/save/delete, and material calculation passed.
 - Note: production insert SQL lets the tenant interceptor inject `tenant_id`; do not add `tenant_id` manually to those insert statements or MyBatis will generate duplicate columns.
+
+Latest production module follow-up on 2026-04-14:
+
+- Standardized user-facing production order wording to `生产任务` in the desktop task page, Swagger annotations, service logs, and `production_module.sql` comments/menu seed.
+- Added an idempotent `jsh_function` menu name update for existing local databases that already imported the old `生产单` label.
+- Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 
 The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
 
