@@ -85,6 +85,8 @@ Latest production module follow-up on 2026-04-14:
 - Verified: Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 - Added a first-pass `用料登记` backend table/API and desktop page; records adjust production task item `已领料` totals on create/edit/delete.
 - Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
+- Added first-pass `工序管理` backend table/API and desktop page with process number, name, wage type, unit price, enabled flag, sort, and remark.
+- Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 
 Production module target list from the user:
 

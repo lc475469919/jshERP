@@ -103,6 +103,24 @@ CREATE TABLE IF NOT EXISTS `jsh_production_material_record` (
   KEY `idx_production_material_record_item` (`order_item_id`, `delete_flag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用料登记';
 
+CREATE TABLE IF NOT EXISTS `jsh_production_process` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `process_no` varchar(64) DEFAULT NULL COMMENT '工序编号',
+  `name` varchar(100) NOT NULL COMMENT '工序名称',
+  `wage_type` varchar(20) DEFAULT NULL COMMENT '计价方式',
+  `unit_price` decimal(24,6) DEFAULT 0.000000 COMMENT '工序单价',
+  `enabled` bit(1) DEFAULT b'1' COMMENT '是否启用',
+  `sort` int DEFAULT NULL COMMENT '排序',
+  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `creator` bigint DEFAULT NULL COMMENT '创建人',
+  `tenant_id` bigint DEFAULT NULL COMMENT '租户id',
+  `delete_flag` varchar(1) DEFAULT '0' COMMENT '删除标记，0未删除，1删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_production_process_tenant` (`tenant_id`, `delete_flag`, `enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='工序管理';
+
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
 SELECT 270, '0901', '生产管理', '0', '/production', '/layouts/TabLayout', b'0', '0410', b'1', '电脑版', '', 'tool', '0'
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '0901' AND ifnull(`delete_flag`, '0') != '1');
@@ -131,6 +149,10 @@ INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `com
 SELECT 275, '090105', '用料登记', '0901', '/production/material_record', '/production/MaterialRecordList', b'0', '0415', b'1', '电脑版', '1', 'profile', '0'
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090105' AND ifnull(`delete_flag`, '0') != '1');
 
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 276, '090106', '工序管理', '0901', '/production/process', '/production/ProcessList', b'0', '0416', b'1', '电脑版', '1', 'profile', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090106' AND ifnull(`delete_flag`, '0') != '1');
+
 UPDATE `jsh_user_business`
 SET `value` = concat(
   `value`,
@@ -139,7 +161,8 @@ SET `value` = concat(
   if(`value` like '%[272]%', '', '[272]'),
   if(`value` like '%[273]%', '', '[273]'),
   if(`value` like '%[274]%', '', '[274]'),
-  if(`value` like '%[275]%', '', '[275]')
+  if(`value` like '%[275]%', '', '[275]'),
+  if(`value` like '%[276]%', '', '[276]')
 )
 WHERE `type` = 'RoleFunctions'
   AND `value` IS NOT NULL

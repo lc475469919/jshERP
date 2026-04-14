@@ -6,6 +6,7 @@ import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.ProductionBom;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
+import com.jsh.erp.datasource.entities.ProductionProcess;
 import com.jsh.erp.service.ProductionService;
 import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
@@ -102,6 +103,24 @@ public class ProductionController extends BaseController {
         return getDataTable(list);
     }
 
+    @GetMapping(value = "/process/list")
+    @ApiOperation(value = "工序列表")
+    public TableDataInfo processList(@RequestParam(value = Constants.SEARCH, required = false) String search,
+                                     HttpServletRequest request) throws Exception {
+        String keyword = StringUtil.getInfo(search, "keyword");
+        List<ProductionProcess> list = productionService.selectProcessList(keyword);
+        return getDataTable(list);
+    }
+
+    @GetMapping(value = "/process/enabledList")
+    @ApiOperation(value = "启用工序列表")
+    public BaseResponseInfo enabledProcessList(HttpServletRequest request) throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        res.code = 200;
+        res.data = productionService.selectEnabledProcessList();
+        return res;
+    }
+
     @PostMapping(value = "/order/save")
     @ApiOperation(value = "保存生产任务")
     public String saveOrder(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
@@ -150,6 +169,22 @@ public class ProductionController extends BaseController {
     public String deleteMaterialRecord(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int result = productionService.deleteMaterialRecord(id, request);
+        return returnStr(objectMap, result);
+    }
+
+    @PostMapping(value = "/process/save")
+    @ApiOperation(value = "保存工序")
+    public String saveProcess(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.saveProcess(obj, request);
+        return returnStr(objectMap, result);
+    }
+
+    @DeleteMapping(value = "/process/delete")
+    @ApiOperation(value = "删除工序")
+    public String deleteProcess(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.deleteProcess(id, request);
         return returnStr(objectMap, result);
     }
 }

@@ -3,6 +3,7 @@ package com.jsh.erp.datasource.mappers;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
+import com.jsh.erp.datasource.entities.ProductionProcess;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
@@ -105,4 +106,33 @@ public interface ProductionOrderMapper {
 
     @Update("update jsh_production_material_record set delete_flag='1', update_time=now() where id=#{id}")
     int deleteMaterialRecord(@Param("id") Long id);
+
+    @Select("select id, process_no processNo, name, wage_type wageType, unit_price unitPrice, enabled, sort, remark, " +
+            "create_time createTime, update_time updateTime, creator, tenant_id tenantId, delete_flag deleteFlag " +
+            "from jsh_production_process where ifnull(delete_flag,'0') != '1' " +
+            "and (#{tenantId} is null or tenant_id = #{tenantId}) " +
+            "and (#{keyword} is null or #{keyword} = '' or process_no like concat('%', #{keyword}, '%') or name like concat('%', #{keyword}, '%')) " +
+            "order by sort asc, id desc")
+    List<ProductionProcess> selectProcessList(@Param("keyword") String keyword, @Param("tenantId") Long tenantId);
+
+    @Select("select id, process_no processNo, name, wage_type wageType, unit_price unitPrice, enabled, sort, remark, " +
+            "create_time createTime, update_time updateTime, creator, tenant_id tenantId, delete_flag deleteFlag " +
+            "from jsh_production_process where ifnull(delete_flag,'0') != '1' and enabled = 1 " +
+            "and (#{tenantId} is null or tenant_id = #{tenantId}) order by sort asc, id desc")
+    List<ProductionProcess> selectEnabledProcessList(@Param("tenantId") Long tenantId);
+
+    @Insert("insert into jsh_production_process (process_no, name, wage_type, unit_price, enabled, sort, remark, " +
+            "create_time, update_time, creator, tenant_id, delete_flag) values (#{process.processNo}, #{process.name}, #{process.wageType}, " +
+            "#{process.unitPrice}, #{process.enabled}, #{process.sort}, #{process.remark}, #{process.createTime}, " +
+            "#{process.updateTime}, #{process.creator}, #{process.tenantId}, #{process.deleteFlag})")
+    @Options(useGeneratedKeys = true, keyProperty = "process.id")
+    int insertProcess(@Param("process") ProductionProcess process);
+
+    @Update("update jsh_production_process set process_no=#{process.processNo}, name=#{process.name}, wage_type=#{process.wageType}, " +
+            "unit_price=#{process.unitPrice}, enabled=#{process.enabled}, sort=#{process.sort}, remark=#{process.remark}, " +
+            "update_time=#{process.updateTime} where id=#{process.id}")
+    int updateProcess(@Param("process") ProductionProcess process);
+
+    @Update("update jsh_production_process set delete_flag='1', update_time=now() where id=#{id}")
+    int deleteProcess(@Param("id") Long id);
 }

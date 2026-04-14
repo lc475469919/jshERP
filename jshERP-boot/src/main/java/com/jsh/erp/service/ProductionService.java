@@ -8,6 +8,7 @@ import com.jsh.erp.datasource.entities.ProductionBomItem;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
+import com.jsh.erp.datasource.entities.ProductionProcess;
 import com.jsh.erp.datasource.entities.User;
 import com.jsh.erp.datasource.mappers.ProductionBomMapper;
 import com.jsh.erp.datasource.mappers.ProductionOrderMapper;
@@ -100,6 +101,15 @@ public class ProductionService {
     public List<ProductionMaterialRecord> selectMaterialRecordList(String keyword, Long orderId) throws Exception {
         PageUtils.startPage();
         return productionOrderMapper.selectMaterialRecordList(StringUtil.toNull(keyword), orderId, getTenantId());
+    }
+
+    public List<ProductionProcess> selectProcessList(String keyword) throws Exception {
+        PageUtils.startPage();
+        return productionOrderMapper.selectProcessList(StringUtil.toNull(keyword), getTenantId());
+    }
+
+    public List<ProductionProcess> selectEnabledProcessList() throws Exception {
+        return productionOrderMapper.selectEnabledProcessList(getTenantId());
     }
 
     public JSONObject getOrderDetail(Long id) {
@@ -227,6 +237,37 @@ public class ProductionService {
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int saveProcess(JSONObject obj, HttpServletRequest request) throws Exception {
+        ProductionProcess process = JSONObject.parseObject(obj.toJSONString(), ProductionProcess.class);
+        if (StringUtil.isEmpty(process.getProcessNo())) {
+            process.setProcessNo(nextNo("GX"));
+        }
+        if (process.getEnabled() == null) {
+            process.setEnabled(true);
+        }
+        if (process.getUnitPrice() == null) {
+            process.setUnitPrice(BigDecimal.ZERO);
+        }
+        applyAuditFields(process);
+        int result;
+        if (process.getId() == null) {
+            result = productionOrderMapper.insertProcess(process);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_ADD + "工序[" + process.getName() + "]", request);
+        } else {
+            result = productionOrderMapper.updateProcess(process);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "工序[" + process.getName() + "]", request);
+        }
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int deleteProcess(Long id, HttpServletRequest request) throws Exception {
+        int result = productionOrderMapper.deleteProcess(id);
+        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_DELETE + "工序[" + id + "]", request);
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int updateOrderStatus(Long id, String status, HttpServletRequest request) throws Exception {
         int result = productionOrderMapper.updateOrderStatus(id, status);
         logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产任务状态[" + status + "]", request);
@@ -311,6 +352,18 @@ public class ProductionService {
             record.setCreator(user == null ? null : user.getId());
             record.setTenantId(user == null ? null : user.getTenantId());
             record.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
+        }
+    }
+
+    private void applyAuditFields(ProductionProcess process) throws Exception {
+        Date now = new Date();
+        User user = userService.getCurrentUser();
+        process.setUpdateTime(now);
+        if (process.getId() == null) {
+            process.setCreateTime(now);
+            process.setCreator(user == null ? null : user.getId());
+            process.setTenantId(user == null ? null : user.getTenantId());
+            process.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
         }
     }
 
