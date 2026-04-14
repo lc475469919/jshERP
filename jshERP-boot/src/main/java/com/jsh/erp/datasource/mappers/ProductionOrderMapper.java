@@ -30,10 +30,10 @@ public interface ProductionOrderMapper {
     ProductionOrder selectOrderById(@Param("id") Long id);
 
     @Insert("insert into jsh_production_order (order_no, bom_id, material_id, material_extend_id, material_name, material_unit, " +
-            "plan_quantity, finished_quantity, plan_start_date, plan_finish_date, status, remark, create_time, update_time, creator, delete_flag) values " +
+            "plan_quantity, finished_quantity, plan_start_date, plan_finish_date, status, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
             "(#{order.orderNo}, #{order.bomId}, #{order.materialId}, #{order.materialExtendId}, #{order.materialName}, #{order.materialUnit}, " +
             "#{order.planQuantity}, #{order.finishedQuantity}, #{order.planStartDate}, #{order.planFinishDate}, #{order.status}, #{order.remark}, " +
-            "#{order.createTime}, #{order.updateTime}, #{order.creator}, #{order.deleteFlag})")
+            "#{order.createTime}, #{order.updateTime}, #{order.creator}, #{order.tenantId}, #{order.deleteFlag})")
     @Options(useGeneratedKeys = true, keyProperty = "order.id")
     int insertOrder(@Param("order") ProductionOrder order);
 
@@ -62,9 +62,9 @@ public interface ProductionOrderMapper {
     ProductionOrderItem selectOrderItemById(@Param("id") Long id);
 
     @Insert("insert into jsh_production_order_item (order_id, bom_item_id, material_id, material_extend_id, material_name, material_unit, " +
-            "planned_quantity, issued_quantity, remark, sort, delete_flag) values (#{item.orderId}, #{item.bomItemId}, " +
+            "planned_quantity, issued_quantity, remark, sort, tenant_id, delete_flag) values (#{item.orderId}, #{item.bomItemId}, " +
             "#{item.materialId}, #{item.materialExtendId}, #{item.materialName}, #{item.materialUnit}, #{item.plannedQuantity}, " +
-            "#{item.issuedQuantity}, #{item.remark}, #{item.sort}, #{item.deleteFlag})")
+            "#{item.issuedQuantity}, #{item.remark}, #{item.sort}, #{item.tenantId}, #{item.deleteFlag})")
     int insertOrderItem(@Param("item") ProductionOrderItem item);
 
     @Update("update jsh_production_order_item set delete_flag='1' where order_id=#{orderId}")
@@ -91,10 +91,10 @@ public interface ProductionOrderMapper {
     ProductionMaterialRecord selectMaterialRecordById(@Param("id") Long id);
 
     @Insert("insert into jsh_production_material_record (order_id, order_item_id, material_id, material_extend_id, material_name, material_unit, " +
-            "quantity, record_time, remark, create_time, update_time, creator, delete_flag) values " +
+            "quantity, record_time, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
             "(#{record.orderId}, #{record.orderItemId}, #{record.materialId}, #{record.materialExtendId}, #{record.materialName}, " +
             "#{record.materialUnit}, #{record.quantity}, #{record.recordTime}, #{record.remark}, #{record.createTime}, #{record.updateTime}, " +
-            "#{record.creator}, #{record.deleteFlag})")
+            "#{record.creator}, #{record.tenantId}, #{record.deleteFlag})")
     @Options(useGeneratedKeys = true, keyProperty = "record.id")
     int insertMaterialRecord(@Param("record") ProductionMaterialRecord record);
 

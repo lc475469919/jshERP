@@ -35,9 +35,9 @@ public interface ProductionBomMapper {
     List<ProductionBom> selectEnabledBomList(@Param("tenantId") Long tenantId);
 
     @Insert("insert into jsh_production_bom (bom_no, name, material_id, material_extend_id, material_name, material_unit, " +
-            "output_quantity, enabled, remark, create_time, update_time, creator, delete_flag) values " +
+            "output_quantity, enabled, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
             "(#{bom.bomNo}, #{bom.name}, #{bom.materialId}, #{bom.materialExtendId}, #{bom.materialName}, #{bom.materialUnit}, " +
-            "#{bom.outputQuantity}, #{bom.enabled}, #{bom.remark}, #{bom.createTime}, #{bom.updateTime}, #{bom.creator}, #{bom.deleteFlag})")
+            "#{bom.outputQuantity}, #{bom.enabled}, #{bom.remark}, #{bom.createTime}, #{bom.updateTime}, #{bom.creator}, #{bom.tenantId}, #{bom.deleteFlag})")
     @Options(useGeneratedKeys = true, keyProperty = "bom.id")
     int insertBom(@Param("bom") ProductionBom bom);
 
@@ -55,8 +55,8 @@ public interface ProductionBomMapper {
     List<ProductionBomItem> selectBomItems(@Param("bomId") Long bomId);
 
     @Insert("insert into jsh_production_bom_item (bom_id, material_id, material_extend_id, material_name, material_unit, quantity, " +
-            "loss_rate, remark, sort, delete_flag) values (#{item.bomId}, #{item.materialId}, #{item.materialExtendId}, " +
-            "#{item.materialName}, #{item.materialUnit}, #{item.quantity}, #{item.lossRate}, #{item.remark}, #{item.sort}, #{item.deleteFlag})")
+            "loss_rate, remark, sort, tenant_id, delete_flag) values (#{item.bomId}, #{item.materialId}, #{item.materialExtendId}, " +
+            "#{item.materialName}, #{item.materialUnit}, #{item.quantity}, #{item.lossRate}, #{item.remark}, #{item.sort}, #{item.tenantId}, #{item.deleteFlag})")
     int insertBomItem(@Param("item") ProductionBomItem item);
 
     @Update("update jsh_production_bom_item set delete_flag='1' where bom_id=#{bomId}")
