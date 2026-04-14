@@ -2,6 +2,7 @@ package com.jsh.erp.datasource.mappers;
 
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
+import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
@@ -53,6 +54,12 @@ public interface ProductionOrderMapper {
             "where ifnull(delete_flag,'0') != '1' and order_id=#{orderId} order by sort asc, id asc")
     List<ProductionOrderItem> selectOrderItems(@Param("orderId") Long orderId);
 
+    @Select("select id, order_id orderId, bom_item_id bomItemId, material_id materialId, material_extend_id materialExtendId, " +
+            "material_name materialName, material_unit materialUnit, planned_quantity plannedQuantity, issued_quantity issuedQuantity, " +
+            "remark, sort, tenant_id tenantId, delete_flag deleteFlag from jsh_production_order_item " +
+            "where ifnull(delete_flag,'0') != '1' and id=#{id}")
+    ProductionOrderItem selectOrderItemById(@Param("id") Long id);
+
     @Insert("insert into jsh_production_order_item (order_id, bom_item_id, material_id, material_extend_id, material_name, material_unit, " +
             "planned_quantity, issued_quantity, remark, sort, delete_flag) values (#{item.orderId}, #{item.bomItemId}, " +
             "#{item.materialId}, #{item.materialExtendId}, #{item.materialName}, #{item.materialUnit}, #{item.plannedQuantity}, " +
@@ -61,4 +68,41 @@ public interface ProductionOrderMapper {
 
     @Update("update jsh_production_order_item set delete_flag='1' where order_id=#{orderId}")
     int deleteOrderItems(@Param("orderId") Long orderId);
+
+    @Update("update jsh_production_order_item set issued_quantity = ifnull(issued_quantity, 0) + #{quantity} where id=#{id}")
+    int addOrderItemIssuedQuantity(@Param("id") Long id, @Param("quantity") java.math.BigDecimal quantity);
+
+    @Select("select r.id, r.order_id orderId, r.order_item_id orderItemId, o.order_no orderNo, " +
+            "r.material_id materialId, r.material_extend_id materialExtendId, r.material_name materialName, r.material_unit materialUnit, " +
+            "r.quantity, r.record_time recordTime, r.remark, r.create_time createTime, r.update_time updateTime, " +
+            "r.creator, r.tenant_id tenantId, r.delete_flag deleteFlag from jsh_production_material_record r " +
+            "left join jsh_production_order o on r.order_id = o.id " +
+            "where ifnull(r.delete_flag,'0') != '1' and (#{tenantId} is null or r.tenant_id = #{tenantId}) " +
+            "and (#{orderId} is null or r.order_id = #{orderId}) " +
+            "and (#{keyword} is null or #{keyword} = '' or o.order_no like concat('%', #{keyword}, '%') or r.material_name like concat('%', #{keyword}, '%')) " +
+            "order by r.id desc")
+    List<ProductionMaterialRecord> selectMaterialRecordList(@Param("keyword") String keyword, @Param("orderId") Long orderId, @Param("tenantId") Long tenantId);
+
+    @Select("select id, order_id orderId, order_item_id orderItemId, material_id materialId, material_extend_id materialExtendId, " +
+            "material_name materialName, material_unit materialUnit, quantity, record_time recordTime, remark, create_time createTime, " +
+            "update_time updateTime, creator, tenant_id tenantId, delete_flag deleteFlag from jsh_production_material_record " +
+            "where ifnull(delete_flag,'0') != '1' and id=#{id}")
+    ProductionMaterialRecord selectMaterialRecordById(@Param("id") Long id);
+
+    @Insert("insert into jsh_production_material_record (order_id, order_item_id, material_id, material_extend_id, material_name, material_unit, " +
+            "quantity, record_time, remark, create_time, update_time, creator, delete_flag) values " +
+            "(#{record.orderId}, #{record.orderItemId}, #{record.materialId}, #{record.materialExtendId}, #{record.materialName}, " +
+            "#{record.materialUnit}, #{record.quantity}, #{record.recordTime}, #{record.remark}, #{record.createTime}, #{record.updateTime}, " +
+            "#{record.creator}, #{record.deleteFlag})")
+    @Options(useGeneratedKeys = true, keyProperty = "record.id")
+    int insertMaterialRecord(@Param("record") ProductionMaterialRecord record);
+
+    @Update("update jsh_production_material_record set order_id=#{record.orderId}, order_item_id=#{record.orderItemId}, " +
+            "material_id=#{record.materialId}, material_extend_id=#{record.materialExtendId}, material_name=#{record.materialName}, " +
+            "material_unit=#{record.materialUnit}, quantity=#{record.quantity}, record_time=#{record.recordTime}, " +
+            "remark=#{record.remark}, update_time=#{record.updateTime} where id=#{record.id}")
+    int updateMaterialRecord(@Param("record") ProductionMaterialRecord record);
+
+    @Update("update jsh_production_material_record set delete_flag='1', update_time=now() where id=#{id}")
+    int deleteMaterialRecord(@Param("id") Long id);
 }

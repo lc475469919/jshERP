@@ -83,6 +83,8 @@ Latest production module follow-up on 2026-04-14:
 - Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 - Added desktop production entries for `生产领料` and `成品入库` by reusing the existing other-out/other-in bill engine with dedicated `subType` filters and menu records in `production_module.sql`.
 - Verified: Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
+- Added a first-pass `用料登记` backend table/API and desktop page; records adjust production task item `已领料` totals on create/edit/delete.
+- Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 
 Production module target list from the user:
 
@@ -90,6 +92,17 @@ Production module target list from the user:
 - 委外业务：委外任务、物料出库、提请付款、成品质检、成品入库、委外付款情况
 - 其他：工序管理、BOM管理、BOM模板、不良品项、计时工资、计件工资、工序汇报记录
 - 生产报表：生产看板、生产成本统计、订单进度跟踪表、委外进度跟踪表、生产进度跟踪表、物料追踪表、缺料
+
+Reference system notes from `https://sv.loafish.com/lfdp` manufacturing trial:
+
+- Manufacturing trial login is exposed by the site as `13512733500 / 111111`; version selector value `4` is `制造业版`.
+- Production menu paths include: `生产任务` `/inv/invScrw/list`, `生产领料` `/inv/scrw/jg/scllList`, `用料登记` `/inv/scrw/jg/yldjList`, `工序汇报` `/inv/scrw/jg/gxhbList`, `生产质检` `/inv/scrw/jg/sczjList`, `成品入库` `/inv/scrw/jg/scrkList`.
+- Outsourcing menu paths include: `委外任务` `/inv/invScWwjg/list`, `成品质检` `/inv/wwrw/jg/cpzjList`, `成品入库` `/inv/wwrw/jg/wwrkList`, `委外付款情况` `/inv/invScWwjg/wwfkList`.
+- Other/reference menus include: `工序管理`, `BOM管理`, `BOM模板`, `计时工资`, `计件工资`, and `工序汇报记录`.
+- Report menus include: `生产看板`, `生产成本统计`, `生产进度跟踪表`, `委外进度跟踪表`, `物料追踪表`, `缺料追踪表`, plus `计时工资统计表` and `计件工资统计表`.
+- `用料登记` has single-task and multi-task modes; its page says it calculates current material usage from the BOM and uses the formula `用料数=已领料数-已退数-废料数`.
+- `工序汇报` targets tasks in `加工中`, captures process name, operator(s), good quantity, scrap quantity, remarks, and has finish/rework/detail actions plus piecework status.
+- `生产质检` captures inspection date, inspector, good quantity, defect quantity, scrap quantity, defect item, quantity, and remarks.
 
 The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
 

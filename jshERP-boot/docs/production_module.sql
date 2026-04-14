@@ -82,6 +82,27 @@ CREATE TABLE IF NOT EXISTS `jsh_production_order_item` (
   KEY `idx_production_order_item_material` (`material_id`, `material_extend_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='生产任务用料';
 
+CREATE TABLE IF NOT EXISTS `jsh_production_material_record` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_id` bigint NOT NULL COMMENT '生产任务id',
+  `order_item_id` bigint DEFAULT NULL COMMENT '生产任务用料id',
+  `material_id` bigint DEFAULT NULL COMMENT '原料商品id',
+  `material_extend_id` bigint DEFAULT NULL COMMENT '原料扩展id',
+  `material_name` varchar(100) DEFAULT NULL COMMENT '原料名称',
+  `material_unit` varchar(20) DEFAULT NULL COMMENT '原料单位',
+  `quantity` decimal(24,6) DEFAULT 0.000000 COMMENT '登记用量',
+  `record_time` datetime DEFAULT NULL COMMENT '登记时间',
+  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `creator` bigint DEFAULT NULL COMMENT '创建人',
+  `tenant_id` bigint DEFAULT NULL COMMENT '租户id',
+  `delete_flag` varchar(1) DEFAULT '0' COMMENT '删除标记，0未删除，1删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_production_material_record_order` (`order_id`, `delete_flag`),
+  KEY `idx_production_material_record_item` (`order_item_id`, `delete_flag`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用料登记';
+
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
 SELECT 270, '0901', '生产管理', '0', '/production', '/layouts/TabLayout', b'0', '0410', b'1', '电脑版', '', 'tool', '0'
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '0901' AND ifnull(`delete_flag`, '0') != '1');
@@ -106,6 +127,10 @@ INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `com
 SELECT 274, '090104', '成品入库', '0901', '/production/finished_in', '/production/FinishedInList', b'0', '0414', b'1', '电脑版', '1,2,3,7', 'profile', '0'
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090104' AND ifnull(`delete_flag`, '0') != '1');
 
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 275, '090105', '用料登记', '0901', '/production/material_record', '/production/MaterialRecordList', b'0', '0415', b'1', '电脑版', '1', 'profile', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090105' AND ifnull(`delete_flag`, '0') != '1');
+
 UPDATE `jsh_user_business`
 SET `value` = concat(
   `value`,
@@ -113,7 +138,8 @@ SET `value` = concat(
   if(`value` like '%[271]%', '', '[271]'),
   if(`value` like '%[272]%', '', '[272]'),
   if(`value` like '%[273]%', '', '[273]'),
-  if(`value` like '%[274]%', '', '[274]')
+  if(`value` like '%[274]%', '', '[274]'),
+  if(`value` like '%[275]%', '', '[275]')
 )
 WHERE `type` = 'RoleFunctions'
   AND `value` IS NOT NULL

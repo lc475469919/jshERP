@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.ProductionBom;
 import com.jsh.erp.datasource.entities.ProductionBomItem;
+import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
 import com.jsh.erp.datasource.entities.User;
@@ -96,6 +97,11 @@ public class ProductionService {
         return productionOrderMapper.selectOrderList(StringUtil.toNull(keyword), StringUtil.toNull(status), getTenantId());
     }
 
+    public List<ProductionMaterialRecord> selectMaterialRecordList(String keyword, Long orderId) throws Exception {
+        PageUtils.startPage();
+        return productionOrderMapper.selectMaterialRecordList(StringUtil.toNull(keyword), orderId, getTenantId());
+    }
+
     public JSONObject getOrderDetail(Long id) {
         JSONObject detail = new JSONObject();
         ProductionOrder order = productionOrderMapper.selectOrderById(id);
@@ -169,6 +175,58 @@ public class ProductionService {
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int saveMaterialRecord(JSONObject obj, HttpServletRequest request) throws Exception {
+        ProductionMaterialRecord record = JSONObject.parseObject(obj.toJSONString(), ProductionMaterialRecord.class);
+        if (record.getQuantity() == null || record.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+            record.setQuantity(BigDecimal.ZERO);
+        }
+        ProductionOrderItem orderItem = record.getOrderItemId() == null ? null : productionOrderMapper.selectOrderItemById(record.getOrderItemId());
+        if (orderItem == null) {
+            throw new Exception("请选择用料明细");
+        }
+        if (orderItem != null) {
+            record.setOrderId(orderItem.getOrderId());
+            record.setMaterialId(orderItem.getMaterialId());
+            record.setMaterialExtendId(orderItem.getMaterialExtendId());
+            record.setMaterialName(orderItem.getMaterialName());
+            record.setMaterialUnit(orderItem.getMaterialUnit());
+        }
+        applyAuditFields(record);
+        int result;
+        if (record.getId() == null) {
+            result = productionOrderMapper.insertMaterialRecord(record);
+            productionOrderMapper.addOrderItemIssuedQuantity(record.getOrderItemId(), record.getQuantity());
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_ADD + "用料登记[" + record.getMaterialName() + "]", request);
+        } else {
+            ProductionMaterialRecord old = productionOrderMapper.selectMaterialRecordById(record.getId());
+            BigDecimal oldQuantity = old == null || old.getQuantity() == null ? BigDecimal.ZERO : old.getQuantity();
+            result = productionOrderMapper.updateMaterialRecord(record);
+            if (old != null && old.getOrderItemId() != null && !old.getOrderItemId().equals(record.getOrderItemId())) {
+                productionOrderMapper.addOrderItemIssuedQuantity(old.getOrderItemId(), oldQuantity.negate());
+                productionOrderMapper.addOrderItemIssuedQuantity(record.getOrderItemId(), record.getQuantity());
+            } else if (record.getOrderItemId() != null) {
+                BigDecimal delta = record.getQuantity().subtract(oldQuantity);
+                if (delta.compareTo(BigDecimal.ZERO) != 0) {
+                    productionOrderMapper.addOrderItemIssuedQuantity(record.getOrderItemId(), delta);
+                }
+            }
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "用料登记[" + record.getMaterialName() + "]", request);
+        }
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int deleteMaterialRecord(Long id, HttpServletRequest request) throws Exception {
+        ProductionMaterialRecord record = productionOrderMapper.selectMaterialRecordById(id);
+        int result = productionOrderMapper.deleteMaterialRecord(id);
+        if (record != null && record.getOrderItemId() != null && record.getQuantity() != null) {
+            productionOrderMapper.addOrderItemIssuedQuantity(record.getOrderItemId(), record.getQuantity().negate());
+        }
+        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_DELETE + "用料登记[" + (record == null ? id : record.getMaterialName()) + "]", request);
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int updateOrderStatus(Long id, String status, HttpServletRequest request) throws Exception {
         int result = productionOrderMapper.updateOrderStatus(id, status);
         logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产任务状态[" + status + "]", request);
@@ -238,6 +296,21 @@ public class ProductionService {
             order.setCreator(user == null ? null : user.getId());
             order.setTenantId(user == null ? null : user.getTenantId());
             order.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
+        }
+    }
+
+    private void applyAuditFields(ProductionMaterialRecord record) throws Exception {
+        Date now = new Date();
+        User user = userService.getCurrentUser();
+        record.setUpdateTime(now);
+        if (record.getRecordTime() == null) {
+            record.setRecordTime(now);
+        }
+        if (record.getId() == null) {
+            record.setCreateTime(now);
+            record.setCreator(user == null ? null : user.getId());
+            record.setTenantId(user == null ? null : user.getTenantId());
+            record.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
         }
     }
 

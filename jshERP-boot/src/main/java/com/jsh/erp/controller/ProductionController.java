@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.ProductionBom;
+import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.service.ProductionService;
 import com.jsh.erp.utils.BaseResponseInfo;
@@ -91,6 +92,16 @@ public class ProductionController extends BaseController {
         return returnJson(objectMap, ErpInfo.OK.name, ErpInfo.OK.code);
     }
 
+    @GetMapping(value = "/materialRecord/list")
+    @ApiOperation(value = "用料登记列表")
+    public TableDataInfo materialRecordList(@RequestParam(value = Constants.SEARCH, required = false) String search,
+                                            HttpServletRequest request) throws Exception {
+        String keyword = StringUtil.getInfo(search, "keyword");
+        Long orderId = StringUtil.parseStrLong(StringUtil.getInfo(search, "orderId"));
+        List<ProductionMaterialRecord> list = productionService.selectMaterialRecordList(keyword, orderId);
+        return getDataTable(list);
+    }
+
     @PostMapping(value = "/order/save")
     @ApiOperation(value = "保存生产任务")
     public String saveOrder(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
@@ -123,6 +134,22 @@ public class ProductionController extends BaseController {
     public String updateOrderStatus(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int result = productionService.updateOrderStatus(obj.getLong("id"), obj.getString("status"), request);
+        return returnStr(objectMap, result);
+    }
+
+    @PostMapping(value = "/materialRecord/save")
+    @ApiOperation(value = "保存用料登记")
+    public String saveMaterialRecord(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.saveMaterialRecord(obj, request);
+        return returnStr(objectMap, result);
+    }
+
+    @DeleteMapping(value = "/materialRecord/delete")
+    @ApiOperation(value = "删除用料登记")
+    public String deleteMaterialRecord(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.deleteMaterialRecord(id, request);
         return returnStr(objectMap, result);
     }
 }
