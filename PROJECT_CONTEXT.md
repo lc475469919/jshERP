@@ -70,7 +70,7 @@ Latest production module work on 2026-04-13:
 - Added backend production BOM and production order skeleton: entities, MyBatis annotation mappers, `ProductionService`, and `ProductionController`.
 - Added DB migration at `jshERP-boot/docs/production_module.sql` for `jsh_production_bom`, `jsh_production_bom_item`, `jsh_production_order`, and `jsh_production_order_item`.
 - Added desktop Web production pages at `jshERP-web/src/views/production/BomList.vue` and `jshERP-web/src/views/production/OrderList.vue`; mini program production work is paused and no production entry is registered there.
-- Added desktop menu entries for `生产管理`, `BOM管理`, and `生产单` in `production_module.sql`, including existing-role permission updates.
+- Added desktop menu entries for `生产管理`, `BOM管理`, and `生产任务` in `production_module.sql`, including existing-role permission updates.
 - Verified: backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, mini program JS `node --check`, local migration import, authenticated menu query, authenticated production BOM list/save/delete, production order list/save/delete, and material calculation passed.
 - Note: production insert SQL lets the tenant interceptor inject `tenant_id`; do not add `tenant_id` manually to those insert statements or MyBatis will generate duplicate columns.
 
@@ -79,6 +79,13 @@ Latest production module follow-up on 2026-04-14:
 - Standardized user-facing production order wording to `生产任务` in the desktop task page, Swagger annotations, service logs, and `production_module.sql` comments/menu seed.
 - Added an idempotent `jsh_function` menu name update for existing local databases that already imported the old `生产单` label.
 - Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
+
+Production module target list from the user:
+
+- 自制业务：生产任务、生产领料、用料登记、工序汇报、生产质检、成品入库
+- 委外业务：委外任务、物料出库、提请付款、成品质检、成品入库、委外付款情况
+- 其他：工序管理、BOM管理、BOM模板、不良品项、计时工资、计件工资、工序汇报记录
+- 生产报表：生产看板、生产成本统计、订单进度跟踪表、委外进度跟踪表、生产进度跟踪表、物料追踪表、缺料
 
 The previous `Failed to resolve loader: sass-loader` warning was caused by a duplicate unused Sass file next to the active Less file:
 
