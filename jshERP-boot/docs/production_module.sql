@@ -98,12 +98,22 @@ UPDATE `jsh_function`
 SET `name` = '生产任务'
 WHERE `number` = '090102' AND ifnull(`delete_flag`, '0') != '1';
 
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 273, '090103', '生产领料', '0901', '/production/material_issue', '/production/MaterialIssueList', b'0', '0413', b'1', '电脑版', '1,2,3,7', 'profile', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090103' AND ifnull(`delete_flag`, '0') != '1');
+
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 274, '090104', '成品入库', '0901', '/production/finished_in', '/production/FinishedInList', b'0', '0414', b'1', '电脑版', '1,2,3,7', 'profile', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090104' AND ifnull(`delete_flag`, '0') != '1');
+
 UPDATE `jsh_user_business`
 SET `value` = concat(
   `value`,
   if(`value` like '%[270]%', '', '[270]'),
   if(`value` like '%[271]%', '', '[271]'),
-  if(`value` like '%[272]%', '', '[272]')
+  if(`value` like '%[272]%', '', '[272]'),
+  if(`value` like '%[273]%', '', '[273]'),
+  if(`value` like '%[274]%', '', '[274]')
 )
 WHERE `type` = 'RoleFunctions'
   AND `value` IS NOT NULL

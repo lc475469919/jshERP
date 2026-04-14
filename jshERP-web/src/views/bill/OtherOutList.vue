@@ -128,7 +128,7 @@
             </template>
             <a-button icon="setting">列设置</a-button>
           </a-popover>
-          <a-tooltip placement="left" title="可以进行库存初始化，生产管理模块的领料出库。" slot="action">
+          <a-tooltip placement="left" :title="helpText" slot="action">
             <a-icon v-if="btnEnableList.indexOf(1)>-1" type="question-circle" style="font-size:20px;float:right;" />
           </a-tooltip>
         </div>
@@ -150,7 +150,7 @@
             @expand="onExpand"
             @change="handleTableChange">
             <span slot="action" slot-scope="text, record">
-              <a @click="myHandleDetail(record, '其它出库', prefixNo)">查看</a>
+              <a @click="myHandleDetail(record, billTypeName, prefixNo)">查看</a>
               <a-divider v-if="btnEnableList.indexOf(1)>-1" type="vertical" />
               <a v-if="btnEnableList.indexOf(1)>-1" @click="myHandleEdit(record)">编辑</a>
               <a-divider v-if="btnEnableList.indexOf(1)>-1" type="vertical" />
@@ -198,6 +198,8 @@
   import { BillListMixin } from './mixins/BillListMixin'
   import JEllipsis from '@/components/jeecg/JEllipsis'
   import JDate from '@/components/jeecg/JDate'
+  import { FormTypes } from '@/utils/JEditableTableUtil'
+  import { findBillDetailByNumber } from '@/api/api'
   import { deleteAction } from '@/api/manage'
   export default {
     name: "OtherOutList",
@@ -229,6 +231,9 @@
           status: undefined,
           remark: ""
         },
+        billTypeName: '其它出库',
+        billSubType: '其它',
+        helpText: '可以进行库存初始化，生产管理模块的领料出库。',
         prefixNo: 'QTCK',
         urlPath: '/bill/other_out',
         //出入库管理开关，适合独立仓管场景
@@ -318,6 +323,53 @@
         } else {
           this.$message.warning("抱歉，只有未审核的单据才能删除，请先进行反审核！")
         }
+      },
+      prepareBillModal() {
+        this.$refs.modalForm.billTypeName = this.billTypeName
+        this.$refs.modalForm.billSubType = this.billSubType
+      },
+      myHandleAdd() {
+        this.$refs.modalForm.action = "add";
+        if(this.btnEnableList.indexOf(2)===-1) {
+          this.$refs.modalForm.isCanCheck = false
+        }
+        this.prepareBillModal()
+        this.handleAdd();
+        this.$refs.modalForm.title = "新增" + this.billTypeName;
+      },
+      myHandleEdit(record) {
+        if(record.status === '0') {
+          this.$refs.modalForm.action = "edit";
+          if(this.btnEnableList.indexOf(2)===-1) {
+            this.$refs.modalForm.isCanCheck = false
+          }
+          findBillDetailByNumber({ number: record.number }).then((res) => {
+            if (res && res.code === 200) {
+              this.prepareBillModal()
+              let item = res.data
+              this.handleEdit(item)
+              this.$refs.modalForm.title = "编辑" + this.billTypeName;
+            }
+          })
+        } else {
+          this.$message.warning("抱歉，只有未审核的单据才能编辑，请先进行反审核！")
+        }
+      },
+      myHandleCopyAdd(record) {
+        this.$refs.modalForm.action = "copyAdd";
+        if(this.btnEnableList.indexOf(2)===-1) {
+          this.$refs.modalForm.isCanCheck = false
+        }
+        record.linkNumber = ''
+        record.billType = ''
+        record.deposit = ''
+        this.prepareBillModal()
+        this.$refs.modalForm.edit(record);
+        this.$refs.modalForm.title = "复制新增" + this.billTypeName;
+        this.$refs.modalForm.disableSubmit = false;
+        this.$refs.modalForm.rowCanEdit = true
+        let columnIndex = record.subType === '组装单' || record.subType === '拆卸单'?2:1
+        this.$refs.modalForm.materialTable.columns[columnIndex].type = FormTypes.popupJsh
       },
       batchDel: function () {
         if (this.selectedRowKeys.length <= 0) {

@@ -8,7 +8,7 @@ Continue building the customized jshERP work around:
 
 - approval workflow support
 - WeChat mini program client
-- lightweight production management: BOM and production task query/save APIs plus desktop Web pages
+- lightweight production management: BOM, production task, production material issue, and finished goods stock-in desktop Web pages
 - single-company/local runtime setup
 
 If the chat history is unavailable, read this file first, then inspect `git status` and recent commits.
@@ -30,6 +30,8 @@ git log --oneline origin/master..HEAD
 
 Known unpushed work includes:
 
+- `a82c26bd docs: record production module backlog`
+- `ac229f72 chore(production): standardize task wording`
 - `8abe6292 feat(web): add production management pages`
 - `ad9c0205 feat: add lightweight production module skeleton`
 - `c634623f fix: stabilize local backend startup`
@@ -79,6 +81,8 @@ Latest production module follow-up on 2026-04-14:
 - Standardized user-facing production order wording to `生产任务` in the desktop task page, Swagger annotations, service logs, and `production_module.sql` comments/menu seed.
 - Added an idempotent `jsh_function` menu name update for existing local databases that already imported the old `生产单` label.
 - Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
+- Added desktop production entries for `生产领料` and `成品入库` by reusing the existing other-out/other-in bill engine with dedicated `subType` filters and menu records in `production_module.sql`.
+- Verified: Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 
 Production module target list from the user:
 

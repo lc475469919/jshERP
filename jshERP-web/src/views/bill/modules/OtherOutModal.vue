@@ -14,8 +14,8 @@
     style="top:20px;height: 95%;">
     <template slot="footer">
       <a-button @click="handleCancel">取消</a-button>
-      <a-button v-if="billPrintFlag && isShowPrintBtn" @click="handlePrintPro('其它出库')">三联打印-新版</a-button>
-      <a-button v-if="billPrintFlag && isShowPrintBtn" @click="handlePrint('其它出库')">三联打印</a-button>
+      <a-button v-if="billPrintFlag && isShowPrintBtn" @click="handlePrintPro(billTypeName)">三联打印-新版</a-button>
+      <a-button v-if="billPrintFlag && isShowPrintBtn" @click="handlePrint(billTypeName)">三联打印</a-button>
       <a-button v-if="checkFlag && isCanCheck" :loading="confirmLoading" @click="handleOkAndCheck">保存并审核</a-button>
       <a-button type="primary" :loading="confirmLoading" @click="handleOkOnly">保存（Ctrl+S）</a-button>
       <!--发起多级审核-->
@@ -167,6 +167,8 @@
         visible: false,
         operTimeStr: '',
         prefixNo: 'QTCK',
+        billTypeName: '其它出库',
+        billSubType: '其它',
         fileList:[],
         rowCanEdit: true,
         //出入库管理开关，适合独立仓管场景
@@ -300,7 +302,7 @@
         let billMain = Object.assign(this.model, allValues.formValue)
         let detailArr = allValues.tablesValue[0].values
         billMain.type = '出库'
-        billMain.subType = '其它'
+        billMain.subType = this.billSubType || '其它'
         for(let item of detailArr){
           totalPrice += item.allPrice-0
         }
