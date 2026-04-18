@@ -93,6 +93,8 @@ Latest production module follow-up on 2026-04-18:
 - Added first-pass `工序汇报` backend table/API and desktop page with production task, process, worker, good quantity, defect quantity, scrap quantity, report time, and remark.
 - Added desktop menu seed for `工序汇报` in `production_module.sql`, including existing-role permission updates.
 - Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
+- Linked production BOM and production task material fields to the existing system product/material selector, including finished goods and raw-material detail rows. `/material/findBySelect` now returns both material master id and material extend id for production association.
+- Verified: backend `mvn test`, backend `mvn package -DskipTests`, and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 
 Production module target list from the user:
 

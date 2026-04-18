@@ -328,6 +328,7 @@ public class MaterialController extends BaseController {
                 for (MaterialVo4Unit material : dataList) {
                     JSONObject item = new JSONObject();
                     item.put("id", material.getMeId()); //商品扩展表的id
+                    item.put("materialId", material.getId()); //商品主表id
                     String ratioStr = ""; //比例
                     Unit unit = new Unit();
                     if (material.getUnitId() == null) {

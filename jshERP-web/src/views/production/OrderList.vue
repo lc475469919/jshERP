@@ -92,13 +92,13 @@
             </a-row>
             <a-row :gutter="16">
               <a-col :md="8" :sm="24">
-                <a-form-item label="成品商品ID">
-                  <a-input-number v-model="model.materialId" style="width:100%"></a-input-number>
+                <a-form-item label="成品商品">
+                  <a-input-search v-model="model.materialName" placeholder="请选择系统商品" readOnly @search="openMaterialPicker('product')" />
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
-                <a-form-item label="成品扩展ID">
-                  <a-input-number v-model="model.materialExtendId" style="width:100%"></a-input-number>
+                <a-form-item label="商品编码">
+                  <a-input :value="materialCodeLabel(model)" disabled></a-input>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
@@ -110,7 +110,7 @@
             <a-row :gutter="16">
               <a-col :md="8" :sm="24">
                 <a-form-item label="成品名称">
-                  <a-input v-model="model.materialName"></a-input>
+                  <a-input v-model="model.materialName" disabled placeholder="请从商品资料或BOM带入"></a-input>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
@@ -132,7 +132,8 @@
             <span>用料明细</span>
             <span>
               <a-button size="small" @click="calculateMaterials">按BOM计算用料</a-button>
-              <a-button icon="plus" size="small" style="margin-left:8px" @click="addItem">新增用料</a-button>
+              <a-button icon="search" size="small" style="margin-left:8px" @click="openMaterialPicker('items')">选择用料</a-button>
+              <a-button icon="plus" size="small" style="margin-left:8px" @click="addItem">手工新增</a-button>
             </span>
           </div>
           <a-table
@@ -143,14 +144,14 @@
             :dataSource="items"
             :pagination="false"
             :scroll="{x: 1000}">
-            <template slot="materialId" slot-scope="text, record">
-              <a-input-number v-model="record.materialId" style="width:100%"></a-input-number>
+            <template slot="materialPicker" slot-scope="text, record">
+              <a-input-search v-model="record.materialName" placeholder="选择用料" readOnly @search="openMaterialPicker('item', record)" />
             </template>
-            <template slot="materialExtendId" slot-scope="text, record">
-              <a-input-number v-model="record.materialExtendId" style="width:100%"></a-input-number>
+            <template slot="materialCode" slot-scope="text, record">
+              <a-input :value="materialCodeLabel(record)" disabled></a-input>
             </template>
             <template slot="materialName" slot-scope="text, record">
-              <a-input v-model="record.materialName"></a-input>
+              <a-input v-model="record.materialName" disabled></a-input>
             </template>
             <template slot="materialUnit" slot-scope="text, record">
               <a-input v-model="record.materialUnit"></a-input>
@@ -169,6 +170,10 @@
             </template>
           </a-table>
         </a-modal>
+        <j-select-material-modal
+          ref="materialSelectModal"
+          :multi="materialPickerMulti"
+          @ok="handleMaterialSelected" />
       </a-card>
     </a-col>
   </a-row>
@@ -176,9 +181,13 @@
 
 <script>
   import { getAction, postAction, deleteAction } from '@/api/manage'
+  import JSelectMaterialModal from '@/components/jeecgbiz/modal/JSelectMaterialModal'
 
   export default {
     name: 'ProductionOrderList',
+    components: {
+      JSelectMaterialModal
+    },
     data() {
       return {
         cardStyle: '',
@@ -195,6 +204,9 @@
         model: {},
         items: [],
         rowSeed: 1,
+        materialPickerMode: '',
+        materialPickerRow: null,
+        materialPickerMulti: false,
         ipagination: {
           current: 1,
           pageSize: 10,
@@ -217,8 +229,8 @@
           { title: '备注', dataIndex: 'remark', width: 200 }
         ],
         itemColumns: [
-          { title: '原料ID', dataIndex: 'materialId', width: 100, scopedSlots: { customRender: 'materialId' } },
-          { title: '扩展ID', dataIndex: 'materialExtendId', width: 100, scopedSlots: { customRender: 'materialExtendId' } },
+          { title: '选择用料', dataIndex: 'materialPicker', width: 190, scopedSlots: { customRender: 'materialPicker' } },
+          { title: '商品编码', dataIndex: 'materialCode', width: 150, scopedSlots: { customRender: 'materialCode' } },
           { title: '原料名称', dataIndex: 'materialName', width: 150, scopedSlots: { customRender: 'materialName' } },
           { title: '单位', dataIndex: 'materialUnit', width: 90, scopedSlots: { customRender: 'materialUnit' } },
           { title: '计划用量', dataIndex: 'plannedQuantity', width: 120, scopedSlots: { customRender: 'plannedQuantity' } },
@@ -336,7 +348,11 @@
       },
       handleSave() {
         if (!this.model.materialName) {
-          this.$message.warning('请输入成品名称')
+          this.$message.warning('请选择成品商品')
+          return
+        }
+        if (this.items.some(item => !item.materialName || !item.materialId || !item.materialExtendId)) {
+          this.$message.warning('用料明细需从系统商品资料选择')
           return
         }
         this.saving = true
@@ -357,6 +373,46 @@
       },
       handleCancel() {
         this.modalVisible = false
+      },
+      openMaterialPicker(mode, row) {
+        this.materialPickerMode = mode
+        this.materialPickerRow = row || null
+        this.materialPickerMulti = mode === 'items'
+        this.$nextTick(() => {
+          this.$refs.materialSelectModal.showModal('')
+        })
+      },
+      handleMaterialSelected(rows) {
+        if (!rows || rows.length === 0) {
+          return
+        }
+        if (this.materialPickerMode === 'product') {
+          this.applyMaterial(this.model, rows[0])
+          return
+        }
+        if (this.materialPickerMode === 'item' && this.materialPickerRow) {
+          this.applyMaterial(this.materialPickerRow, rows[0])
+          return
+        }
+        if (this.materialPickerMode === 'items') {
+          rows.forEach(row => {
+            const item = { rowKey: this.nextRowKey(), plannedQuantity: 0, issuedQuantity: 0 }
+            this.applyMaterial(item, row)
+            this.items.push(item)
+          })
+        }
+      },
+      applyMaterial(target, material) {
+        target.materialId = material.materialId
+        target.materialExtendId = material.id
+        target.materialName = material.sku ? `${material.name} ${material.sku}` : material.name
+        target.materialUnit = material.unit
+      },
+      materialCodeLabel(record) {
+        if (!record || (!record.materialId && !record.materialExtendId)) {
+          return ''
+        }
+        return `商品:${record.materialId || ''} / 规格:${record.materialExtendId || ''}`
       },
       statusColor(status) {
         if (status === '已完工') {
