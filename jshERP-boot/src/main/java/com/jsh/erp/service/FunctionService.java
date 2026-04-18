@@ -242,8 +242,11 @@ public class FunctionService {
         Long roleId = 0L;
         String fc = "";
         User userInfo = userService.getCurrentUser();
+        if (userInfo == null || userInfo.getId() == null) {
+            return funIdList;
+        }
         //获取当前用户所有的角色id
-        List<UserBusiness> roleList = userBusinessService.getBasicData(userInfo.getTenantId().toString(), "UserRole");
+        List<UserBusiness> roleList = userBusinessService.getBasicData(userInfo.getId().toString(), "UserRole");
         if(roleList!=null && roleList.size()>0){
             String value = roleList.get(0).getValue();
             if(StringUtil.isNotEmpty(value)){

@@ -520,6 +520,7 @@ public class UserService {
             checkRoleAndOrg(ue);
             //检查用户名和登录名
             checkLoginName(ue);
+            fillCurrentTenant(ue, request);
             //新增用户信息
             ue= this.addUser(ue);
             if(ue==null){
@@ -584,6 +585,20 @@ public class UserService {
             return ue;
         }
         return null;
+    }
+
+    private void fillCurrentTenant(UserEx ue, HttpServletRequest request) throws Exception {
+        if (ue.getTenantId() != null) {
+            return;
+        }
+        Long currentUserId = getUserId(request);
+        if (currentUserId == null) {
+            return;
+        }
+        User currentUser = userMapper.selectByPrimaryKey(currentUserId);
+        if (currentUser != null && currentUser.getTenantId() != null) {
+            ue.setTenantId(currentUser.getTenantId());
+        }
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
