@@ -50,7 +50,7 @@ Known unpushed work includes:
 
 ## Verification
 
-Last verified on 2026-04-18:
+Last verified on 2026-04-19:
 
 - Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
 - API smoke test passed for creating a temporary production task, saving linked `生产领料` and `成品入库` stock documents through `/depotHead/addDepotHeadAndDetail`, querying both by production task `linkNumber`, and deleting all temporary test data.
@@ -58,6 +58,8 @@ Last verified on 2026-04-18:
 - API smoke test passed for automatic production task finished-quantity/status sync from linked `成品入库`: add stock-in -> `finishedQuantity=1/status=已完工`; delete stock-in -> `finishedQuantity=0/status=已下达`; temporary test data was deleted.
 - Web: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
 - API smoke test passed for first-pass `生产质检`: create a temporary production task, save/query/delete a quality inspection with good/defect/scrap quantities and defect item, then delete the temporary task.
+- Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn package -DskipTests` passed.
+- API smoke test passed for `不良品项` and `生产质检` linkage: create a temporary defect item, create a temporary production task, save/query/delete a quality inspection using `defectItemId`, and delete all temporary data.
 
 Known non-blocking frontend warnings:
 
@@ -106,6 +108,9 @@ Latest production module follow-up on 2026-04-18:
 - Added first-pass `生产质检` backend table/API and desktop page with production task, inspector, good quantity, defect quantity, scrap quantity, defect item, inspection time, and remark.
 - Added desktop menu seed for `生产质检` in `production_module.sql`, including existing-role permission updates.
 - Verified: backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, local backend restart, and authenticated API smoke test passed.
+- Added `不良品项` backend table/API and desktop page, and linked `生产质检` to selectable defect-item master data while retaining the displayed defect item name for list/search.
+- Added desktop menu seed for `不良品项` in `production_module.sql`, including existing-role permission updates.
+- Verified: `git diff --check`, backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, local backend restart, and authenticated API smoke test passed.
 
 Production module target list from the user:
 

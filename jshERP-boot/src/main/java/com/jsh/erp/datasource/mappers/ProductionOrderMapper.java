@@ -3,6 +3,7 @@ package com.jsh.erp.datasource.mappers;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
+import com.jsh.erp.datasource.entities.ProductionDefectItem;
 import com.jsh.erp.datasource.entities.ProductionProcess;
 import com.jsh.erp.datasource.entities.ProductionProcessReport;
 import com.jsh.erp.datasource.entities.ProductionQualityInspection;
@@ -163,6 +164,39 @@ public interface ProductionOrderMapper {
     @Update("update jsh_production_process set delete_flag='1', update_time=now() where id=#{id}")
     int deleteProcess(@Param("id") Long id);
 
+    @Select("select id, defect_no defectNo, name, enabled, sort, remark, create_time createTime, update_time updateTime, " +
+            "creator, tenant_id tenantId, delete_flag deleteFlag from jsh_production_defect_item " +
+            "where ifnull(delete_flag,'0') != '1' and (#{tenantId} is null or tenant_id = #{tenantId}) " +
+            "and (#{keyword} is null or #{keyword} = '' or defect_no like concat('%', #{keyword}, '%') or name like concat('%', #{keyword}, '%')) " +
+            "order by sort asc, id desc")
+    List<ProductionDefectItem> selectDefectItemList(@Param("keyword") String keyword, @Param("tenantId") Long tenantId);
+
+    @Select("select id, defect_no defectNo, name, enabled, sort, remark, create_time createTime, update_time updateTime, " +
+            "creator, tenant_id tenantId, delete_flag deleteFlag from jsh_production_defect_item " +
+            "where ifnull(delete_flag,'0') != '1' and enabled = 1 " +
+            "and (#{tenantId} is null or tenant_id = #{tenantId}) order by sort asc, id desc")
+    List<ProductionDefectItem> selectEnabledDefectItemList(@Param("tenantId") Long tenantId);
+
+    @Select("select id, defect_no defectNo, name, enabled, sort, remark, create_time createTime, update_time updateTime, " +
+            "creator, tenant_id tenantId, delete_flag deleteFlag from jsh_production_defect_item " +
+            "where ifnull(delete_flag,'0') != '1' and id=#{id}")
+    ProductionDefectItem selectDefectItemById(@Param("id") Long id);
+
+    @Insert("insert into jsh_production_defect_item (defect_no, name, enabled, sort, remark, create_time, update_time, " +
+            "creator, tenant_id, delete_flag) values (#{defectItem.defectNo}, #{defectItem.name}, #{defectItem.enabled}, " +
+            "#{defectItem.sort}, #{defectItem.remark}, #{defectItem.createTime}, #{defectItem.updateTime}, " +
+            "#{defectItem.creator}, #{defectItem.tenantId}, #{defectItem.deleteFlag})")
+    @Options(useGeneratedKeys = true, keyProperty = "defectItem.id")
+    int insertDefectItem(@Param("defectItem") ProductionDefectItem defectItem);
+
+    @Update("update jsh_production_defect_item set defect_no=#{defectItem.defectNo}, name=#{defectItem.name}, " +
+            "enabled=#{defectItem.enabled}, sort=#{defectItem.sort}, remark=#{defectItem.remark}, " +
+            "update_time=#{defectItem.updateTime} where id=#{defectItem.id}")
+    int updateDefectItem(@Param("defectItem") ProductionDefectItem defectItem);
+
+    @Update("update jsh_production_defect_item set delete_flag='1', update_time=now() where id=#{id}")
+    int deleteDefectItem(@Param("id") Long id);
+
     @Select("select r.id, r.order_id orderId, o.order_no orderNo, o.material_name materialName, " +
             "r.process_id processId, r.process_name processName, r.worker_name workerName, r.good_quantity goodQuantity, " +
             "r.defect_quantity defectQuantity, r.scrap_quantity scrapQuantity, r.report_time reportTime, r.remark, " +
@@ -202,7 +236,7 @@ public interface ProductionOrderMapper {
 
     @Select("select q.id, q.order_id orderId, o.order_no orderNo, o.material_name materialName, " +
             "q.inspector_name inspectorName, q.good_quantity goodQuantity, q.defect_quantity defectQuantity, " +
-            "q.scrap_quantity scrapQuantity, q.defect_item defectItem, q.inspect_time inspectTime, q.remark, " +
+            "q.scrap_quantity scrapQuantity, q.defect_item_id defectItemId, q.defect_item defectItem, q.inspect_time inspectTime, q.remark, " +
             "q.create_time createTime, q.update_time updateTime, q.creator, q.tenant_id tenantId, q.delete_flag deleteFlag " +
             "from jsh_production_quality_inspection q left join jsh_production_order o on q.order_id = o.id " +
             "where ifnull(q.delete_flag,'0') != '1' and (#{tenantId} is null or q.tenant_id = #{tenantId}) " +
@@ -215,15 +249,15 @@ public interface ProductionOrderMapper {
                                                                   @Param("tenantId") Long tenantId);
 
     @Select("select id, order_id orderId, inspector_name inspectorName, good_quantity goodQuantity, " +
-            "defect_quantity defectQuantity, scrap_quantity scrapQuantity, defect_item defectItem, inspect_time inspectTime, " +
+            "defect_quantity defectQuantity, scrap_quantity scrapQuantity, defect_item_id defectItemId, defect_item defectItem, inspect_time inspectTime, " +
             "remark, create_time createTime, update_time updateTime, creator, tenant_id tenantId, delete_flag deleteFlag " +
             "from jsh_production_quality_inspection where ifnull(delete_flag,'0') != '1' and id=#{id}")
     ProductionQualityInspection selectQualityInspectionById(@Param("id") Long id);
 
     @Insert("insert into jsh_production_quality_inspection (order_id, inspector_name, good_quantity, defect_quantity, " +
-            "scrap_quantity, defect_item, inspect_time, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
+            "scrap_quantity, defect_item_id, defect_item, inspect_time, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
             "(#{inspection.orderId}, #{inspection.inspectorName}, #{inspection.goodQuantity}, #{inspection.defectQuantity}, " +
-            "#{inspection.scrapQuantity}, #{inspection.defectItem}, #{inspection.inspectTime}, #{inspection.remark}, " +
+            "#{inspection.scrapQuantity}, #{inspection.defectItemId}, #{inspection.defectItem}, #{inspection.inspectTime}, #{inspection.remark}, " +
             "#{inspection.createTime}, #{inspection.updateTime}, #{inspection.creator}, #{inspection.tenantId}, #{inspection.deleteFlag})")
     @Options(useGeneratedKeys = true, keyProperty = "inspection.id")
     int insertQualityInspection(@Param("inspection") ProductionQualityInspection inspection);
@@ -231,7 +265,7 @@ public interface ProductionOrderMapper {
     @Update("update jsh_production_quality_inspection set order_id=#{inspection.orderId}, " +
             "inspector_name=#{inspection.inspectorName}, good_quantity=#{inspection.goodQuantity}, " +
             "defect_quantity=#{inspection.defectQuantity}, scrap_quantity=#{inspection.scrapQuantity}, " +
-            "defect_item=#{inspection.defectItem}, inspect_time=#{inspection.inspectTime}, remark=#{inspection.remark}, " +
+            "defect_item_id=#{inspection.defectItemId}, defect_item=#{inspection.defectItem}, inspect_time=#{inspection.inspectTime}, remark=#{inspection.remark}, " +
             "update_time=#{inspection.updateTime} where id=#{inspection.id}")
     int updateQualityInspection(@Param("inspection") ProductionQualityInspection inspection);
 

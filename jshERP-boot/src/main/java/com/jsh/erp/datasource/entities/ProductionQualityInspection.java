@@ -12,6 +12,7 @@ public class ProductionQualityInspection {
     private BigDecimal goodQuantity;
     private BigDecimal defectQuantity;
     private BigDecimal scrapQuantity;
+    private Long defectItemId;
     private String defectItem;
     private Date inspectTime;
     private String remark;
@@ -83,6 +84,14 @@ public class ProductionQualityInspection {
 
     public void setScrapQuantity(BigDecimal scrapQuantity) {
         this.scrapQuantity = scrapQuantity;
+    }
+
+    public Long getDefectItemId() {
+        return defectItemId;
+    }
+
+    public void setDefectItemId(Long defectItemId) {
+        this.defectItemId = defectItemId;
     }
 
     public String getDefectItem() {

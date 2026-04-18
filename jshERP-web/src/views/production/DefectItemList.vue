@@ -7,16 +7,7 @@
             <a-row :gutter="24">
               <a-col :md="6" :sm="24">
                 <a-form-item label="关键字" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                  <a-input v-model="queryParam.keyword" placeholder="任务、成品、检验员、不良项"></a-input>
-                </a-form-item>
-              </a-col>
-              <a-col :md="6" :sm="24">
-                <a-form-item label="生产任务" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                  <a-select v-model="queryParam.orderId" allow-clear showSearch optionFilterProp="children" placeholder="请选择生产任务">
-                    <a-select-option v-for="order in orderList" :key="order.id" :value="order.id">
-                      {{ order.orderNo }} {{ order.materialName }}
-                    </a-select-option>
-                  </a-select>
+                  <a-input v-model="queryParam.keyword" placeholder="不良编号、不良品项"></a-input>
                 </a-form-item>
               </a-col>
               <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
@@ -29,7 +20,7 @@
           </a-form>
         </div>
         <div class="table-operator" style="margin-top: 5px">
-          <a-button type="primary" icon="plus" @click="handleAdd">新增生产质检</a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd">新增不良品项</a-button>
         </div>
         <a-table
           size="middle"
@@ -39,7 +30,7 @@
           :dataSource="dataSource"
           :pagination="ipagination"
           :loading="loading"
-          :scroll="{x: 1200}"
+          :scroll="{x: 900}"
           @change="handleTableChange">
           <span slot="action" slot-scope="text, record">
             <a @click="handleEdit(record)">编辑</a>
@@ -48,53 +39,41 @@
               <a>删除</a>
             </a-popconfirm>
           </span>
+          <template slot="enabledRender" slot-scope="enabled">
+            <a-tag v-if="enabled" color="green">启用</a-tag>
+            <a-tag v-else color="orange">禁用</a-tag>
+          </template>
         </a-table>
         <a-modal
           :title="modalTitle"
-          :width="760"
+          :width="620"
           :visible="modalVisible"
           :confirmLoading="saving"
           :maskClosable="false"
           @ok="handleSave"
           @cancel="handleCancel">
           <a-form>
-            <a-form-item label="生产任务">
-              <a-select v-model="model.orderId" showSearch optionFilterProp="children" placeholder="请选择生产任务">
-                <a-select-option v-for="order in orderList" :key="order.id" :value="order.id">
-                  {{ order.orderNo }} {{ order.materialName }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
             <a-row :gutter="16">
               <a-col :md="12" :sm="24">
-                <a-form-item label="检验员">
-                  <a-input v-model="model.inspectorName" placeholder="请输入检验员"></a-input>
+                <a-form-item label="不良编号">
+                  <a-input v-model="model.defectNo" placeholder="留空自动生成"></a-input>
                 </a-form-item>
               </a-col>
               <a-col :md="12" :sm="24">
                 <a-form-item label="不良品项">
-                  <a-select v-model="model.defectItemId" allow-clear showSearch optionFilterProp="children" placeholder="请选择不良品项">
-                    <a-select-option v-for="item in defectItemList" :key="item.id" :value="item.id">
-                      {{ item.name }}
-                    </a-select-option>
-                  </a-select>
+                  <a-input v-model="model.name" placeholder="请输入不良品项"></a-input>
                 </a-form-item>
               </a-col>
             </a-row>
             <a-row :gutter="16">
-              <a-col :md="8" :sm="24">
-                <a-form-item label="合格数">
-                  <a-input-number v-model="model.goodQuantity" :min="0" :precision="6" style="width:100%"></a-input-number>
+              <a-col :md="12" :sm="24">
+                <a-form-item label="排序">
+                  <a-input-number v-model="model.sort" :min="0" style="width:100%"></a-input-number>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="不良数">
-                  <a-input-number v-model="model.defectQuantity" :min="0" :precision="6" style="width:100%"></a-input-number>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="报废数">
-                  <a-input-number v-model="model.scrapQuantity" :min="0" :precision="6" style="width:100%"></a-input-number>
+              <a-col :md="12" :sm="24">
+                <a-form-item label="状态">
+                  <a-switch v-model="model.enabled" checkedChildren="启用" unCheckedChildren="禁用" />
                 </a-form-item>
               </a-col>
             </a-row>
@@ -112,20 +91,18 @@
   import { getAction, postAction, deleteAction } from '@/api/manage'
 
   export default {
-    name: 'ProductionQualityInspectionList',
+    name: 'ProductionDefectItemList',
     data() {
       return {
         cardStyle: '',
         labelCol: { span: 5 },
         wrapperCol: { span: 18, offset: 1 },
-        queryParam: { keyword: '', orderId: undefined },
+        queryParam: { keyword: '' },
         dataSource: [],
-        orderList: [],
-        defectItemList: [],
         loading: false,
         saving: false,
         modalVisible: false,
-        modalTitle: '新增生产质检',
+        modalTitle: '新增不良品项',
         model: {},
         ipagination: {
           current: 1,
@@ -138,21 +115,15 @@
         },
         columns: [
           { title: '操作', dataIndex: 'action', align: 'center', width: 120, scopedSlots: { customRender: 'action' } },
-          { title: '任务编号', dataIndex: 'orderNo', width: 160 },
-          { title: '成品名称', dataIndex: 'materialName', width: 160 },
-          { title: '检验员', dataIndex: 'inspectorName', width: 120 },
-          { title: '合格数', dataIndex: 'goodQuantity', width: 110 },
-          { title: '不良数', dataIndex: 'defectQuantity', width: 110 },
-          { title: '报废数', dataIndex: 'scrapQuantity', width: 110 },
-          { title: '不良品项', dataIndex: 'defectItem', width: 160 },
-          { title: '检验时间', dataIndex: 'inspectTime', width: 180 },
-          { title: '备注', dataIndex: 'remark', width: 220 }
+          { title: '不良编号', dataIndex: 'defectNo', width: 150 },
+          { title: '不良品项', dataIndex: 'name', width: 180 },
+          { title: '排序', dataIndex: 'sort', width: 80 },
+          { title: '状态', dataIndex: 'enabled', width: 80, scopedSlots: { customRender: 'enabledRender' } },
+          { title: '备注', dataIndex: 'remark', width: 260 }
         ]
       }
     },
     created() {
-      this.loadOrderList()
-      this.loadDefectItemList()
       this.loadData(1)
     },
     methods: {
@@ -161,7 +132,7 @@
           this.ipagination.current = 1
         }
         this.loading = true
-        getAction('/production/qualityInspection/list', {
+        getAction('/production/defectItem/list', {
           search: JSON.stringify(this.queryParam),
           currentPage: this.ipagination.current,
           pageSize: this.ipagination.pageSize
@@ -176,26 +147,8 @@
           this.loading = false
         })
       },
-      loadOrderList() {
-        getAction('/production/order/list', {
-          search: JSON.stringify({}),
-          currentPage: 1,
-          pageSize: 200
-        }).then((res) => {
-          if (res.code === 200) {
-            this.orderList = res.data.rows || []
-          }
-        })
-      },
-      loadDefectItemList() {
-        getAction('/production/defectItem/enabledList').then((res) => {
-          if (res.code === 200) {
-            this.defectItemList = res.data || []
-          }
-        })
-      },
       searchReset() {
-        this.queryParam = { keyword: '', orderId: undefined }
+        this.queryParam = { keyword: '' }
         this.loadData(1)
       },
       handleTableChange(pagination) {
@@ -203,17 +156,17 @@
         this.loadData()
       },
       handleAdd() {
-        this.modalTitle = '新增生产质检'
-        this.model = { goodQuantity: 0, defectQuantity: 0, scrapQuantity: 0, defectItemId: undefined }
+        this.modalTitle = '新增不良品项'
+        this.model = { enabled: true, sort: 0 }
         this.modalVisible = true
       },
       handleEdit(record) {
-        this.modalTitle = '编辑生产质检'
-        this.model = Object.assign({ goodQuantity: 0, defectQuantity: 0, scrapQuantity: 0 }, record)
+        this.modalTitle = '编辑不良品项'
+        this.model = Object.assign({ enabled: true, sort: 0 }, record)
         this.modalVisible = true
       },
       handleDelete(id) {
-        deleteAction('/production/qualityInspection/delete', { id }).then((res) => {
+        deleteAction('/production/defectItem/delete', { id }).then((res) => {
           if (res.code === 200) {
             this.$message.success('删除成功')
             this.loadData()
@@ -223,12 +176,12 @@
         })
       },
       handleSave() {
-        if (!this.model.orderId) {
-          this.$message.warning('请选择生产任务')
+        if (!this.model.name) {
+          this.$message.warning('请输入不良品项')
           return
         }
         this.saving = true
-        postAction('/production/qualityInspection/save', this.model).then((res) => {
+        postAction('/production/defectItem/save', this.model).then((res) => {
           if (res.code === 200) {
             this.$message.success('保存成功')
             this.modalVisible = false

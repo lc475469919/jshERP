@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
 import com.jsh.erp.datasource.entities.ProductionBom;
+import com.jsh.erp.datasource.entities.ProductionDefectItem;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionProcess;
@@ -123,6 +124,24 @@ public class ProductionController extends BaseController {
         return res;
     }
 
+    @GetMapping(value = "/defectItem/list")
+    @ApiOperation(value = "不良品项列表")
+    public TableDataInfo defectItemList(@RequestParam(value = Constants.SEARCH, required = false) String search,
+                                        HttpServletRequest request) throws Exception {
+        String keyword = StringUtil.getInfo(search, "keyword");
+        List<ProductionDefectItem> list = productionService.selectDefectItemList(keyword);
+        return getDataTable(list);
+    }
+
+    @GetMapping(value = "/defectItem/enabledList")
+    @ApiOperation(value = "启用不良品项列表")
+    public BaseResponseInfo enabledDefectItemList(HttpServletRequest request) throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        res.code = 200;
+        res.data = productionService.selectEnabledDefectItemList();
+        return res;
+    }
+
     @GetMapping(value = "/processReport/list")
     @ApiOperation(value = "工序汇报列表")
     public TableDataInfo processReportList(@RequestParam(value = Constants.SEARCH, required = false) String search,
@@ -208,6 +227,22 @@ public class ProductionController extends BaseController {
     public String deleteProcess(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int result = productionService.deleteProcess(id, request);
+        return returnStr(objectMap, result);
+    }
+
+    @PostMapping(value = "/defectItem/save")
+    @ApiOperation(value = "保存不良品项")
+    public String saveDefectItem(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.saveDefectItem(obj, request);
+        return returnStr(objectMap, result);
+    }
+
+    @DeleteMapping(value = "/defectItem/delete")
+    @ApiOperation(value = "删除不良品项")
+    public String deleteDefectItem(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.deleteDefectItem(id, request);
         return returnStr(objectMap, result);
     }
 

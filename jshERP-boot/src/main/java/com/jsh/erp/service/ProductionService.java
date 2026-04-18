@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.ProductionBom;
 import com.jsh.erp.datasource.entities.ProductionBomItem;
+import com.jsh.erp.datasource.entities.ProductionDefectItem;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
@@ -133,6 +134,15 @@ public class ProductionService {
 
     public List<ProductionProcess> selectEnabledProcessList() throws Exception {
         return productionOrderMapper.selectEnabledProcessList(getTenantId());
+    }
+
+    public List<ProductionDefectItem> selectDefectItemList(String keyword) throws Exception {
+        PageUtils.startPage();
+        return productionOrderMapper.selectDefectItemList(StringUtil.toNull(keyword), getTenantId());
+    }
+
+    public List<ProductionDefectItem> selectEnabledDefectItemList() throws Exception {
+        return productionOrderMapper.selectEnabledDefectItemList(getTenantId());
     }
 
     public List<ProductionProcessReport> selectProcessReportList(String keyword, Long orderId, Long processId) throws Exception {
@@ -301,6 +311,40 @@ public class ProductionService {
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int saveDefectItem(JSONObject obj, HttpServletRequest request) throws Exception {
+        ProductionDefectItem defectItem = JSONObject.parseObject(obj.toJSONString(), ProductionDefectItem.class);
+        if (StringUtil.isEmpty(defectItem.getDefectNo())) {
+            defectItem.setDefectNo(nextNo("BL"));
+        }
+        if (StringUtil.isEmpty(defectItem.getName())) {
+            throw new Exception("请输入不良品项名称");
+        }
+        if (defectItem.getEnabled() == null) {
+            defectItem.setEnabled(true);
+        }
+        if (defectItem.getSort() == null) {
+            defectItem.setSort(0);
+        }
+        applyAuditFields(defectItem);
+        int result;
+        if (defectItem.getId() == null) {
+            result = productionOrderMapper.insertDefectItem(defectItem);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_ADD + "不良品项[" + defectItem.getName() + "]", request);
+        } else {
+            result = productionOrderMapper.updateDefectItem(defectItem);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "不良品项[" + defectItem.getName() + "]", request);
+        }
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int deleteDefectItem(Long id, HttpServletRequest request) throws Exception {
+        int result = productionOrderMapper.deleteDefectItem(id);
+        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_DELETE + "不良品项[" + id + "]", request);
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int saveProcessReport(JSONObject obj, HttpServletRequest request) throws Exception {
         ProductionProcessReport report = JSONObject.parseObject(obj.toJSONString(), ProductionProcessReport.class);
         if (report.getOrderId() == null) {
@@ -350,6 +394,13 @@ public class ProductionService {
         inspection.setGoodQuantity(defaultQuantity(inspection.getGoodQuantity()));
         inspection.setDefectQuantity(defaultQuantity(inspection.getDefectQuantity()));
         inspection.setScrapQuantity(defaultQuantity(inspection.getScrapQuantity()));
+        if (inspection.getDefectItemId() != null) {
+            ProductionDefectItem defectItem = productionOrderMapper.selectDefectItemById(inspection.getDefectItemId());
+            if (defectItem == null) {
+                throw new Exception("不良品项不存在或已删除");
+            }
+            inspection.setDefectItem(defectItem.getName());
+        }
         applyAuditFields(inspection);
         int result;
         if (inspection.getId() == null) {
@@ -485,6 +536,18 @@ public class ProductionService {
             process.setCreator(user == null ? null : user.getId());
             process.setTenantId(user == null ? null : user.getTenantId());
             process.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
+        }
+    }
+
+    private void applyAuditFields(ProductionDefectItem defectItem) throws Exception {
+        Date now = new Date();
+        User user = userService.getCurrentUser();
+        defectItem.setUpdateTime(now);
+        if (defectItem.getId() == null) {
+            defectItem.setCreateTime(now);
+            defectItem.setCreator(user == null ? null : user.getId());
+            defectItem.setTenantId(user == null ? null : user.getTenantId());
+            defectItem.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
         }
     }
 
