@@ -4,6 +4,7 @@ import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionProcess;
+import com.jsh.erp.datasource.entities.ProductionProcessReport;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
@@ -121,6 +122,11 @@ public interface ProductionOrderMapper {
             "and (#{tenantId} is null or tenant_id = #{tenantId}) order by sort asc, id desc")
     List<ProductionProcess> selectEnabledProcessList(@Param("tenantId") Long tenantId);
 
+    @Select("select id, process_no processNo, name, wage_type wageType, unit_price unitPrice, enabled, sort, remark, " +
+            "create_time createTime, update_time updateTime, creator, tenant_id tenantId, delete_flag deleteFlag " +
+            "from jsh_production_process where ifnull(delete_flag,'0') != '1' and id=#{id}")
+    ProductionProcess selectProcessById(@Param("id") Long id);
+
     @Insert("insert into jsh_production_process (process_no, name, wage_type, unit_price, enabled, sort, remark, " +
             "create_time, update_time, creator, tenant_id, delete_flag) values (#{process.processNo}, #{process.name}, #{process.wageType}, " +
             "#{process.unitPrice}, #{process.enabled}, #{process.sort}, #{process.remark}, #{process.createTime}, " +
@@ -135,4 +141,41 @@ public interface ProductionOrderMapper {
 
     @Update("update jsh_production_process set delete_flag='1', update_time=now() where id=#{id}")
     int deleteProcess(@Param("id") Long id);
+
+    @Select("select r.id, r.order_id orderId, o.order_no orderNo, o.material_name materialName, " +
+            "r.process_id processId, r.process_name processName, r.worker_name workerName, r.good_quantity goodQuantity, " +
+            "r.defect_quantity defectQuantity, r.scrap_quantity scrapQuantity, r.report_time reportTime, r.remark, " +
+            "r.create_time createTime, r.update_time updateTime, r.creator, r.tenant_id tenantId, r.delete_flag deleteFlag " +
+            "from jsh_production_process_report r left join jsh_production_order o on r.order_id = o.id " +
+            "where ifnull(r.delete_flag,'0') != '1' and (#{tenantId} is null or r.tenant_id = #{tenantId}) " +
+            "and (#{orderId} is null or r.order_id = #{orderId}) " +
+            "and (#{processId} is null or r.process_id = #{processId}) " +
+            "and (#{keyword} is null or #{keyword} = '' or o.order_no like concat('%', #{keyword}, '%') " +
+            "or o.material_name like concat('%', #{keyword}, '%') or r.process_name like concat('%', #{keyword}, '%') " +
+            "or r.worker_name like concat('%', #{keyword}, '%')) order by r.id desc")
+    List<ProductionProcessReport> selectProcessReportList(@Param("keyword") String keyword, @Param("orderId") Long orderId,
+                                                          @Param("processId") Long processId, @Param("tenantId") Long tenantId);
+
+    @Select("select id, order_id orderId, process_id processId, process_name processName, worker_name workerName, " +
+            "good_quantity goodQuantity, defect_quantity defectQuantity, scrap_quantity scrapQuantity, report_time reportTime, " +
+            "remark, create_time createTime, update_time updateTime, creator, tenant_id tenantId, delete_flag deleteFlag " +
+            "from jsh_production_process_report where ifnull(delete_flag,'0') != '1' and id=#{id}")
+    ProductionProcessReport selectProcessReportById(@Param("id") Long id);
+
+    @Insert("insert into jsh_production_process_report (order_id, process_id, process_name, worker_name, good_quantity, " +
+            "defect_quantity, scrap_quantity, report_time, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
+            "(#{report.orderId}, #{report.processId}, #{report.processName}, #{report.workerName}, #{report.goodQuantity}, " +
+            "#{report.defectQuantity}, #{report.scrapQuantity}, #{report.reportTime}, #{report.remark}, #{report.createTime}, " +
+            "#{report.updateTime}, #{report.creator}, #{report.tenantId}, #{report.deleteFlag})")
+    @Options(useGeneratedKeys = true, keyProperty = "report.id")
+    int insertProcessReport(@Param("report") ProductionProcessReport report);
+
+    @Update("update jsh_production_process_report set order_id=#{report.orderId}, process_id=#{report.processId}, " +
+            "process_name=#{report.processName}, worker_name=#{report.workerName}, good_quantity=#{report.goodQuantity}, " +
+            "defect_quantity=#{report.defectQuantity}, scrap_quantity=#{report.scrapQuantity}, report_time=#{report.reportTime}, " +
+            "remark=#{report.remark}, update_time=#{report.updateTime} where id=#{report.id}")
+    int updateProcessReport(@Param("report") ProductionProcessReport report);
+
+    @Update("update jsh_production_process_report set delete_flag='1', update_time=now() where id=#{id}")
+    int deleteProcessReport(@Param("id") Long id);
 }

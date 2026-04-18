@@ -88,6 +88,12 @@ Latest production module follow-up on 2026-04-14:
 - Added first-pass `工序管理` backend table/API and desktop page with process number, name, wage type, unit price, enabled flag, sort, and remark.
 - Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 
+Latest production module follow-up on 2026-04-18:
+
+- Added first-pass `工序汇报` backend table/API and desktop page with production task, process, worker, good quantity, defect quantity, scrap quantity, report time, and remark.
+- Added desktop menu seed for `工序汇报` in `production_module.sql`, including existing-role permission updates.
+- Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
+
 Production module target list from the user:
 
 - 自制业务：生产任务、生产领料、用料登记、工序汇报、生产质检、成品入库

@@ -9,6 +9,7 @@ import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
 import com.jsh.erp.datasource.entities.ProductionProcess;
+import com.jsh.erp.datasource.entities.ProductionProcessReport;
 import com.jsh.erp.datasource.entities.User;
 import com.jsh.erp.datasource.mappers.ProductionBomMapper;
 import com.jsh.erp.datasource.mappers.ProductionOrderMapper;
@@ -110,6 +111,11 @@ public class ProductionService {
 
     public List<ProductionProcess> selectEnabledProcessList() throws Exception {
         return productionOrderMapper.selectEnabledProcessList(getTenantId());
+    }
+
+    public List<ProductionProcessReport> selectProcessReportList(String keyword, Long orderId, Long processId) throws Exception {
+        PageUtils.startPage();
+        return productionOrderMapper.selectProcessReportList(StringUtil.toNull(keyword), orderId, processId, getTenantId());
     }
 
     public JSONObject getOrderDetail(Long id) {
@@ -268,6 +274,43 @@ public class ProductionService {
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int saveProcessReport(JSONObject obj, HttpServletRequest request) throws Exception {
+        ProductionProcessReport report = JSONObject.parseObject(obj.toJSONString(), ProductionProcessReport.class);
+        if (report.getOrderId() == null) {
+            throw new Exception("请选择生产任务");
+        }
+        if (report.getProcessId() == null) {
+            throw new Exception("请选择工序");
+        }
+        ProductionProcess process = productionOrderMapper.selectProcessById(report.getProcessId());
+        if (process == null) {
+            throw new Exception("工序不存在或已删除");
+        }
+        report.setProcessName(process.getName());
+        report.setGoodQuantity(defaultQuantity(report.getGoodQuantity()));
+        report.setDefectQuantity(defaultQuantity(report.getDefectQuantity()));
+        report.setScrapQuantity(defaultQuantity(report.getScrapQuantity()));
+        applyAuditFields(report);
+        int result;
+        if (report.getId() == null) {
+            result = productionOrderMapper.insertProcessReport(report);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_ADD + "工序汇报[" + report.getProcessName() + "]", request);
+        } else {
+            result = productionOrderMapper.updateProcessReport(report);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "工序汇报[" + report.getProcessName() + "]", request);
+        }
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int deleteProcessReport(Long id, HttpServletRequest request) throws Exception {
+        ProductionProcessReport report = productionOrderMapper.selectProcessReportById(id);
+        int result = productionOrderMapper.deleteProcessReport(id);
+        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_DELETE + "工序汇报[" + (report == null ? id : report.getProcessName()) + "]", request);
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int updateOrderStatus(Long id, String status, HttpServletRequest request) throws Exception {
         int result = productionOrderMapper.updateOrderStatus(id, status);
         logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产任务状态[" + status + "]", request);
@@ -365,6 +408,25 @@ public class ProductionService {
             process.setTenantId(user == null ? null : user.getTenantId());
             process.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
         }
+    }
+
+    private void applyAuditFields(ProductionProcessReport report) throws Exception {
+        Date now = new Date();
+        User user = userService.getCurrentUser();
+        report.setUpdateTime(now);
+        if (report.getReportTime() == null) {
+            report.setReportTime(now);
+        }
+        if (report.getId() == null) {
+            report.setCreateTime(now);
+            report.setCreator(user == null ? null : user.getId());
+            report.setTenantId(user == null ? null : user.getTenantId());
+            report.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
+        }
+    }
+
+    private BigDecimal defaultQuantity(BigDecimal quantity) {
+        return quantity == null || quantity.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : quantity;
     }
 
     private Long getTenantId() throws Exception {
