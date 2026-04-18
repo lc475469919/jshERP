@@ -8,7 +8,7 @@ Continue building the customized jshERP work around:
 
 - approval workflow support
 - WeChat mini program client
-- lightweight production management: BOM, production task, production material issue, and finished goods stock-in desktop Web pages
+- lightweight production management: BOM, production task, production material issue, finished goods stock-in, and production-to-inventory document linkage
 - single-company/local runtime setup
 
 If the chat history is unavailable, read this file first, then inspect `git status` and recent commits.
@@ -50,10 +50,10 @@ Known unpushed work includes:
 
 ## Verification
 
-Last verified on 2026-04-14:
+Last verified on 2026-04-18:
 
-- Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn test` passed.
 - Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
+- API smoke test passed for creating a temporary production task, saving linked `生产领料` and `成品入库` stock documents through `/depotHead/addDepotHeadAndDetail`, querying both by production task `linkNumber`, and deleting all temporary test data.
 
 Known non-blocking frontend warnings:
 
@@ -95,6 +95,8 @@ Latest production module follow-up on 2026-04-18:
 - Verified: backend `mvn test` and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 - Linked production BOM and production task material fields to the existing system product/material selector, including finished goods and raw-material detail rows. `/material/findBySelect` now returns both material master id and material extend id for production association.
 - Verified: backend `mvn test`, backend `mvn package -DskipTests`, and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
+- Linked `生产领料` and `成品入库` bill modals to production tasks by using the existing stock document `linkNumber` field. Production pages now expose the linked-task column by default and preserve normal other-in/other-out linkage behavior outside production mode.
+- Verified: `git diff --check`, Web `npm run build`, and authenticated API smoke test for linked production issue/finished-in documents passed. Temporary test records were deleted.
 
 Production module target list from the user:
 

@@ -51,8 +51,15 @@
             </a-form-item>
           </a-col>
           <a-col :lg="6" :md="12" :sm="24">
-            <a-form-item v-if="inOutManageFlag && !model.billType" :labelCol="labelCol" :wrapperCol="wrapperCol" label="关联单据">
+            <a-form-item v-if="inOutManageFlag && !model.billType && !productionLinkMode" :labelCol="labelCol" :wrapperCol="wrapperCol" label="关联单据">
               <a-input-search placeholder="请选择待出库单据" v-decorator="[ 'linkNumber' ]" @search="onSearchLinkNumber" :readOnly="true"/>
+            </a-form-item>
+            <a-form-item v-if="productionLinkMode" :labelCol="labelCol" :wrapperCol="wrapperCol" label="生产任务">
+              <a-select placeholder="请选择生产任务" v-decorator="[ 'linkNumber' ]" allow-clear showSearch optionFilterProp="children">
+                <a-select-option v-for="order in productionOrderList" :key="order.orderNo" :value="order.orderNo">
+                  {{ order.orderNo }} {{ order.materialName }}
+                </a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
         </a-row>
@@ -138,6 +145,7 @@
   import JDate from '@/components/jeecg/JDate'
   import Vue from 'vue'
   import WaitBillList from '../dialog/WaitBillList'
+  import { getAction } from '@/api/manage'
   export default {
     name: "OtherOutModal",
     mixins: [JEditableTableMixin, BillModalMixin],
@@ -169,6 +177,8 @@
         prefixNo: 'QTCK',
         billTypeName: '其它出库',
         billSubType: '其它',
+        productionLinkMode: false,
+        productionOrderList: [],
         fileList:[],
         rowCanEdit: true,
         //出入库管理开关，适合独立仓管场景
@@ -264,7 +274,7 @@
           this.addInit(this.prefixNo)
           this.fileList = []
         } else {
-          if(this.model.linkNumber) {
+          if(this.model.linkNumber && !this.productionLinkMode) {
             this.rowCanEdit = false
             this.materialTable.columns[1].type = FormTypes.normal
           }
@@ -295,6 +305,7 @@
         this.initPlatform()
         this.initQuickBtn()
         this.handleChangeOtherField()
+        this.loadProductionOrders()
       },
       //提交单据时整理成formData
       classifyIntoFormData(allValues) {
@@ -324,6 +335,20 @@
       onSearchLinkNumber() {
         this.$refs.waitBillList.show('出库', '销售,采购退货', "1,3")
         this.$refs.waitBillList.title = "请选择销售出库或采购退货"
+      },
+      loadProductionOrders() {
+        if (!this.productionLinkMode) {
+          return
+        }
+        getAction('/production/order/list', {
+          search: JSON.stringify({}),
+          currentPage: 1,
+          pageSize: 200
+        }).then((res) => {
+          if (res.code === 200) {
+            this.productionOrderList = res.data.rows || []
+          }
+        })
       },
       waitBillListOk(selectBillDetailRows, linkNumber, remark) {
         this.rowCanEdit = false

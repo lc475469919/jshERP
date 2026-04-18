@@ -327,6 +327,7 @@
       prepareBillModal() {
         this.$refs.modalForm.billTypeName = this.billTypeName
         this.$refs.modalForm.billSubType = this.billSubType
+        this.$refs.modalForm.productionLinkMode = false
       },
       myHandleAdd() {
         this.$refs.modalForm.action = "add";

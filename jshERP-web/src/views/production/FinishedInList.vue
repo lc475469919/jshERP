@@ -21,7 +21,15 @@
         billTypeName: '成品入库',
         billSubType: '成品入库',
         helpText: '用于生产任务完工后的成品入库。',
-        urlPath: '/production/finished_in'
+        urlPath: '/production/finished_in',
+        defDataIndex:['action','organName','number','linkNumber','materialsList','operTimeStr','userName','materialCount','totalPrice','status']
+      }
+    },
+    methods: {
+      prepareBillModal() {
+        this.$refs.modalForm.billTypeName = this.billTypeName
+        this.$refs.modalForm.billSubType = this.billSubType
+        this.$refs.modalForm.productionLinkMode = true
       }
     }
   }
