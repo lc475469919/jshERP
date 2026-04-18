@@ -5,6 +5,7 @@ import com.jsh.erp.datasource.entities.ProductionOrderItem;
 import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionProcess;
 import com.jsh.erp.datasource.entities.ProductionProcessReport;
+import com.jsh.erp.datasource.entities.ProductionQualityInspection;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
@@ -198,4 +199,42 @@ public interface ProductionOrderMapper {
 
     @Update("update jsh_production_process_report set delete_flag='1', update_time=now() where id=#{id}")
     int deleteProcessReport(@Param("id") Long id);
+
+    @Select("select q.id, q.order_id orderId, o.order_no orderNo, o.material_name materialName, " +
+            "q.inspector_name inspectorName, q.good_quantity goodQuantity, q.defect_quantity defectQuantity, " +
+            "q.scrap_quantity scrapQuantity, q.defect_item defectItem, q.inspect_time inspectTime, q.remark, " +
+            "q.create_time createTime, q.update_time updateTime, q.creator, q.tenant_id tenantId, q.delete_flag deleteFlag " +
+            "from jsh_production_quality_inspection q left join jsh_production_order o on q.order_id = o.id " +
+            "where ifnull(q.delete_flag,'0') != '1' and (#{tenantId} is null or q.tenant_id = #{tenantId}) " +
+            "and (#{orderId} is null or q.order_id = #{orderId}) " +
+            "and (#{keyword} is null or #{keyword} = '' or o.order_no like concat('%', #{keyword}, '%') " +
+            "or o.material_name like concat('%', #{keyword}, '%') or q.inspector_name like concat('%', #{keyword}, '%') " +
+            "or q.defect_item like concat('%', #{keyword}, '%')) order by q.id desc")
+    List<ProductionQualityInspection> selectQualityInspectionList(@Param("keyword") String keyword,
+                                                                  @Param("orderId") Long orderId,
+                                                                  @Param("tenantId") Long tenantId);
+
+    @Select("select id, order_id orderId, inspector_name inspectorName, good_quantity goodQuantity, " +
+            "defect_quantity defectQuantity, scrap_quantity scrapQuantity, defect_item defectItem, inspect_time inspectTime, " +
+            "remark, create_time createTime, update_time updateTime, creator, tenant_id tenantId, delete_flag deleteFlag " +
+            "from jsh_production_quality_inspection where ifnull(delete_flag,'0') != '1' and id=#{id}")
+    ProductionQualityInspection selectQualityInspectionById(@Param("id") Long id);
+
+    @Insert("insert into jsh_production_quality_inspection (order_id, inspector_name, good_quantity, defect_quantity, " +
+            "scrap_quantity, defect_item, inspect_time, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
+            "(#{inspection.orderId}, #{inspection.inspectorName}, #{inspection.goodQuantity}, #{inspection.defectQuantity}, " +
+            "#{inspection.scrapQuantity}, #{inspection.defectItem}, #{inspection.inspectTime}, #{inspection.remark}, " +
+            "#{inspection.createTime}, #{inspection.updateTime}, #{inspection.creator}, #{inspection.tenantId}, #{inspection.deleteFlag})")
+    @Options(useGeneratedKeys = true, keyProperty = "inspection.id")
+    int insertQualityInspection(@Param("inspection") ProductionQualityInspection inspection);
+
+    @Update("update jsh_production_quality_inspection set order_id=#{inspection.orderId}, " +
+            "inspector_name=#{inspection.inspectorName}, good_quantity=#{inspection.goodQuantity}, " +
+            "defect_quantity=#{inspection.defectQuantity}, scrap_quantity=#{inspection.scrapQuantity}, " +
+            "defect_item=#{inspection.defectItem}, inspect_time=#{inspection.inspectTime}, remark=#{inspection.remark}, " +
+            "update_time=#{inspection.updateTime} where id=#{inspection.id}")
+    int updateQualityInspection(@Param("inspection") ProductionQualityInspection inspection);
+
+    @Update("update jsh_production_quality_inspection set delete_flag='1', update_time=now() where id=#{id}")
+    int deleteQualityInspection(@Param("id") Long id);
 }

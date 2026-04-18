@@ -143,6 +143,26 @@ CREATE TABLE IF NOT EXISTS `jsh_production_process_report` (
   KEY `idx_production_process_report_tenant` (`tenant_id`, `delete_flag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='工序汇报';
 
+CREATE TABLE IF NOT EXISTS `jsh_production_quality_inspection` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_id` bigint NOT NULL COMMENT '生产任务id',
+  `inspector_name` varchar(100) DEFAULT NULL COMMENT '检验员',
+  `good_quantity` decimal(24,6) DEFAULT 0.000000 COMMENT '合格数量',
+  `defect_quantity` decimal(24,6) DEFAULT 0.000000 COMMENT '不良数量',
+  `scrap_quantity` decimal(24,6) DEFAULT 0.000000 COMMENT '报废数量',
+  `defect_item` varchar(100) DEFAULT NULL COMMENT '不良品项',
+  `inspect_time` datetime DEFAULT NULL COMMENT '检验时间',
+  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `creator` bigint DEFAULT NULL COMMENT '创建人',
+  `tenant_id` bigint DEFAULT NULL COMMENT '租户id',
+  `delete_flag` varchar(1) DEFAULT '0' COMMENT '删除标记，0未删除，1删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_production_quality_order` (`order_id`, `delete_flag`),
+  KEY `idx_production_quality_tenant` (`tenant_id`, `delete_flag`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='生产质检';
+
 INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
 SELECT 270, '0901', '生产管理', '0', '/production', '/layouts/TabLayout', b'0', '0410', b'1', '电脑版', '', 'tool', '0'
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '0901' AND ifnull(`delete_flag`, '0') != '1');
@@ -179,6 +199,10 @@ INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `com
 SELECT 277, '090107', '工序汇报', '0901', '/production/process_report', '/production/ProcessReportList', b'0', '0417', b'1', '电脑版', '1', 'profile', '0'
 WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090107' AND ifnull(`delete_flag`, '0') != '1');
 
+INSERT INTO `jsh_function` (`id`, `number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
+SELECT 278, '090108', '生产质检', '0901', '/production/quality_inspection', '/production/QualityInspectionList', b'0', '0418', b'1', '电脑版', '1', 'profile', '0'
+WHERE NOT EXISTS (SELECT 1 FROM `jsh_function` WHERE `number` = '090108' AND ifnull(`delete_flag`, '0') != '1');
+
 UPDATE `jsh_user_business`
 SET `value` = concat(
   `value`,
@@ -189,7 +213,8 @@ SET `value` = concat(
   if(`value` like '%[274]%', '', '[274]'),
   if(`value` like '%[275]%', '', '[275]'),
   if(`value` like '%[276]%', '', '[276]'),
-  if(`value` like '%[277]%', '', '[277]')
+  if(`value` like '%[277]%', '', '[277]'),
+  if(`value` like '%[278]%', '', '[278]')
 )
 WHERE `type` = 'RoleFunctions'
   AND `value` IS NOT NULL

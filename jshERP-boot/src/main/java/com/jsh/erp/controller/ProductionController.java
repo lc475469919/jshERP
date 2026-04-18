@@ -8,6 +8,7 @@ import com.jsh.erp.datasource.entities.ProductionMaterialRecord;
 import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionProcess;
 import com.jsh.erp.datasource.entities.ProductionProcessReport;
+import com.jsh.erp.datasource.entities.ProductionQualityInspection;
 import com.jsh.erp.service.ProductionService;
 import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
@@ -133,6 +134,16 @@ public class ProductionController extends BaseController {
         return getDataTable(list);
     }
 
+    @GetMapping(value = "/qualityInspection/list")
+    @ApiOperation(value = "生产质检列表")
+    public TableDataInfo qualityInspectionList(@RequestParam(value = Constants.SEARCH, required = false) String search,
+                                               HttpServletRequest request) throws Exception {
+        String keyword = StringUtil.getInfo(search, "keyword");
+        Long orderId = StringUtil.parseStrLong(StringUtil.getInfo(search, "orderId"));
+        List<ProductionQualityInspection> list = productionService.selectQualityInspectionList(keyword, orderId);
+        return getDataTable(list);
+    }
+
     @PostMapping(value = "/order/save")
     @ApiOperation(value = "保存生产任务")
     public String saveOrder(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
@@ -213,6 +224,22 @@ public class ProductionController extends BaseController {
     public String deleteProcessReport(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int result = productionService.deleteProcessReport(id, request);
+        return returnStr(objectMap, result);
+    }
+
+    @PostMapping(value = "/qualityInspection/save")
+    @ApiOperation(value = "保存生产质检")
+    public String saveQualityInspection(@RequestBody JSONObject obj, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.saveQualityInspection(obj, request);
+        return returnStr(objectMap, result);
+    }
+
+    @DeleteMapping(value = "/qualityInspection/delete")
+    @ApiOperation(value = "删除生产质检")
+    public String deleteQualityInspection(@RequestParam("id") Long id, HttpServletRequest request) throws Exception {
+        Map<String, Object> objectMap = new HashMap<>();
+        int result = productionService.deleteQualityInspection(id, request);
         return returnStr(objectMap, result);
     }
 }

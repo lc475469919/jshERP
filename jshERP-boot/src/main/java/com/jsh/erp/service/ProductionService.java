@@ -10,6 +10,7 @@ import com.jsh.erp.datasource.entities.ProductionOrder;
 import com.jsh.erp.datasource.entities.ProductionOrderItem;
 import com.jsh.erp.datasource.entities.ProductionProcess;
 import com.jsh.erp.datasource.entities.ProductionProcessReport;
+import com.jsh.erp.datasource.entities.ProductionQualityInspection;
 import com.jsh.erp.datasource.entities.User;
 import com.jsh.erp.datasource.mappers.ProductionBomMapper;
 import com.jsh.erp.datasource.mappers.ProductionOrderMapper;
@@ -137,6 +138,11 @@ public class ProductionService {
     public List<ProductionProcessReport> selectProcessReportList(String keyword, Long orderId, Long processId) throws Exception {
         PageUtils.startPage();
         return productionOrderMapper.selectProcessReportList(StringUtil.toNull(keyword), orderId, processId, getTenantId());
+    }
+
+    public List<ProductionQualityInspection> selectQualityInspectionList(String keyword, Long orderId) throws Exception {
+        PageUtils.startPage();
+        return productionOrderMapper.selectQualityInspectionList(StringUtil.toNull(keyword), orderId, getTenantId());
     }
 
     public JSONObject getOrderDetail(Long id) {
@@ -332,6 +338,39 @@ public class ProductionService {
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int saveQualityInspection(JSONObject obj, HttpServletRequest request) throws Exception {
+        ProductionQualityInspection inspection = JSONObject.parseObject(obj.toJSONString(), ProductionQualityInspection.class);
+        if (inspection.getOrderId() == null) {
+            throw new Exception("请选择生产任务");
+        }
+        ProductionOrder order = productionOrderMapper.selectOrderById(inspection.getOrderId());
+        if (order == null) {
+            throw new Exception("生产任务不存在或已删除");
+        }
+        inspection.setGoodQuantity(defaultQuantity(inspection.getGoodQuantity()));
+        inspection.setDefectQuantity(defaultQuantity(inspection.getDefectQuantity()));
+        inspection.setScrapQuantity(defaultQuantity(inspection.getScrapQuantity()));
+        applyAuditFields(inspection);
+        int result;
+        if (inspection.getId() == null) {
+            result = productionOrderMapper.insertQualityInspection(inspection);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_ADD + "生产质检[" + order.getOrderNo() + "]", request);
+        } else {
+            result = productionOrderMapper.updateQualityInspection(inspection);
+            logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产质检[" + order.getOrderNo() + "]", request);
+        }
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public int deleteQualityInspection(Long id, HttpServletRequest request) throws Exception {
+        ProductionQualityInspection inspection = productionOrderMapper.selectQualityInspectionById(id);
+        int result = productionOrderMapper.deleteQualityInspection(id);
+        logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_DELETE + "生产质检[" + (inspection == null ? id : inspection.getId()) + "]", request);
+        return result;
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int updateOrderStatus(Long id, String status, HttpServletRequest request) throws Exception {
         int result = productionOrderMapper.updateOrderStatus(id, status);
         logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产任务状态[" + status + "]", request);
@@ -461,6 +500,21 @@ public class ProductionService {
             report.setCreator(user == null ? null : user.getId());
             report.setTenantId(user == null ? null : user.getTenantId());
             report.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
+        }
+    }
+
+    private void applyAuditFields(ProductionQualityInspection inspection) throws Exception {
+        Date now = new Date();
+        User user = userService.getCurrentUser();
+        inspection.setUpdateTime(now);
+        if (inspection.getInspectTime() == null) {
+            inspection.setInspectTime(now);
+        }
+        if (inspection.getId() == null) {
+            inspection.setCreateTime(now);
+            inspection.setCreator(user == null ? null : user.getId());
+            inspection.setTenantId(user == null ? null : user.getTenantId());
+            inspection.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
         }
     }
 

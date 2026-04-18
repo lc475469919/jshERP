@@ -56,6 +56,8 @@ Last verified on 2026-04-18:
 - API smoke test passed for creating a temporary production task, saving linked `生产领料` and `成品入库` stock documents through `/depotHead/addDepotHeadAndDetail`, querying both by production task `linkNumber`, and deleting all temporary test data.
 - Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn test` passed.
 - API smoke test passed for automatic production task finished-quantity/status sync from linked `成品入库`: add stock-in -> `finishedQuantity=1/status=已完工`; delete stock-in -> `finishedQuantity=0/status=已下达`; temporary test data was deleted.
+- Web: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
+- API smoke test passed for first-pass `生产质检`: create a temporary production task, save/query/delete a quality inspection with good/defect/scrap quantities and defect item, then delete the temporary task.
 
 Known non-blocking frontend warnings:
 
@@ -101,6 +103,9 @@ Latest production module follow-up on 2026-04-18:
 - Verified: `git diff --check`, Web `npm run build`, and authenticated API smoke test for linked production issue/finished-in documents passed. Temporary test records were deleted.
 - Added backend synchronization from linked `成品入库` documents to production task `finishedQuantity` and status. Stock-in add/update/delete now recalculates the task; `已关闭` is preserved, completed quantity reaches plan -> `已完工`, partial quantity -> `生产中`, and deletion back to zero from an auto status -> `已下达`.
 - Verified: backend `mvn test`, backend `mvn package -DskipTests`, local backend restart, and authenticated API smoke test passed.
+- Added first-pass `生产质检` backend table/API and desktop page with production task, inspector, good quantity, defect quantity, scrap quantity, defect item, inspection time, and remark.
+- Added desktop menu seed for `生产质检` in `production_module.sql`, including existing-role permission updates.
+- Verified: backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, local backend restart, and authenticated API smoke test passed.
 
 Production module target list from the user:
 
