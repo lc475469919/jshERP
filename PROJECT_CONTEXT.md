@@ -54,6 +54,8 @@ Last verified on 2026-04-18:
 
 - Frontend: `cd /Users/mac/jshERP/jshERP-web && npm run build` passed.
 - API smoke test passed for creating a temporary production task, saving linked `生产领料` and `成品入库` stock documents through `/depotHead/addDepotHeadAndDetail`, querying both by production task `linkNumber`, and deleting all temporary test data.
+- Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn test` passed.
+- API smoke test passed for automatic production task finished-quantity/status sync from linked `成品入库`: add stock-in -> `finishedQuantity=1/status=已完工`; delete stock-in -> `finishedQuantity=0/status=已下达`; temporary test data was deleted.
 
 Known non-blocking frontend warnings:
 
@@ -97,6 +99,8 @@ Latest production module follow-up on 2026-04-18:
 - Verified: backend `mvn test`, backend `mvn package -DskipTests`, and Web `npm run build` passed; frontend still has the known non-blocking asset size warnings.
 - Linked `生产领料` and `成品入库` bill modals to production tasks by using the existing stock document `linkNumber` field. Production pages now expose the linked-task column by default and preserve normal other-in/other-out linkage behavior outside production mode.
 - Verified: `git diff --check`, Web `npm run build`, and authenticated API smoke test for linked production issue/finished-in documents passed. Temporary test records were deleted.
+- Added backend synchronization from linked `成品入库` documents to production task `finishedQuantity` and status. Stock-in add/update/delete now recalculates the task; `已关闭` is preserved, completed quantity reaches plan -> `已完工`, partial quantity -> `生产中`, and deletion back to zero from an auto status -> `已下达`.
+- Verified: backend `mvn test`, backend `mvn package -DskipTests`, local backend restart, and authenticated API smoke test passed.
 
 Production module target list from the user:
 

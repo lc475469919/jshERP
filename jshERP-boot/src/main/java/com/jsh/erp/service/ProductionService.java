@@ -30,6 +30,10 @@ import java.util.List;
 public class ProductionService {
     private static final String MODULE_NAME = "生产管理";
     private static final String ORDER_STATUS_DRAFT = "草稿";
+    private static final String ORDER_STATUS_RELEASED = "已下达";
+    private static final String ORDER_STATUS_IN_PROGRESS = "生产中";
+    private static final String ORDER_STATUS_FINISHED = "已完工";
+    private static final String ORDER_STATUS_CLOSED = "已关闭";
     private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
 
     @Resource
@@ -97,6 +101,23 @@ public class ProductionService {
     public List<ProductionOrder> selectOrderList(String keyword, String status) throws Exception {
         PageUtils.startPage();
         return productionOrderMapper.selectOrderList(StringUtil.toNull(keyword), StringUtil.toNull(status), getTenantId());
+    }
+
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
+    public void refreshOrderFinishedFromStock(String orderNo) throws Exception {
+        if (StringUtil.isEmpty(orderNo)) {
+            return;
+        }
+        ProductionOrder order = productionOrderMapper.selectOrderByNo(orderNo, getTenantId());
+        if (order == null) {
+            return;
+        }
+        BigDecimal finishedQuantity = productionOrderMapper.sumFinishedInQuantity(orderNo, order.getMaterialExtendId(), getTenantId());
+        if (finishedQuantity == null) {
+            finishedQuantity = BigDecimal.ZERO;
+        }
+        String status = resolveStatusByFinishedQuantity(order, finishedQuantity);
+        productionOrderMapper.updateOrderFinishedAndStatus(order.getId(), finishedQuantity, status);
     }
 
     public List<ProductionMaterialRecord> selectMaterialRecordList(String keyword, Long orderId) throws Exception {
@@ -315,6 +336,24 @@ public class ProductionService {
         int result = productionOrderMapper.updateOrderStatus(id, status);
         logService.insertLog(MODULE_NAME, BusinessConstants.LOG_OPERATION_TYPE_EDIT + "生产任务状态[" + status + "]", request);
         return result;
+    }
+
+    private String resolveStatusByFinishedQuantity(ProductionOrder order, BigDecimal finishedQuantity) {
+        String currentStatus = StringUtil.isEmpty(order.getStatus()) ? ORDER_STATUS_DRAFT : order.getStatus();
+        if (ORDER_STATUS_CLOSED.equals(currentStatus)) {
+            return currentStatus;
+        }
+        if (finishedQuantity.compareTo(BigDecimal.ZERO) <= 0) {
+            if (ORDER_STATUS_IN_PROGRESS.equals(currentStatus) || ORDER_STATUS_FINISHED.equals(currentStatus)) {
+                return ORDER_STATUS_RELEASED;
+            }
+            return currentStatus;
+        }
+        BigDecimal planQuantity = order.getPlanQuantity() == null ? BigDecimal.ZERO : order.getPlanQuantity();
+        if (planQuantity.compareTo(BigDecimal.ZERO) > 0 && finishedQuantity.compareTo(planQuantity) >= 0) {
+            return ORDER_STATUS_FINISHED;
+        }
+        return ORDER_STATUS_IN_PROGRESS;
     }
 
     private void saveBomItems(Long bomId, JSONArray items) throws Exception {

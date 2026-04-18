@@ -79,6 +79,8 @@ public class DepotHeadService {
     DepotItemMapperEx depotItemMapperEx;
     @Resource
     private LogService logService;
+    @Resource
+    private ProductionService productionService;
 
     @Value(value="${file.exportTmp}")
     private String fileExportTmp;
@@ -538,6 +540,7 @@ public class DepotHeadService {
                 //更新当前成本价
                 depotItemService.updateCurrentUnitPrice(depotItem);
             }
+            syncProductionFinishedIn(depotHead);
         }
         //路径列表
         List<String> pathList = new ArrayList<>();
@@ -583,6 +586,26 @@ public class DepotHeadService {
             JshException.readFail(logger, e);
         }
         return list;
+    }
+
+    private void syncProductionFinishedIn(DepotHead depotHead) throws Exception {
+        if (isProductionFinishedIn(depotHead)) {
+            productionService.refreshOrderFinishedFromStock(depotHead.getLinkNumber());
+        }
+    }
+
+    private void syncProductionFinishedIn(DepotHead oldDepotHead, DepotHead newDepotHead) throws Exception {
+        syncProductionFinishedIn(oldDepotHead);
+        if (newDepotHead != null && (oldDepotHead == null || !Objects.equals(oldDepotHead.getLinkNumber(), newDepotHead.getLinkNumber()))) {
+            syncProductionFinishedIn(newDepotHead);
+        }
+    }
+
+    private boolean isProductionFinishedIn(DepotHead depotHead) {
+        return depotHead != null
+                && BusinessConstants.DEPOTHEAD_TYPE_IN.equals(depotHead.getType())
+                && "成品入库".equals(depotHead.getSubType())
+                && StringUtil.isNotEmpty(depotHead.getLinkNumber());
     }
 
     /**
@@ -1235,6 +1258,7 @@ public class DepotHeadService {
             /**入库和出库处理单据子表信息*/
             depotItemService.saveDetials(rows,headId, "add",request);
         }
+        syncProductionFinishedIn(depotHead);
         String statusStr = depotHead.getStatus().equals("1")?"[审核]":"";
         logService.insertLog("单据",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(depotHead.getNumber()).append(statusStr).toString(),
@@ -1252,6 +1276,7 @@ public class DepotHeadService {
     public void updateDepotHeadAndDetail(String beanJson, String rows,HttpServletRequest request)throws Exception {
         /**更新单据主表信息*/
         DepotHead depotHead = JSONObject.parseObject(beanJson, DepotHead.class);
+        DepotHead oldDepotHead = getDepotHead(depotHead.getId());
         //判断用户是否已经登录过，登录过不再处理
         User userInfo=userService.getCurrentUser();
         //通过redis去校验重复
@@ -1340,6 +1365,7 @@ public class DepotHeadService {
         }
         /**入库和出库处理单据子表信息*/
         depotItemService.saveDetials(rows,depotHead.getId(), "update",request);
+        syncProductionFinishedIn(oldDepotHead, depotHead);
         String statusStr = depotHead.getStatus().equals("1")?"[审核]":"";
         logService.insertLog("单据",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(depotHead.getNumber()).append(statusStr).toString(),

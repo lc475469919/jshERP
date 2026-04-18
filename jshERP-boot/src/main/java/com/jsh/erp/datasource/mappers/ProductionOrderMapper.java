@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductionOrderMapper {
@@ -29,6 +30,13 @@ public interface ProductionOrderMapper {
             "plan_start_date planStartDate, plan_finish_date planFinishDate, status, remark, create_time createTime, update_time updateTime, " +
             "creator, tenant_id tenantId, delete_flag deleteFlag from jsh_production_order where ifnull(delete_flag,'0') != '1' and id=#{id}")
     ProductionOrder selectOrderById(@Param("id") Long id);
+
+    @Select("select id, order_no orderNo, bom_id bomId, material_id materialId, material_extend_id materialExtendId, " +
+            "material_name materialName, material_unit materialUnit, plan_quantity planQuantity, finished_quantity finishedQuantity, " +
+            "plan_start_date planStartDate, plan_finish_date planFinishDate, status, remark, create_time createTime, update_time updateTime, " +
+            "creator, tenant_id tenantId, delete_flag deleteFlag from jsh_production_order where ifnull(delete_flag,'0') != '1' " +
+            "and order_no=#{orderNo} and (#{tenantId} is null or tenant_id=#{tenantId}) limit 1")
+    ProductionOrder selectOrderByNo(@Param("orderNo") String orderNo, @Param("tenantId") Long tenantId);
 
     @Insert("insert into jsh_production_order (order_no, bom_id, material_id, material_extend_id, material_name, material_unit, " +
             "plan_quantity, finished_quantity, plan_start_date, plan_finish_date, status, remark, create_time, update_time, creator, tenant_id, delete_flag) values " +
@@ -49,6 +57,18 @@ public interface ProductionOrderMapper {
 
     @Update("update jsh_production_order set status=#{status}, update_time=now() where id=#{id}")
     int updateOrderStatus(@Param("id") Long id, @Param("status") String status);
+
+    @Update("update jsh_production_order set finished_quantity=#{finishedQuantity}, status=#{status}, update_time=now() where id=#{id}")
+    int updateOrderFinishedAndStatus(@Param("id") Long id, @Param("finishedQuantity") BigDecimal finishedQuantity,
+                                     @Param("status") String status);
+
+    @Select("select ifnull(sum(i.oper_number), 0) from jsh_depot_head h " +
+            "left join jsh_depot_item i on h.id = i.header_id and ifnull(i.delete_flag,'0') != '1' " +
+            "where ifnull(h.delete_flag,'0') != '1' and h.type='入库' and h.sub_type='成品入库' " +
+            "and h.link_number=#{orderNo} and (#{tenantId} is null or h.tenant_id=#{tenantId} or h.tenant_id is null) " +
+            "and (#{materialExtendId} is null or i.material_extend_id=#{materialExtendId})")
+    BigDecimal sumFinishedInQuantity(@Param("orderNo") String orderNo, @Param("materialExtendId") Long materialExtendId,
+                                     @Param("tenantId") Long tenantId);
 
     @Select("select id, order_id orderId, bom_item_id bomItemId, material_id materialId, material_extend_id materialExtendId, " +
             "material_name materialName, material_unit materialUnit, planned_quantity plannedQuantity, issued_quantity issuedQuantity, " +
