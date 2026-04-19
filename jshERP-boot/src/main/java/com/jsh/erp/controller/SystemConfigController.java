@@ -129,12 +129,12 @@ public class SystemConfigController extends BaseController {
     }
 
     /**
-     * 获取当前租户的配置信息
+     * 获取当前系统的配置信息
      * @param request
      * @return
      */
     @GetMapping(value = "/getCurrentInfo")
-    @ApiOperation(value = "获取当前租户的配置信息")
+    @ApiOperation(value = "获取当前系统的配置信息")
     public BaseResponseInfo getCurrentInfo(HttpServletRequest request) throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try{

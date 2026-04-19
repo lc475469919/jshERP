@@ -241,7 +241,6 @@ INSERT INTO `jsh_function` VALUES (13, '000102', '角色管理', '0001', '/syste
 INSERT INTO `jsh_function` VALUES (14, '000103', '用户管理', '0001', '/system/user', '/system/UserList', b'0', '0140', b'1', '电脑版', '1', 'profile', '0');
 INSERT INTO `jsh_function` VALUES (15, '000104', '日志管理', '0001', '/system/log', '/system/LogList', b'0', '0160', b'1', '电脑版', '', 'profile', '0');
 INSERT INTO `jsh_function` VALUES (16, '000105', '功能管理', '0001', '/system/function', '/system/FunctionList', b'0', '0166', b'1', '电脑版', '1', 'profile', '0');
-INSERT INTO `jsh_function` VALUES (18, '000109', '账号兼容管理', '0001', '/system/tenant', '/system/TenantList', b'0', '0167', b'0', '电脑版', '1', 'profile', '1');
 INSERT INTO `jsh_function` VALUES (21, '0101', '商品管理', '0', '/material', '/layouts/TabLayout', b'0', '0620', b'1', '电脑版', NULL, 'shopping', '0');
 INSERT INTO `jsh_function` VALUES (22, '010101', '商品类别', '0101', '/material/material_category', '/material/MaterialCategoryList', b'0', '0230', b'1', '电脑版', '1', 'profile', '0');
 INSERT INTO `jsh_function` VALUES (23, '010102', '商品信息', '0101', '/material/material', '/material/MaterialList', b'0', '0240', b'1', '电脑版', '1,3', 'profile', '0');
@@ -1085,7 +1084,7 @@ CREATE TABLE `jsh_approval_config` (
 -- ----------------------------
 -- Records of jsh_approval_config
 -- ----------------------------
--- 审批流按租户在页面中自行配置，不预置固定模块流程。
+-- 审批流按系统在页面中自行配置，不预置固定模块流程。
 
 -- ----------------------------
 -- Table structure for jsh_approval_task
@@ -1144,7 +1143,7 @@ CREATE TABLE `jsh_approval_config_step` (
 -- ----------------------------
 -- Records of jsh_approval_config_step
 -- ----------------------------
--- 审批步骤按租户在页面中自行配置，不预置固定模块流程。
+-- 审批步骤按系统在页面中自行配置，不预置固定模块流程。
 
 -- ----------------------------
 -- Table structure for jsh_approval_task_step

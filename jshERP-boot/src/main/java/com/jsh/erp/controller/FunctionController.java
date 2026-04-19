@@ -175,9 +175,9 @@ public class FunctionController extends BaseController {
             List<Function> dataList = functionService.getRoleFunction(pNumber);
             if (dataList.size() != 0) {
                 User userInfo = userService.getCurrentUser();
-                // admin 是系统管理员，直接拥有全部菜单，不走租户菜单限制
+                // admin 是系统管理员，直接拥有全部菜单；普通用户只按角色授权显示菜单。
                 Map<Long, Long> funIdMap = BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName())
-                        ? null : functionService.getCurrentTenantFunIdMap();
+                        ? null : functionService.getCurrentRoleFunIdMap();
                 dataArray = getMenuByFunction(dataList, fc, approvalFlag, funIdMap, userInfo);
                 //增加首页菜单项
                 JSONObject homeItem = new JSONObject();

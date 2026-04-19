@@ -134,7 +134,7 @@
             </a-popover>
             &copy; 2015-2030 {{systemTitle}} V3.6
           </div>
-          <a-tag color="blue">当前用户：{{tenant.userCurrentNum}}</a-tag>
+          <a-tag color="blue">当前用户：{{companyInfo.userCurrentNum}}</a-tag>
         </a-card>
       </a-col>
     </a-row>
@@ -186,7 +186,7 @@
         visitInfo:[],
         hasExpire: false,
         payFeeUrl: '',
-        tenant: {
+        companyInfo: {
           userCurrentNum: ''
         }
       }
@@ -196,7 +196,7 @@
         this.loading = !this.loading
       }, 1000)
       this.initInfo()
-      this.initWithTenant()
+      this.initWithCompany()
     },
     mounted() {
       handleIntroJs('indexChart', 1)
@@ -221,10 +221,10 @@
           }
         })
       },
-      initWithTenant() {
-        getAction("/user/infoWithTenant",{}).then(res=>{
+      initWithCompany() {
+        getAction("/user/infoWithCompany",{}).then(res=>{
           if(res && res.code === 200) {
-            this.tenant = res.data
+            this.companyInfo = res.data
             this.hasExpire = false
           }
         })

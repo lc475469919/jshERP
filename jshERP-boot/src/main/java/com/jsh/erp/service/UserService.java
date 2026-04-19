@@ -1,7 +1,6 @@
 package com.jsh.erp.service;
 
 import com.jsh.erp.datasource.entities.*;
-import com.jsh.erp.datasource.mappers.TenantMapper;
 import com.jsh.erp.utils.*;
 import org.springframework.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
@@ -28,13 +27,9 @@ import java.util.*;
 @Service
 public class UserService {
     private Logger logger = LoggerFactory.getLogger(UserService.class);
-    private static final int SINGLE_COMPANY_USER_LIMIT = 999999;
-    private static final int LONG_TERM_EXPIRE_DAYS = 36500;
 
     @Resource
     private UserMapper userMapper;
-    @Resource
-    private TenantMapper tenantMapper;
     @Resource
     private UserMapperEx userMapperEx;
     @Resource
@@ -597,11 +592,6 @@ public class UserService {
             }catch(Exception e){
                 JshException.writeFail(logger, e);
             }
-            //更新租户id
-            User user = new User();
-            user.setId(ue.getId());
-            user.setTenantId(ue.getId());
-            userService.updateUserTenant(user);
             //新增用户与角色的关系
             JSONObject ubObj = new JSONObject();
             ubObj.put("type", "UserRole");
@@ -609,36 +599,8 @@ public class UserService {
             JSONArray ubArr = new JSONArray();
             ubArr.add(manageRoleId);
             ubObj.put("value", ubArr.toString());
-            ubObj.put("tenantId", ue.getId());
             userBusinessService.insertUserBusiness(ubObj, null);
-            //创建租户信息
-            JSONObject tenantObj = new JSONObject();
-            tenantObj.put("tenantId", ue.getId());
-            tenantObj.put("loginName",ue.getLoginName());
-            tenantObj.put("userNumLimit", ue.getUserNumLimit());
-            tenantObj.put("expireTime", ue.getExpireTime());
-            tenantObj.put("remark", ue.getRemark());
-            Tenant tenant = JSONObject.parseObject(tenantObj.toJSONString(), Tenant.class);
-            tenant.setCreateTime(new Date());
-            if(tenant.getUserNumLimit()==null) {
-                tenant.setUserNumLimit(SINGLE_COMPANY_USER_LIMIT); //兼容旧字段，不再限制用户数量
-            }
-            if(tenant.getExpireTime()==null) {
-                tenant.setExpireTime(Tools.addDays(new Date(), LONG_TERM_EXPIRE_DAYS)); //兼容旧字段，不再做试用到期
-            }
-            tenantMapper.insertSelective(tenant);
-            logger.info("===============创建租户信息完成===============");
-        }
-    }
-
-    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
-    public void updateUserTenant(User user) throws Exception{
-        UserExample example = new UserExample();
-        example.createCriteria().andIdEqualTo(user.getId());
-        try{
-            userMapper.updateByPrimaryKeySelective(user);
-        }catch(Exception e){
-            JshException.writeFail(logger, e);
+            logger.info("===============创建单公司用户完成===============");
         }
     }
 

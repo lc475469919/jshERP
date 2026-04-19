@@ -157,7 +157,7 @@ public class SupplierService {
             User userInfo=userService.getCurrentUser();
             supplier.setCreator(userInfo==null?null:userInfo.getId());
             result=supplierMapper.insertSelective(supplier);
-            //新增客户时给当前用户和租户自动授权
+            //新增客户时给当前用户自动授权
             setUserCustomerPermission(request, supplier);
             logService.insertLog("商家",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(supplier.getSupplier()).toString(),request);
@@ -565,7 +565,7 @@ public class SupplierService {
                 List<Supplier> list= supplierMapper.selectByExample(example);
                 if(list.size() <= 0) {
                     supplierMapper.insertSelective(supplier);
-                    //新增客户时给当前用户和租户自动授权
+                    //新增客户时给当前用户自动授权
                     setUserCustomerPermission(request, supplier);
                 } else {
                     Long id = list.get(0).getId();
@@ -660,7 +660,7 @@ public class SupplierService {
     }
 
     /**
-     * 新增客户时给当前用户和租户自动授权
+     * 新增客户时给当前用户自动授权
      * @param request
      * @param supplier
      * @throws Exception

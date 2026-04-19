@@ -234,10 +234,10 @@ public class FunctionService {
     }
 
     /**
-     * 获取当前用户所属的租户所拥有的功能id列表
+     * 获取当前用户角色所拥有的功能id列表
      * @return
      */
-    public List<Long> getCurrentTenantFunIdList() throws Exception {
+    public List<Long> getCurrentRoleFunIdList() throws Exception {
         List<Long> funIdList = new ArrayList<>();
         Long roleId = 0L;
         String fc = "";
@@ -268,17 +268,17 @@ public class FunctionService {
     }
 
     /**
-     * 获取当前用户所属的租户所拥有的功能id的map
+     * 获取当前用户角色所拥有的功能id的map
      * @return
      */
-    public Map<Long, Long> getCurrentTenantFunIdMap() throws Exception {
+    public Map<Long, Long> getCurrentRoleFunIdMap() throws Exception {
         Map<Long, Long> funIdMap = new HashMap<>();
-        List<Long> list = getCurrentTenantFunIdList();
+        List<Long> list = getCurrentRoleFunIdList();
         if(list.size()>0) {
             for (Long funId : list) {
                 funIdMap.put(funId, funId);
             }
-            //把一级菜单的id全都赋值给租户,解决漏掉枝干id的问题
+            //把一级菜单的id补齐，解决角色权限只勾选子节点时漏掉枝干id的问题
             List<Long> firstNodeIdList = functionMapperEx.getFirstNodeIdList();
             for (Long firstNodeId : firstNodeIdList) {
                 funIdMap.put(firstNodeId, firstNodeId);

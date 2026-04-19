@@ -61,6 +61,8 @@ Last verified on 2026-04-19:
 - Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn package -DskipTests` passed.
 - API smoke test passed for `不良品项` and `生产质检` linkage: create a temporary defect item, create a temporary production task, save/query/delete a quality inspection using `defectItemId`, and delete all temporary data.
 - Backend single-company auth cleanup passed: `mvn test`, `mvn package -DskipTests`, local restart, sales-manager login with token no longer carrying a tenant suffix, menu loading, and production order list API smoke test.
+- Ongoing single-company cleanup removes tenant-facing account flows across the app while keeping `tenant_id` columns/entities as a compatibility shell until a dedicated database migration can safely drop them.
+- Full-system single-company cleanup passed: `git diff --check`, backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, local restart, sales-manager login/menu smoke, `/user/infoWithCompany`, legacy `/user/infoWithTenant`, and `/tenant/list` returning 404 after removing the controller.
 
 Known non-blocking frontend warnings:
 

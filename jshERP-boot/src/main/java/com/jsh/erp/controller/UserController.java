@@ -540,14 +540,13 @@ public class UserController extends BaseController {
      * @param request
      * @return
      */
-    @GetMapping(value = "/infoWithTenant")
+    @GetMapping(value = "/infoWithCompany")
     @ApiOperation(value = "获取当前用户数量和单公司模式信息")
-    public BaseResponseInfo infoWithTenant(HttpServletRequest request){
+    public BaseResponseInfo infoWithCompany(HttpServletRequest request){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             Map<String, Object> data = new HashMap<>();
             Long userId = Long.parseLong(redisService.getObjectFromSessionByKey(request,"userId").toString());
-            User user = userService.getUser(userId);
             //获取当前用户数
             int userCurrentNum = userService.getUser(request).size();
             data.put("type", "1");
@@ -564,5 +563,11 @@ public class UserController extends BaseController {
             res.data = "获取失败";
         }
         return res;
+    }
+
+    @GetMapping(value = "/infoWithTenant")
+    @ApiOperation(value = "获取当前用户数量和单公司模式信息（兼容旧接口）")
+    public BaseResponseInfo infoWithTenant(HttpServletRequest request){
+        return infoWithCompany(request);
     }
 }

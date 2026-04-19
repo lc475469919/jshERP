@@ -3,16 +3,11 @@ import { getAction, deleteAction, putAction, postAction, httpAction } from '@/ap
 //首页统计
 const getBuyAndSaleStatistics = (params)=>getAction("/depotHead/getBuyAndSaleStatistics",params);
 const buyOrSalePrice = (params)=>getAction("/depotItem/buyOrSalePrice",params);
-//兼容旧账号管理接口
-const checkTenant = (params)=>getAction("/tenant/checkIsNameExist",params);
-const addTenant = (params)=>postAction("/tenant/add",params);
-const editTenant = (params)=>putAction("/tenant/update",params);
 //角色管理
 const addRole = (params)=>postAction("/role/add",params);
 const editRole = (params)=>putAction("/role/update",params);
 const checkRole = (params)=>getAction("/role/checkIsNameExist",params);
 const roleAllList = (params)=>getAction("/role/allList",params);
-const getTenantRoleList = (params)=>getAction("/role/tenantRoleList",params);
 //用户管理
 const registerUser = (params)=>postAction("/user/registerUser",params);
 const addUser = (params)=>postAction("/user/addUser",params);
@@ -125,14 +120,10 @@ const findFinancialDetailByNumber = (params)=>getAction("/accountHead/getDetailB
 export {
   getBuyAndSaleStatistics,
   buyOrSalePrice,
-  checkTenant,
-  addTenant,
-  editTenant,
   addRole,
   editRole,
   checkRole,
   roleAllList,
-  getTenantRoleList,
   registerUser,
   addUser,
   editUser,
