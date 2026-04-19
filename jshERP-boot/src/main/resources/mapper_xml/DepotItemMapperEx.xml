@@ -222,7 +222,7 @@
         and di.material_id = #{mId}
         and ifnull(dh.delete_flag,'0') !='1'
         union all
-        --单独构造记录：调拨入库
+        /* 单独构造记录：调拨入库 */
         select dh.number,me.bar_code,m.name material_name,dh.type,dh.sub_type,
         ifnull(di.basic_number,0) as b_num, di.unit_price, di.material_unit,
         (select concat(name,'[调入]') from jsh_depot d where d.id=di.another_depot_id and ifnull(d.delete_flag,'0') !='1') as depotName,
@@ -302,7 +302,7 @@
         and di.material_id =#{mId}
         and ifnull(dh.delete_flag,'0') !='1'
         union all
-        --单独构造记录：调拨入库
+        /* 单独构造记录：调拨入库 */
         select dh.number from jsh_depot_head dh
         left join jsh_depot_item di on dh.id=di.header_id and ifnull(di.delete_flag,'0') !='1'
         where dh.type='出库' and dh.sub_type='调拨'

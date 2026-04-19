@@ -14,6 +14,7 @@ import com.jsh.erp.exception.BusinessRunTimeException;
 import com.jsh.erp.exception.JshException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -44,6 +45,7 @@ public class UserService {
     private RoleService roleService;
     @Resource
     private FunctionService functionService;
+    @Lazy
     @Resource
     private PlatformConfigService platformConfigService;
     @Resource
