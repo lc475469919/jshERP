@@ -63,6 +63,7 @@ Last verified on 2026-04-19:
 - Backend single-company auth cleanup passed: `mvn test`, `mvn package -DskipTests`, local restart, sales-manager login with token no longer carrying a tenant suffix, menu loading, and production order list API smoke test.
 - Ongoing single-company cleanup removes tenant-facing account flows across the app while keeping `tenant_id` columns/entities as a compatibility shell until a dedicated database migration can safely drop them.
 - Full-system single-company cleanup passed: `git diff --check`, backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, local restart, sales-manager login/menu smoke, `/user/infoWithCompany`, legacy `/user/infoWithTenant`, and `/tenant/list` returning 404 after removing the controller.
+- Approval submit fix on 2026-04-19: historical local DB lacked `jsh_approval_task.current_step_no` and `total_step`, causing sales order approval submit to fail with `Unknown column 'current_step_no'`; added `docs/approval_task_step_columns.sql`, applied it locally, and verified submit/approve for `XSDD00000000685`.
 
 Known non-blocking frontend warnings:
 

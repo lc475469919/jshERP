@@ -1937,6 +1937,7 @@ where not exists (select 1 from jsh_function where `number`='000122');
 insert into jsh_function (`number`, `name`, `parent_number`, `url`, `component`, `state`, `sort`, `enabled`, `type`, `push_btn`, `icon`, `delete_flag`)
 select '000124', '审批中心', '0001', '/system/approval_task', '/system/ApprovalTaskList', b'0', '1210', b'1', '电脑版', '', 'audit', '0' from dual
 where not exists (select 1 from jsh_function where `number`='000124');
+-- 如果历史库已创建 jsh_approval_task，但缺少多步骤审批字段，请执行 docs/approval_task_step_columns.sql。
 update jsh_function
 set `enabled`=b'0', `delete_flag`='1'
 where `number`='000123';
