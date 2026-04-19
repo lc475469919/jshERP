@@ -153,7 +153,11 @@ export default {
         postAction(url, {
           id: this.finishRecord.id,
           approveRemark: values.approveRemark || ''
-        }).then(() => {
+        }).then(res => {
+          if (!res || res.code !== 200) {
+            this.$message.warning((res && res.data) || '审批处理失败')
+            return
+          }
           this.$message.success(this.finishIsApprove ? '审批已通过' : '审批已驳回')
           this.finishVisible = false
           this.loadData()
