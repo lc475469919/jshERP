@@ -672,10 +672,6 @@ public class SupplierService {
             String ubKey = "[" + sInfo.getId() + "]";
             //授权当前用户
             setPermissionByParam(user.getId(), ubKey);
-            if(!user.getId().equals(user.getTenantId())) {
-                //授权当前租户
-                setPermissionByParam(user.getTenantId(), ubKey);
-            }
         }
     }
 

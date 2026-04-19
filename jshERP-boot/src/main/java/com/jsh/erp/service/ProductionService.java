@@ -586,8 +586,7 @@ public class ProductionService {
     }
 
     private Long getTenantId() throws Exception {
-        User user = userService.getCurrentUser();
-        return user == null ? null : user.getTenantId();
+        return null;
     }
 
     private String nextNo(String prefix) {

@@ -558,7 +558,6 @@ public class ApprovalService {
     }
 
     private Long getTenantId() throws Exception {
-        User user = userService.getCurrentUser();
-        return user == null ? null : (user.getTenantId() == null ? user.getId() : user.getTenantId());
+        return null;
     }
 }

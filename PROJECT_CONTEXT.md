@@ -60,6 +60,7 @@ Last verified on 2026-04-19:
 - API smoke test passed for first-pass `生产质检`: create a temporary production task, save/query/delete a quality inspection with good/defect/scrap quantities and defect item, then delete the temporary task.
 - Backend: `cd /Users/mac/jshERP/jshERP-boot && mvn package -DskipTests` passed.
 - API smoke test passed for `不良品项` and `生产质检` linkage: create a temporary defect item, create a temporary production task, save/query/delete a quality inspection using `defectItemId`, and delete all temporary data.
+- Backend single-company auth cleanup passed: `mvn test`, `mvn package -DskipTests`, local restart, sales-manager login with token no longer carrying a tenant suffix, menu loading, and production order list API smoke test.
 
 Known non-blocking frontend warnings:
 

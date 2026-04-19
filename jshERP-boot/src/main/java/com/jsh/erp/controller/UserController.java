@@ -554,7 +554,7 @@ public class UserController extends BaseController {
             data.put("expireTime", "");
             data.put("userCurrentNum", userCurrentNum);
             data.put("userNumLimit", 999999);
-            data.put("tenantId", user.getTenantId() == null ? user.getId() : user.getTenantId());
+            data.put("tenantId", 0L);
             data.put("singleCompanyMode", true);
             res.code = 200;
             res.data = data;

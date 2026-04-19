@@ -182,9 +182,7 @@ public class SystemConfigService {
             if (bizPath.contains("..") || bizPath.contains("/")) {
                 throw new IllegalArgumentException("Invalid bizPath");
             }
-            String token = request.getHeader("X-Access-Token");
-            Long tenantId = Tools.getTenantIdByToken(token);
-            bizPath = bizPath + File.separator + tenantId;
+            bizPath = bizPath + File.separator + "company";
             String ctxPath = filePath;
             String fileName = null;
             File file = new File(ctxPath + File.separator + bizPath + File.separator );
@@ -248,9 +246,7 @@ public class SystemConfigService {
         if (bizPath.contains("..") || bizPath.contains("/")) {
             throw new IllegalArgumentException("Invalid bizPath");
         }
-        String token = request.getHeader("X-Access-Token");
-        Long tenantId = Tools.getTenantIdByToken(token);
-        bizPath = bizPath + "/" + tenantId;
+        bizPath = bizPath + "/company";
         String endpoint = platformConfigService.getPlatformConfigByKey("aliOss_endpoint").getPlatformValue();
         String accessKeyId = platformConfigService.getPlatformConfigByKey("aliOss_accessKeyId").getPlatformValue();
         String accessKeySecret = platformConfigService.getPlatformConfigByKey("aliOss_accessKeySecret").getPlatformValue();

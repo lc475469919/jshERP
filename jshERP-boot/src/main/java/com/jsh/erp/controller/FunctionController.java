@@ -197,10 +197,9 @@ public class FunctionController extends BaseController {
     public JSONArray getMenuByFunction(List<Function> dataList, String fc, String approvalFlag, Map<Long, Long> funIdMap, User userInfo) throws Exception {
         JSONArray dataArray = new JSONArray();
         for (Function function : dataList) {
-            //如果不是超管也不是租户就需要校验，防止分配下级用户的功能权限，大于租户的权限
+            // 单公司模式下只区分默认管理员和角色权限，不再使用租户身份放大菜单权限。
             boolean isAdmin = BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName());
-            boolean isTenant = userInfo.getId() != null && userInfo.getId().equals(userInfo.getTenantId());
-            if(isAdmin || isTenant || (funIdMap != null && funIdMap.get(function.getId()) != null)) {
+            if(isAdmin || (funIdMap != null && funIdMap.get(function.getId()) != null)) {
                 //如果关闭多级审核，遇到任务审核菜单直接跳过
                 if("0".equals(approvalFlag) && "/workflow".equals(function.getUrl())) {
                     continue;
@@ -259,14 +258,8 @@ public class FunctionController extends BaseController {
                 //根据条件从列表里面移除"系统管理"
                 List<Function> dataList = new ArrayList<>();
                 for (Function fun : dataListFun) {
-                    String token = request.getHeader("X-Access-Token");
-                    Long tenantId = Tools.getTenantIdByToken(token);
-                    if (tenantId!=0L) {
-                        if(!("系统管理").equals(fun.getName())) {
-                            dataList.add(fun);
-                        }
-                    } else {
-                        //超管
+                    if (BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName())
+                            || !("系统管理").equals(fun.getName())) {
                         dataList.add(fun);
                     }
                 }

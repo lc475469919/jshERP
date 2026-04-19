@@ -108,14 +108,7 @@ public class UserService {
                 PageUtils.startPage();
                 list = userMapperEx.selectByConditionUser(userName, loginName);
                 for (UserEx ue : list) {
-                    String userType = "";
-                    if (ue.getId().equals(ue.getTenantId())) {
-                        userType = "主账号";
-                    } else if (ue.getTenantId() == null) {
-                        userType = "超管";
-                    } else {
-                        userType = "普通";
-                    }
+                    String userType = BusinessConstants.DEFAULT_MANAGER.equals(ue.getLoginName()) ? "管理员" : "普通";
                     ue.setUserType(userType);
                     //是否经理
                     String leaderFlagStr = "";
@@ -245,11 +238,10 @@ public class UserService {
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
         List<User> list = getUserListByIds(ids);
         for(User user: list){
-            if(user.getId().equals(user.getTenantId())) {
-                logger.error("异常码[{}],异常提示[{}],参数,ids:[{}]",
-                        ExceptionConstants.USER_LIMIT_TENANT_DELETE_CODE,ExceptionConstants.USER_LIMIT_TENANT_DELETE_MSG,ids);
-                throw new BusinessRunTimeException(ExceptionConstants.USER_LIMIT_TENANT_DELETE_CODE,
-                        ExceptionConstants.USER_LIMIT_TENANT_DELETE_MSG);
+            if(BusinessConstants.DEFAULT_MANAGER.equals(user.getLoginName())) {
+                logger.error("默认管理员禁止删除, 参数ids:[{}]", ids);
+                throw new BusinessRunTimeException(ExceptionConstants.USER_NAME_LIMIT_USE_CODE,
+                        ExceptionConstants.USER_NAME_LIMIT_USE_MSG);
             }
             sb.append("[").append(user.getLoginName()).append("]");
         }
@@ -361,9 +353,6 @@ public class UserService {
                 msgTip = "user can login";
                 //验证通过 ，可以登录，放入session，记录登录日志
                 user = getUserByLoginName(loginName);
-                if(user.getTenantId()!=null) {
-                    token = token + "_" + user.getTenantId();
-                }
                 redisService.storageObjectBySession(token,"userId",user.getId());
                 break;
             default:
@@ -382,7 +371,7 @@ public class UserService {
                 sendEmailToCurrentUser(request, user);
             }
             redisService.storageObjectBySession(token,"clientIp", Tools.getLocalIp(request));
-            logService.insertLogWithUserId(user.getId(), user.getTenantId(), "用户",
+            logService.insertLogWithUserId(user.getId(), null, "用户",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_LOGIN).append(user.getLoginName()).toString(),
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             data.put("token", token);
@@ -520,7 +509,6 @@ public class UserService {
             checkRoleAndOrg(ue);
             //检查用户名和登录名
             checkLoginName(ue);
-            fillCurrentTenant(ue, request);
             //新增用户信息
             ue= this.addUser(ue);
             if(ue==null){
@@ -585,20 +573,6 @@ public class UserService {
             return ue;
         }
         return null;
-    }
-
-    private void fillCurrentTenant(UserEx ue, HttpServletRequest request) throws Exception {
-        if (ue.getTenantId() != null) {
-            return;
-        }
-        Long currentUserId = getUserId(request);
-        if (currentUserId == null) {
-            return;
-        }
-        User currentUser = userMapper.selectByPrimaryKey(currentUserId);
-        if (currentUser != null && currentUser.getTenantId() != null) {
-            ue.setTenantId(currentUser.getTenantId());
-        }
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
