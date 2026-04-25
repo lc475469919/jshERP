@@ -340,12 +340,6 @@ public class UserService {
             case ExceptionCodeConstants.UserExceptionCode.USER_ACCESS_EXCEPTION:
                 msgTip = "access service error";
                 break;
-            case ExceptionCodeConstants.UserExceptionCode.BLACK_TENANT:
-                msgTip = "user is black";
-                break;
-            case ExceptionCodeConstants.UserExceptionCode.EXPIRE_TENANT:
-                msgTip = "user is black";
-                break;
             case ExceptionCodeConstants.UserExceptionCode.USER_CONDITION_FIT:
                 msgTip = "user can login";
                 //验证通过 ，可以登录，放入session，记录登录日志

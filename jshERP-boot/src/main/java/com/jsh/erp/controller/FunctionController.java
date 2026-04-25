@@ -197,7 +197,7 @@ public class FunctionController extends BaseController {
     public JSONArray getMenuByFunction(List<Function> dataList, String fc, String approvalFlag, Map<Long, Long> funIdMap, User userInfo) throws Exception {
         JSONArray dataArray = new JSONArray();
         for (Function function : dataList) {
-            // 单公司模式下只区分默认管理员和角色权限，不再使用租户身份放大菜单权限。
+            // 单公司模式下只区分默认管理员和角色权限。
             boolean isAdmin = BusinessConstants.DEFAULT_MANAGER.equals(userInfo.getLoginName());
             if(isAdmin || (funIdMap != null && funIdMap.get(function.getId()) != null)) {
                 //如果关闭多级审核，遇到任务审核菜单直接跳过

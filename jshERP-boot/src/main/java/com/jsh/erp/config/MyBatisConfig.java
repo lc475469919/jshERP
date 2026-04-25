@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 
 @Service
-public class TenantConfig {
+public class MyBatisConfig {
 
     @Bean
     public PaginationInterceptor paginationInterceptor(HttpServletRequest request) {
-        // 单公司模式：保留历史表里的 tenant_id 字段，但不再由 MyBatis 自动追加租户隔离条件。
+        // 单公司模式：分页插件只处理分页，不再追加企业隔离条件。
         return new PaginationInterceptor();
     }
 

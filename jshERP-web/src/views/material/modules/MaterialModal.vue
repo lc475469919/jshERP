@@ -656,7 +656,7 @@
       },
       /** 发起新增或修改的请求 */
       requestAddOrEdit(formData) {
-        //复制新增商品-初始化id和租户id
+        //复制新增商品时清空历史主键和兼容字段
         if(this.action === 'copyAdd') {
           this.model.id = ''
           this.model.tenantId = ''

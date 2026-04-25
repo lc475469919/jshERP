@@ -4,17 +4,22 @@ This file is the handoff note for future Codex sessions. Keep it short and updat
 
 ## Current Goal
 
-Continue building the customized jshERP work around:
+Primary direction changed on 2026-04-25: build a new standalone ERP under `yize-erp/`, using jshERP only as local workspace/history context and optional technical reference.
 
-- approval workflow support
-- WeChat mini program client
-- lightweight production management: BOM, production task, production material issue, finished goods stock-in, and production-to-inventory document linkage
-- single-company/local runtime setup
+Continue building the new ERP around:
+
+- single-company ERP, no tenant/platform/SaaS concept
+- management admin web
+- backend API
+- WeChat mini program
+- manufacturing edition scope aligned to the Loafish manufacturing trial
+- purchase, sales, inventory, production, outsourcing, finance, HR, attendance, payroll, reports, and settings
 
 If the chat history is unavailable, read this file first, then inspect `git status` and recent commits.
 
 ## Repository Layout
 
+- `yize-erp/`: new standalone ERP project scaffold and product docs.
 - `jshERP-boot/`: Spring Boot backend.
 - `jshERP-web/`: Vue 2 admin web frontend.
 - `jshERP-miniprogram/`: WeChat mini program MVP.
@@ -63,9 +68,15 @@ Last verified on 2026-04-19:
 - Backend single-company auth cleanup passed: `mvn test`, `mvn package -DskipTests`, local restart, sales-manager login with token no longer carrying a tenant suffix, menu loading, and production order list API smoke test.
 - Ongoing single-company cleanup removes tenant-facing account flows across the app while keeping `tenant_id` columns/entities as a compatibility shell until a dedicated database migration can safely drop them.
 - Full-system single-company cleanup passed: `git diff --check`, backend `mvn test`, backend `mvn package -DskipTests`, Web `npm run build`, local restart, sales-manager login/menu smoke, `/user/infoWithCompany`, legacy `/user/infoWithTenant`, and `/tenant/list` returning 404 after removing the controller.
+- Single-company product wording cleanup on 2026-04-25: the ERP direction is to drop the tenant concept entirely from product and hand-written business code. Removed unused `tenant.*` config, renamed `TenantConfig` to `MyBatisConfig`, removed the `/user/infoWithTenant` compatibility endpoint, removed old tenant login error constants and token parsing helper, and documented the owned ERP blueprint in `docs/my-erp-blueprint.md`. Verified `git diff --check` and backend `mvn test`.
+- HR/payroll planning on 2026-04-25: added `docs/hr-payroll-module.md` and database draft `jshERP-boot/docs/hr_payroll_module.sql` for employee records, attendance shifts, clock-in records, leave/overtime applications, piecework wage details, salary sheets, and salary payments. The intended linkage is production process reports -> piecework wages, attendance -> time/overtime/deduction wage items, salary confirmation -> financial payment records.
+- Manufacturing reference backlog on 2026-04-25: inspected the Loafish manufacturing trial at `https://sv.loafish.com/lfdp/a?login`, version `制造业版`, test account `13512733500 / 111111`. Added `docs/manufacturing-reference-backlog.md` with the full production menu map, production task fields/actions, batch issue/usage/inspection/stock-in formulas, process report fields, shortage tracking formula, and implementation batches. User direction: if the reference manufacturing edition has it, add it to our ERP roadmap.
+- Direction clarified on 2026-04-25: user wants to effectively recreate the reference manufacturing ERP experience, not merely extend the existing lightweight production module. Treat current jshERP as a technical/base scaffold only; the production module can be discarded or rebuilt. Do not copy third-party source/assets/branding, but reproduce the business modules, workflows, fields, state transitions, formulas, reports, and mini-program/mobile behavior in our own implementation.
+- New standalone project scaffold on 2026-04-25: added `yize-erp/` with product docs (`README.md`, `docs/product-scope.md`, `docs/architecture.md`, `docs/implementation-roadmap.md`, `docs/reference-clean-room.md`). User direction: "抛开 jshERP，新作一个项目"; all modules from the reference ERP can be recreated functionally, using clean-room implementation rather than copying protected source/assets.
 - Approval submit fix on 2026-04-19: historical local DB lacked `jsh_approval_task.current_step_no` and `total_step`, causing sales order approval submit to fail with `Unknown column 'current_step_no'`; added `docs/approval_task_step_columns.sql`, applied it locally, and verified submit/approve for `XSDD00000000685`.
 - Approval follow-up on 2026-04-19: verified approval task list/count/latest, submit/reject path with a temporary sales order, and cleaned temporary data; fixed the approval center so approve/reject only shows success when the backend returns `code=200`. Direct browser GET to `http://127.0.0.1:3000/jshERP-boot/depotHead/addDepotHeadAndDetail` returns `loginOut` because it is a token-protected POST endpoint proxied from the frontend to backend.
 - Sales order save fix on 2026-04-19: `addDepotHeadAndDetail` failed during current-cost refresh because two `--单独构造记录：调拨入库` SQL comments inside a MyBatis `UNION ALL` query were passed to MySQL without a required following space/newline context; changed them to block comments. A restart also exposed a `PlatformConfigService`/`UserService` circular dependency, fixed by lazy-injecting `PlatformConfigService` into `UserService` and `SystemConfigService`. Verified `git diff --check`, backend `mvn test`, backend `mvn package -DskipTests`, backend startup, authenticated login as `jsh`, and a real temporary sales order save through `/depotHead/addDepotHeadAndDetail`; temporary order `XSDD-CODEX-VERIFY-1846` was deleted.
+- Sales order approval flow follow-up on 2026-04-19: verified real API flow for temporary sales order save -> submit approval with `billTable=depot_head` -> sales-manager pending count -> approve -> bill status `1`; cleaned temporary bill/task data. Fixed approval approve/reject responses to include `approveTime`/`updateTime` immediately instead of returning stale null values after the database update. Re-verified backend `mvn test`, `mvn package -DskipTests`, backend restart, and temporary sales order approval flow with returned `approveTime`.
 
 Known non-blocking frontend warnings:
 

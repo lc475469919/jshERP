@@ -553,7 +553,6 @@ public class UserController extends BaseController {
             data.put("expireTime", "");
             data.put("userCurrentNum", userCurrentNum);
             data.put("userNumLimit", 999999);
-            data.put("tenantId", 0L);
             data.put("singleCompanyMode", true);
             res.code = 200;
             res.data = data;
@@ -563,11 +562,5 @@ public class UserController extends BaseController {
             res.data = "获取失败";
         }
         return res;
-    }
-
-    @GetMapping(value = "/infoWithTenant")
-    @ApiOperation(value = "获取当前用户数量和单公司模式信息（兼容旧接口）")
-    public BaseResponseInfo infoWithTenant(HttpServletRequest request){
-        return infoWithCompany(request);
     }
 }

@@ -32,15 +32,9 @@ spring:
 mybatis-plus:
   mapper-locations: classpath:./mapper_xml/*.xml
 
-# 租户对应的角色 id
+# 默认管理员角色 id
 manage:
   roleId: 10
-
-tenant:
-  # 租户允许创建的用户数
-  userNumLimit: 1000000
-  # 租户允许试用的天数
-  tryDayLimit: 3000
 
 # 插件配置
 plugin:
