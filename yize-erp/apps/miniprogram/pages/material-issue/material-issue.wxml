@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="toolbar">
+    <input class="search" value="{{keyword}}" placeholder="领料单号" bindinput="onKeywordInput" confirm-type="search" bindconfirm="search" />
+    <button class="search-btn" size="mini" bindtap="search">查询</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="hint">加载中...</view>
+  <view wx:elif="{{rows.length === 0}}" class="hint">暂无领料单</view>
+
+  <view wx:for="{{rows}}" wx:key="id" class="issue-card">
+    <view class="issue-head">
+      <view class="issue-no">{{item.issueNo}}</view>
+      <view class="status">{{item.statusName}}</view>
+    </view>
+    <view class="row">
+      <text>生产任务</text>
+      <text>{{item.taskId}}</text>
+    </view>
+    <view class="row">
+      <text>仓库</text>
+      <text>{{item.warehouseId}}</text>
+    </view>
+    <view class="row">
+      <text>领料人</text>
+      <text>{{item.issueUserName || '-'}}</text>
+    </view>
+    <view class="row">
+      <text>时间</text>
+      <text>{{item.issueTime}}</text>
+    </view>
+  </view>
+</view>

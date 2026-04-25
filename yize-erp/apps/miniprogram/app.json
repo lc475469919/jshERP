@@ -4,6 +4,7 @@
     "pages/home/home",
     "pages/manufacturing/manufacturing",
     "pages/manufacturing-task/manufacturing-task",
+    "pages/material-issue/material-issue",
     "pages/inventory/inventory",
     "pages/approval/approval",
     "pages/attendance/attendance",

@@ -3,7 +3,7 @@
   <view class="card">
     <view class="grid">
       <view class="entry" bindtap="openTasks">生产任务</view>
-      <view class="entry">生产领料</view>
+      <view class="entry" bindtap="openMaterialIssues">生产领料</view>
       <view class="entry">工序汇报</view>
       <view class="entry">生产质检</view>
       <view class="entry">成品入库</view>

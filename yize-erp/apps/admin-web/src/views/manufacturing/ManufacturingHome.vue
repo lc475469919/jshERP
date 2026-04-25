@@ -47,7 +47,7 @@ const go = (path: string) => router.push(path)
 
 const selfMade = [
   { name: '生产任务', path: '/manufacturing/tasks' },
-  { name: '生产领料' },
+  { name: '生产领料', path: '/manufacturing/material-issues' },
   { name: '用料登记' },
   { name: '工序汇报' },
   { name: '生产质检' },
