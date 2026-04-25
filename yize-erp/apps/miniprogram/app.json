@@ -3,6 +3,7 @@
     "pages/login/login",
     "pages/home/home",
     "pages/manufacturing/manufacturing",
+    "pages/manufacturing-task/manufacturing-task",
     "pages/inventory/inventory",
     "pages/approval/approval",
     "pages/attendance/attendance",

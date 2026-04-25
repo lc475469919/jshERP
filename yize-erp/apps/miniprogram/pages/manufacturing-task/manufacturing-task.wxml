@@ -1,0 +1,29 @@
+<view class="page">
+  <view class="toolbar">
+    <input class="search" value="{{keyword}}" placeholder="任务号 / 产品 / 客户" bindinput="onKeywordInput" confirm-type="search" bindconfirm="search" />
+    <button class="search-btn" size="mini" bindtap="search">查询</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="hint">加载中...</view>
+  <view wx:elif="{{rows.length === 0}}" class="hint">暂无生产任务</view>
+
+  <view wx:for="{{rows}}" wx:key="id" class="task-card">
+    <view class="task-head">
+      <view class="task-no">{{item.taskNo}}</view>
+      <view class="status">{{item.statusName}}</view>
+    </view>
+    <view class="product">{{item.productName}}</view>
+    <view class="row">
+      <text>计划数</text>
+      <text>{{item.planQty}}</text>
+    </view>
+    <view class="row">
+      <text>完成数</text>
+      <text>{{item.finishedQty}}</text>
+    </view>
+    <view class="row">
+      <text>计划完工</text>
+      <text>{{item.planFinishDate || '-'}}</text>
+    </view>
+  </view>
+</view>

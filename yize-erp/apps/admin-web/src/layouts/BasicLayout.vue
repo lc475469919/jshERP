@@ -30,7 +30,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
-const selectedKey = computed(() => route.path)
+const selectedKey = computed(() => route.path.startsWith('/manufacturing') ? '/manufacturing' : route.path)
 const go = (path: string) => router.push(path)
 </script>
 
