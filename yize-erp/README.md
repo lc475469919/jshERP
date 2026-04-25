@@ -39,3 +39,7 @@ yize-erp/
 3. 搭建后端、管理端、小程序工程骨架。
 4. 先实现基础资料、商品、客户、供应商、仓库。
 5. 再实现生产任务、BOM、领料、用料、工序汇报、质检、成品入库闭环。
+
+## 本地开发
+
+见 [docs/local-development.md](docs/local-development.md)。

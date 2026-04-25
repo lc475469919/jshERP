@@ -1,0 +1,13 @@
+<view class="page">
+  <view class="title">考勤打卡</view>
+  <view class="card">
+    <button type="primary">上班打卡</button>
+    <button>下班打卡</button>
+  </view>
+  <view class="grid">
+    <view class="entry">请假申请</view>
+    <view class="entry">加班申请</view>
+    <view class="entry">我的考勤</view>
+    <view class="entry">补卡申请</view>
+  </view>
+</view>

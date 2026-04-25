@@ -1,0 +1,9 @@
+<view class="page">
+  <view class="title">今日待办</view>
+  <view class="grid">
+    <view class="entry">待生产任务 0</view>
+    <view class="entry">待审批 0</view>
+    <view class="entry">缺料预警 0</view>
+    <view class="entry">库存预警 0</view>
+  </view>
+</view>

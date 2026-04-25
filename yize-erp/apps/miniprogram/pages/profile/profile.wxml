@@ -1,0 +1,8 @@
+<view class="page">
+  <view class="title">我的</view>
+  <view class="card">员工信息</view>
+  <view class="grid">
+    <navigator class="entry" url="/pages/salary/salary">工资条</navigator>
+    <view class="entry">系统设置</view>
+  </view>
+</view>

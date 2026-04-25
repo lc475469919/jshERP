@@ -1,0 +1,4 @@
+<view class="page">
+  <view class="title">审批中心</view>
+  <view class="card">暂无待审批单据</view>
+</view>
