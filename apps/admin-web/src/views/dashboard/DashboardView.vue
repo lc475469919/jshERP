@@ -14,7 +14,7 @@
 <script setup lang="ts">
 const metrics = [
   { title: '当前阶段', value: 0 },
-  { title: '系统模块', value: 0 },
+  { title: '系统模块', value: 7 },
   { title: '基础资料', value: 0 },
   { title: '待办事项', value: 0 }
 ]

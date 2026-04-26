@@ -10,7 +10,25 @@ body {
 }
 
 .page-title {
-  margin: 0 0 12px;
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
+}
+
+.page-desc {
+  margin: 6px 0 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.page-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.ant-table-wrapper {
+  background: #fff;
 }
