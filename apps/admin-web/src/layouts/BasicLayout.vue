@@ -12,7 +12,17 @@
           <a-menu-item key="/system/number-rules" @click="router.push('/system/number-rules')">编号规则</a-menu-item>
           <a-menu-item key="/system/logs" @click="router.push('/system/logs')">操作日志</a-menu-item>
         </a-sub-menu>
-        <a-menu-item key="/masterdata" disabled>基础资料</a-menu-item>
+        <a-sub-menu key="/master-data" title="基础资料">
+          <a-sub-menu key="/master-data/product" title="商品管理">
+            <a-menu-item key="/master-data/products" @click="router.push('/master-data/products')">商品信息</a-menu-item>
+            <a-menu-item key="/master-data/product-attrs" @click="router.push('/master-data/product-attrs')">商品属性</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="/master-data/info" title="信息管理">
+            <a-menu-item key="/master-data/suppliers" @click="router.push('/master-data/suppliers')">供应商管理</a-menu-item>
+            <a-menu-item key="/master-data/projects" @click="router.push('/master-data/projects')">项目信息</a-menu-item>
+            <a-menu-item key="/master-data/logistics" @click="router.push('/master-data/logistics')">物流公司</a-menu-item>
+          </a-sub-menu>
+        </a-sub-menu>
         <a-menu-item key="/inventory" disabled>库存</a-menu-item>
         <a-menu-item key="/purchase" disabled>采购</a-menu-item>
         <a-menu-item key="/sales" disabled>销售</a-menu-item>
