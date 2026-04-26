@@ -1,0 +1,24 @@
+page {
+  background: #f4f6f8;
+  color: #1f2933;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.title {
+  margin-bottom: 20rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.card {
+  padding: 24rpx;
+  background: #fff;
+  border: 1rpx solid #e5e7eb;
+  border-radius: 8rpx;
+}

@@ -1,0 +1,4 @@
+.line {
+  color: #475467;
+  font-size: 28rpx;
+}

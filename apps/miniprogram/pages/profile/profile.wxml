@@ -1,0 +1,6 @@
+<view class="page">
+  <view class="title">我的</view>
+  <view class="card">
+    <view class="line">未登录</view>
+  </view>
+</view>

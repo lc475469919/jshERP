@@ -1,0 +1,7 @@
+<view class="page">
+  <view class="title">系统首页</view>
+  <view class="card">
+    <view class="line">当前阶段：系统底座</view>
+    <view class="line">下一步：登录、用户、角色、权限</view>
+  </view>
+</view>
