@@ -7,6 +7,7 @@ import com.yize.erp.common.PageResult;
 import com.yize.erp.system.dto.RoleSaveRequest;
 import com.yize.erp.system.entity.SysRole;
 import com.yize.erp.system.entity.SysRoleMenu;
+import com.yize.erp.system.log.LogOperation;
 import com.yize.erp.system.mapper.SysRoleMapper;
 import com.yize.erp.system.mapper.SysRoleMenuMapper;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -60,6 +61,7 @@ public class RoleController {
     }
 
     @PostMapping
+    @LogOperation(module = "角色管理", operation = "新增角色")
     public ApiResponse<Void> create(@RequestBody RoleSaveRequest request) {
         SysRole role = new SysRole();
         role.setRoleCode(SystemHelper.requireText(request.roleCode(), "角色编码不能为空"));
@@ -72,6 +74,7 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
+    @LogOperation(module = "角色管理", operation = "编辑角色")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody RoleSaveRequest request) {
         SysRole role = roleMapper.selectById(id);
         if (role == null) {
@@ -86,6 +89,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{id}")
+    @LogOperation(module = "角色管理", operation = "删除角色")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         if (id == 1L) {
             throw new IllegalArgumentException("初始化管理员角色不能删除");

@@ -8,6 +8,7 @@ import com.yize.erp.system.dto.DictItemSaveRequest;
 import com.yize.erp.system.dto.DictTypeSaveRequest;
 import com.yize.erp.system.entity.SysDictItem;
 import com.yize.erp.system.entity.SysDictType;
+import com.yize.erp.system.log.LogOperation;
 import com.yize.erp.system.mapper.SysDictItemMapper;
 import com.yize.erp.system.mapper.SysDictTypeMapper;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -50,6 +51,7 @@ public class DictController {
     }
 
     @PostMapping
+    @LogOperation(module = "字典管理", operation = "新增字典")
     public ApiResponse<Void> createType(@RequestBody DictTypeSaveRequest request) {
         SysDictType type = new SysDictType();
         copy(type, request);
@@ -58,6 +60,7 @@ public class DictController {
     }
 
     @PutMapping("/{id}")
+    @LogOperation(module = "字典管理", operation = "编辑字典")
     public ApiResponse<Void> updateType(@PathVariable Long id, @RequestBody DictTypeSaveRequest request) {
         SysDictType type = dictTypeMapper.selectById(id);
         if (type == null) {
@@ -69,6 +72,7 @@ public class DictController {
     }
 
     @DeleteMapping("/{id}")
+    @LogOperation(module = "字典管理", operation = "删除字典")
     public ApiResponse<Void> deleteType(@PathVariable Long id) {
         Long itemCount = dictItemMapper.selectCount(new LambdaQueryWrapper<SysDictItem>().eq(SysDictItem::getDictTypeId, id));
         if (itemCount > 0) {
@@ -87,6 +91,7 @@ public class DictController {
     }
 
     @PostMapping("/{dictTypeId}/items")
+    @LogOperation(module = "字典管理", operation = "新增字典项")
     public ApiResponse<Void> createItem(@PathVariable Long dictTypeId, @RequestBody DictItemSaveRequest request) {
         SysDictItem item = new SysDictItem();
         copy(item, dictTypeId, request);
@@ -95,6 +100,7 @@ public class DictController {
     }
 
     @PutMapping("/items/{id}")
+    @LogOperation(module = "字典管理", operation = "编辑字典项")
     public ApiResponse<Void> updateItem(@PathVariable Long id, @RequestBody DictItemSaveRequest request) {
         SysDictItem item = dictItemMapper.selectById(id);
         if (item == null) {
@@ -106,6 +112,7 @@ public class DictController {
     }
 
     @DeleteMapping("/items/{id}")
+    @LogOperation(module = "字典管理", operation = "删除字典项")
     public ApiResponse<Void> deleteItem(@PathVariable Long id) {
         dictItemMapper.deleteById(id);
         return ApiResponse.ok();

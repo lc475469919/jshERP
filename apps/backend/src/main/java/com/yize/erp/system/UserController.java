@@ -7,6 +7,7 @@ import com.yize.erp.common.PageResult;
 import com.yize.erp.system.dto.UserSaveRequest;
 import com.yize.erp.system.entity.SysUser;
 import com.yize.erp.system.entity.SysUserRole;
+import com.yize.erp.system.log.LogOperation;
 import com.yize.erp.system.mapper.SysUserMapper;
 import com.yize.erp.system.mapper.SysUserRoleMapper;
 import com.yize.erp.system.util.PasswordUtil;
@@ -69,6 +70,7 @@ public class UserController {
     }
 
     @PostMapping
+    @LogOperation(module = "用户管理", operation = "新增用户")
     public ApiResponse<Void> create(@RequestBody UserSaveRequest request) {
         SysUser user = new SysUser();
         user.setAccount(SystemHelper.requireText(request.account(), "账号不能为空"));
@@ -85,6 +87,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @LogOperation(module = "用户管理", operation = "编辑用户")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody UserSaveRequest request) {
         SysUser user = userMapper.selectById(id);
         if (user == null) {
@@ -105,6 +108,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @LogOperation(module = "用户管理", operation = "删除用户")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         if (id == 1L) {
             throw new IllegalArgumentException("初始化管理员不能删除");

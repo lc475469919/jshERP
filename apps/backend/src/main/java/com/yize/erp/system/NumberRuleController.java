@@ -6,6 +6,7 @@ import com.yize.erp.common.ApiResponse;
 import com.yize.erp.common.PageResult;
 import com.yize.erp.system.dto.NumberRuleSaveRequest;
 import com.yize.erp.system.entity.SysNumberRule;
+import com.yize.erp.system.log.LogOperation;
 import com.yize.erp.system.mapper.SysNumberRuleMapper;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,6 +47,7 @@ public class NumberRuleController {
     }
 
     @PostMapping
+    @LogOperation(module = "编号规则", operation = "新增编号规则")
     public ApiResponse<Void> create(@RequestBody NumberRuleSaveRequest request) {
         SysNumberRule rule = new SysNumberRule();
         copy(rule, request);
@@ -54,6 +56,7 @@ public class NumberRuleController {
     }
 
     @PutMapping("/{id}")
+    @LogOperation(module = "编号规则", operation = "编辑编号规则")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody NumberRuleSaveRequest request) {
         SysNumberRule rule = numberRuleMapper.selectById(id);
         if (rule == null) {
@@ -65,6 +68,7 @@ public class NumberRuleController {
     }
 
     @DeleteMapping("/{id}")
+    @LogOperation(module = "编号规则", operation = "删除编号规则")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         numberRuleMapper.deleteById(id);
         return ApiResponse.ok();

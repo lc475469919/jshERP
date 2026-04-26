@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.yize.erp.common.ApiResponse;
 import com.yize.erp.system.dto.LoginRequest;
 import com.yize.erp.system.dto.LoginResponse;
+import com.yize.erp.system.log.LogOperation;
 import com.yize.erp.system.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,11 +23,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @LogOperation(module = "登录", operation = "登录")
     public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return ApiResponse.ok(authService.login(request));
     }
 
     @PostMapping("/logout")
+    @LogOperation(module = "登录", operation = "退出")
     public ApiResponse<Void> logout() {
         StpUtil.logout();
         return ApiResponse.ok();

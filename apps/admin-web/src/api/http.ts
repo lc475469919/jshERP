@@ -43,3 +43,13 @@ export async function postData<T>(url: string, data?: unknown) {
   const response = await http.post<ApiResponse<T>>(url, data)
   return response.data.data
 }
+
+export async function putData<T>(url: string, data?: unknown) {
+  const response = await http.put<ApiResponse<T>>(url, data)
+  return response.data.data
+}
+
+export async function deleteData<T>(url: string) {
+  const response = await http.delete<ApiResponse<T>>(url)
+  return response.data.data
+}

@@ -5,6 +5,7 @@ import com.yize.erp.common.ApiResponse;
 import com.yize.erp.system.dto.MenuNode;
 import com.yize.erp.system.dto.MenuSaveRequest;
 import com.yize.erp.system.entity.SysMenu;
+import com.yize.erp.system.log.LogOperation;
 import com.yize.erp.system.mapper.SysMenuMapper;
 import com.yize.erp.system.service.MenuTreeService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,6 +43,7 @@ public class MenuController {
     }
 
     @PostMapping
+    @LogOperation(module = "菜单管理", operation = "新增菜单")
     public ApiResponse<Void> create(@RequestBody MenuSaveRequest request) {
         SysMenu menu = new SysMenu();
         copy(menu, request);
@@ -50,6 +52,7 @@ public class MenuController {
     }
 
     @PutMapping("/{id}")
+    @LogOperation(module = "菜单管理", operation = "编辑菜单")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody MenuSaveRequest request) {
         SysMenu menu = menuMapper.selectById(id);
         if (menu == null) {
@@ -61,6 +64,7 @@ public class MenuController {
     }
 
     @DeleteMapping("/{id}")
+    @LogOperation(module = "菜单管理", operation = "删除菜单")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         Long childCount = menuMapper.selectCount(new LambdaQueryWrapper<SysMenu>().eq(SysMenu::getParentId, id));
         if (childCount > 0) {
