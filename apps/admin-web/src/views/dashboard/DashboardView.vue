@@ -13,9 +13,9 @@
 
 <script setup lang="ts">
 const metrics = [
-  { title: '待生产任务', value: 0 },
-  { title: '缺料预警', value: 0 },
+  { title: '待建基础资料', value: 0 },
+  { title: '待配置用户', value: 0 },
   { title: '待审批单据', value: 0 },
-  { title: '今日出入库', value: 0 }
+  { title: '系统待办', value: 0 }
 ]
 </script>

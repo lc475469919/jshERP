@@ -2,9 +2,6 @@
   "pages": [
     "pages/login/login",
     "pages/home/home",
-    "pages/manufacturing/manufacturing",
-    "pages/manufacturing-task/manufacturing-task",
-    "pages/material-issue/material-issue",
     "pages/inventory/inventory",
     "pages/approval/approval",
     "pages/attendance/attendance",
@@ -25,10 +22,6 @@
       {
         "pagePath": "pages/home/home",
         "text": "首页"
-      },
-      {
-        "pagePath": "pages/manufacturing/manufacturing",
-        "text": "生产"
       },
       {
         "pagePath": "pages/attendance/attendance",
