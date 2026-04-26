@@ -1,9 +1,0 @@
-<view class="page">
-  <view class="title">今日待办</view>
-  <view class="grid">
-    <view class="entry">基础资料 0</view>
-    <view class="entry">待审批 0</view>
-    <view class="entry">考勤待办 0</view>
-    <view class="entry">系统消息 0</view>
-  </view>
-</view>

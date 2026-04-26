@@ -1,6 +1,0 @@
-input {
-  margin-bottom: 20rpx;
-  padding: 20rpx;
-  background: #f8fafc;
-  border-radius: 8rpx;
-}
