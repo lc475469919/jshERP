@@ -56,8 +56,40 @@
             <a-select-option :value="1">启用</a-select-option>
             <a-select-option :value="0">停用</a-select-option>
           </a-select>
+          <a-tree
+            v-else-if="field.type === 'menuTree'"
+            v-model:checkedKeys="form[field.key]"
+            checkable
+            default-expand-all
+            :tree-data="menuTreeOptions"
+          />
+          <a-table
+            v-else-if="field.type === 'dictItems'"
+            row-key="id"
+            size="small"
+            :columns="dictItemColumns"
+            :data-source="dictItems"
+            :pagination="false"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'status'">
+                <a-tag :color="record.status === 1 ? 'green' : 'red'">
+                  {{ record.status === 1 ? '启用' : '停用' }}
+                </a-tag>
+              </template>
+              <template v-if="column.key === 'operation'">
+                <a-space>
+                  <a-button type="link" size="small" @click="openDictItemEdit(record)">编辑</a-button>
+                  <a-popconfirm title="确认删除这个字典项？" @confirm="removeDictItem(record)">
+                    <a-button type="link" size="small" danger>删除</a-button>
+                  </a-popconfirm>
+                </a-space>
+              </template>
+            </template>
+          </a-table>
           <a-textarea v-else v-model:value="form[field.key]" :rows="3" />
         </a-form-item>
+        <a-button v-if="config.kind === 'dicts' && editingId" block @click="openDictItemCreate">新增字典项</a-button>
       </a-form>
       <template #extra>
         <a-space>
@@ -66,6 +98,37 @@
         </a-space>
       </template>
     </a-drawer>
+
+    <a-modal
+      v-model:open="dictItemOpen"
+      :title="dictItemEditingId ? '编辑字典项' : '新增字典项'"
+      :confirm-loading="dictItemSaving"
+      @ok="saveDictItem"
+    >
+      <a-form layout="vertical" :model="dictItemForm">
+        <a-form-item label="字典项名称">
+          <a-input v-model:value="dictItemForm.itemLabel" />
+        </a-form-item>
+        <a-form-item label="字典项值">
+          <a-input v-model:value="dictItemForm.itemValue" />
+        </a-form-item>
+        <a-form-item label="颜色">
+          <a-input v-model:value="dictItemForm.color" />
+        </a-form-item>
+        <a-form-item label="排序">
+          <a-input-number v-model:value="dictItemForm.sortOrder" class="full-input" />
+        </a-form-item>
+        <a-form-item label="状态">
+          <a-select v-model:value="dictItemForm.status">
+            <a-select-option :value="1">启用</a-select-option>
+            <a-select-option :value="0">停用</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="备注">
+          <a-textarea v-model:value="dictItemForm.remark" :rows="3" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -77,7 +140,7 @@ import { useRoute } from 'vue-router'
 import { deleteData, getData, postData, putData, type PageResult } from '@/api/http'
 
 type RecordRow = Record<string, any>
-type FieldType = 'text' | 'password' | 'number' | 'status' | 'textarea'
+type FieldType = 'text' | 'password' | 'number' | 'status' | 'textarea' | 'menuTree' | 'dictItems'
 
 interface FieldConfig {
   key: string
@@ -88,6 +151,7 @@ interface FieldConfig {
 }
 
 interface ListConfig {
+  kind: string
   title: string
   shortTitle: string
   description: string
@@ -102,16 +166,23 @@ const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
 const drawerOpen = ref(false)
+const dictItemOpen = ref(false)
 const keyword = ref('')
 const records = ref<RecordRow[]>([])
+const dictItems = ref<RecordRow[]>([])
+const menuTree = ref<RecordRow[]>([])
 const form = reactive<RecordRow>({})
+const dictItemForm = reactive<RecordRow>({})
 const editingId = ref<number | null>(null)
+const dictItemEditingId = ref<number | null>(null)
 const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
+const dictItemSaving = ref(false)
 
 const configs: Record<string, ListConfig> = {
   users: {
+    kind: 'users',
     title: '用户管理',
     shortTitle: '用户',
     description: '维护登录账号、员工身份、启停状态和角色分配。',
@@ -136,6 +207,7 @@ const configs: Record<string, ListConfig> = {
     ]
   },
   roles: {
+    kind: 'roles',
     title: '角色管理',
     shortTitle: '角色',
     description: '维护角色编码、名称和后续菜单权限分配。',
@@ -152,10 +224,12 @@ const configs: Record<string, ListConfig> = {
       { key: 'roleCode', label: '角色编码', type: 'text', createOnly: true },
       { key: 'roleName', label: '角色名称', type: 'text' },
       { key: 'status', label: '状态', type: 'status', defaultValue: 1 },
-      { key: 'remark', label: '备注', type: 'textarea' }
+      { key: 'remark', label: '备注', type: 'textarea' },
+      { key: 'menuIds', label: '菜单和按钮权限', type: 'menuTree', defaultValue: [] }
     ]
   },
   dicts: {
+    kind: 'dicts',
     title: '字典管理',
     shortTitle: '字典',
     description: '维护系统状态、菜单类型、单据状态等可配置选项。',
@@ -172,10 +246,12 @@ const configs: Record<string, ListConfig> = {
       { key: 'dictCode', label: '字典编码', type: 'text', createOnly: true },
       { key: 'dictName', label: '字典名称', type: 'text' },
       { key: 'status', label: '状态', type: 'status', defaultValue: 1 },
-      { key: 'remark', label: '备注', type: 'textarea' }
+      { key: 'remark', label: '备注', type: 'textarea' },
+      { key: 'dictItems', label: '字典项', type: 'dictItems' }
     ]
   },
   'number-rules': {
+    kind: 'number-rules',
     title: '编号规则',
     shortTitle: '编号规则',
     description: '维护采购、销售、生产等业务单据的自动编号规则。',
@@ -204,6 +280,7 @@ const configs: Record<string, ListConfig> = {
     ]
   },
   logs: {
+    kind: 'logs',
     title: '操作日志',
     shortTitle: '操作日志',
     description: '查看系统关键操作记录，为后续审计和追溯做准备。',
@@ -227,12 +304,29 @@ const tableColumns = computed(() => {
   if (!config.value.editable) return config.value.columns
   return [...config.value.columns, { title: '操作', dataIndex: 'operation', key: 'operation', width: 150 }]
 })
+const menuTreeOptions = computed(() => toTreeOptions(menuTree.value))
 const pagination = computed<TablePaginationConfig>(() => ({
   current: page.value,
   pageSize: pageSize.value,
   total: total.value,
   showSizeChanger: true
 }))
+const dictItemColumns = [
+  { title: '名称', dataIndex: 'itemLabel', key: 'itemLabel', width: 120 },
+  { title: '值', dataIndex: 'itemValue', key: 'itemValue', width: 100 },
+  { title: '颜色', dataIndex: 'color', key: 'color', width: 90 },
+  { title: '排序', dataIndex: 'sortOrder', key: 'sortOrder', width: 80 },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 90 },
+  { title: '操作', dataIndex: 'operation', key: 'operation', width: 130 }
+]
+
+function toTreeOptions(nodes: RecordRow[]): Array<{ title: string; key: number; children?: any[] }> {
+  return nodes.map((node) => ({
+    title: node.menuName,
+    key: node.id,
+    children: node.children?.length ? toTreeOptions(node.children) : undefined
+  }))
+}
 
 async function load() {
   loading.value = true
@@ -256,15 +350,26 @@ function resetForm(row?: RecordRow) {
   })
 }
 
-function openCreate() {
+async function openCreate() {
   editingId.value = null
+  dictItems.value = []
   resetForm()
+  if (config.value.kind === 'roles') {
+    menuTree.value = await getData<RecordRow[]>('/system/menus/tree')
+  }
   drawerOpen.value = true
 }
 
-function openEdit(row: RecordRow) {
+async function openEdit(row: RecordRow) {
   editingId.value = Number(row.id)
   resetForm(row)
+  if (config.value.kind === 'roles') {
+    menuTree.value = await getData<RecordRow[]>('/system/menus/tree')
+    form.menuIds = await getData<number[]>(`/system/roles/${editingId.value}/menu-ids`)
+  }
+  if (config.value.kind === 'dicts') {
+    await loadDictItems()
+  }
   drawerOpen.value = true
 }
 
@@ -282,6 +387,54 @@ async function save() {
   } finally {
     saving.value = false
   }
+}
+
+async function loadDictItems() {
+  if (!editingId.value) {
+    dictItems.value = []
+    return
+  }
+  dictItems.value = await getData<RecordRow[]>(`/system/dicts/${editingId.value}/items`)
+}
+
+function openDictItemCreate() {
+  dictItemEditingId.value = null
+  Object.keys(dictItemForm).forEach((key) => delete dictItemForm[key])
+  Object.assign(dictItemForm, { itemLabel: '', itemValue: '', color: '', sortOrder: 0, status: 1, remark: '' })
+  dictItemOpen.value = true
+}
+
+function openDictItemEdit(row: RecordRow) {
+  dictItemEditingId.value = Number(row.id)
+  Object.keys(dictItemForm).forEach((key) => delete dictItemForm[key])
+  Object.assign(dictItemForm, row)
+  dictItemOpen.value = true
+}
+
+async function saveDictItem() {
+  if (!editingId.value) return
+  dictItemSaving.value = true
+  try {
+    if (dictItemEditingId.value) {
+      await putData<void>(`/system/dicts/items/${dictItemEditingId.value}`, {
+        ...dictItemForm,
+        dictTypeId: editingId.value
+      })
+    } else {
+      await postData<void>(`/system/dicts/${editingId.value}/items`, dictItemForm)
+    }
+    message.success('保存成功')
+    dictItemOpen.value = false
+    await loadDictItems()
+  } finally {
+    dictItemSaving.value = false
+  }
+}
+
+async function removeDictItem(row: RecordRow) {
+  await deleteData<void>(`/system/dicts/items/${row.id}`)
+  message.success('删除成功')
+  await loadDictItems()
 }
 
 async function remove(row: RecordRow) {

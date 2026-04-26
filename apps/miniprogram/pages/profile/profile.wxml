@@ -1,6 +1,9 @@
 <view class="page">
   <view class="title">我的</view>
   <view class="card">
-    <view class="line">未登录</view>
+    <view class="line">姓名：{{user.name || '-'}}</view>
+    <view class="line">账号：{{user.account || '-'}}</view>
+    <view class="line">手机号：{{user.mobile || '-'}}</view>
+    <button class="logout" type="warn" bindtap="logout">退出登录</button>
   </view>
 </view>

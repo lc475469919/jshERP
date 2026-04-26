@@ -3,6 +3,6 @@
   <view class="card">
     <input class="input" value="{{username}}" placeholder="账号" bindinput="onUsernameInput" />
     <input class="input" value="{{password}}" password placeholder="密码" bindinput="onPasswordInput" />
-    <button type="primary" bindtap="login">登录</button>
+    <button type="primary" loading="{{loading}}" bindtap="login">登录</button>
   </view>
 </view>

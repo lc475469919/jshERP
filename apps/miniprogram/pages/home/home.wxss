@@ -3,3 +3,25 @@
   color: #475467;
   font-size: 28rpx;
 }
+
+.section-title {
+  margin: 24rpx 0 16rpx;
+  color: #344054;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.module {
+  padding: 28rpx 20rpx;
+  background: #fff;
+  border: 1rpx solid #e5e7eb;
+  border-radius: 8rpx;
+  color: #1d2939;
+  font-size: 28rpx;
+}
