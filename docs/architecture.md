@@ -1,16 +1,17 @@
 # 技术架构
 
-## 推荐技术栈
+## 已确认技术栈
 
 ### 后端
 
-- Java 21 或 Java 17
+- Java 17
 - Spring Boot 3
 - MyBatis Plus
 - MySQL 8
 - Redis
-- Sa-Token 或 Spring Security
+- Sa-Token
 - Knife4j/OpenAPI
+- Flyway
 
 ### 管理后台
 
@@ -24,8 +25,22 @@
 ### 微信小程序
 
 - 原生微信小程序
-- TypeScript 可选
+- JavaScript
 - 统一 API 请求封装
+- 与后台共用同一套 token 登录态
+
+## 项目目录
+
+```text
+yize-erp/
+  apps/
+    backend/
+    admin-web/
+    miniprogram/
+  deploy/
+  docs/
+  sql/
+```
 
 ## 架构原则
 
@@ -36,10 +51,10 @@
 - 工资数据要能追溯到考勤、工序汇报或手工调整。
 - 报表数据优先从业务明细实时汇总，必要时再做汇总表。
 
-## 建议服务结构
+## 后端包结构
 
 ```text
-backend/
+apps/backend/
   src/main/java/com/yize/erp/
     common/
     system/
@@ -64,12 +79,14 @@ backend/
 - 删除标记：`deleted`
 - 创建时间：`created_at`
 - 更新时间：`updated_at`
+- 单公司模式，不加 `tenant_id`
+- 金额和数量使用 `DECIMAL`
+- 时间优先使用数据库时区：`Asia/Shanghai`
 
 示例：
 
+- `yz_sys_user`
+- `yz_sys_role`
+- `yz_md_material`
+- `yz_inv_warehouse`
 - `yz_mfg_task`
-- `yz_mfg_bom`
-- `yz_mfg_material_issue`
-- `yz_mfg_process_report`
-- `yz_hr_employee`
-- `yz_payroll_salary_sheet`
