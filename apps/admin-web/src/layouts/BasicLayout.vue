@@ -1,38 +1,24 @@
 <template>
   <a-layout class="layout">
-    <a-layout-sider width="220" theme="dark">
-      <div class="brand">易泽 ERP</div>
-      <a-menu theme="dark" mode="inline" :selectedKeys="[route.path]">
+    <a-layout-sider width="232" theme="dark">
+      <div class="brand">
+        <span class="brand-mark">YZ</span>
+        <span>易泽 ERP</span>
+      </div>
+      <a-menu theme="dark" mode="inline" :selectedKeys="[route.path]" :openKeys="openKeys">
         <a-menu-item key="/dashboard" @click="router.push('/dashboard')">系统首页</a-menu-item>
-        <a-sub-menu key="/system" title="系统管理">
-          <a-menu-item key="/system/users" @click="router.push('/system/users')">用户管理</a-menu-item>
-          <a-menu-item key="/system/roles" @click="router.push('/system/roles')">角色管理</a-menu-item>
-          <a-menu-item key="/system/menus" @click="router.push('/system/menus')">菜单管理</a-menu-item>
-          <a-menu-item key="/system/dicts" @click="router.push('/system/dicts')">字典管理</a-menu-item>
-          <a-menu-item key="/system/number-rules" @click="router.push('/system/number-rules')">编号规则</a-menu-item>
-          <a-menu-item key="/system/logs" @click="router.push('/system/logs')">操作日志</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="/master-data" title="基础资料">
-          <a-sub-menu key="/master-data/product" title="商品管理">
-            <a-menu-item key="/master-data/products" @click="router.push('/master-data/products')">商品信息</a-menu-item>
-            <a-menu-item key="/master-data/product-attrs" @click="router.push('/master-data/product-attrs')">商品属性</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="/master-data/info" title="信息管理">
-            <a-menu-item key="/master-data/suppliers" @click="router.push('/master-data/suppliers')">供应商管理</a-menu-item>
-            <a-menu-item key="/master-data/projects" @click="router.push('/master-data/projects')">项目信息</a-menu-item>
-            <a-menu-item key="/master-data/logistics" @click="router.push('/master-data/logistics')">物流公司</a-menu-item>
-          </a-sub-menu>
-        </a-sub-menu>
-        <a-menu-item key="/inventory" disabled>库存</a-menu-item>
-        <a-menu-item key="/purchase" disabled>采购</a-menu-item>
-        <a-menu-item key="/sales" disabled>销售</a-menu-item>
-        <a-menu-item key="/manufacturing" disabled>生产</a-menu-item>
-        <a-menu-item key="/finance" disabled>财务</a-menu-item>
+        <template v-for="item in visibleMenus" :key="item.id">
+          <component :is="renderMenu(item)" />
+        </template>
+        <a-menu-item v-for="item in placeholderMenus" :key="item.key" disabled>{{ item.title }}</a-menu-item>
       </a-menu>
     </a-layout-sider>
     <a-layout>
       <a-layout-header class="header">
-        <span>单公司制造业 ERP</span>
+        <div>
+          <strong>单公司制造业 ERP</strong>
+          <span class="header-sub">菜单按角色权限动态展示</span>
+        </div>
         <a-space>
           <span class="user-name">{{ auth.user?.name || '未登录' }}</span>
           <a-button size="small" @click="logout">退出</a-button>
@@ -46,12 +32,50 @@
 </template>
 
 <script setup lang="ts">
+import { computed, h, type VNode } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { Menu } from 'ant-design-vue'
+import { useAuthStore, type MenuNode } from '@/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+
+const placeholderMenus = [
+  { key: '/inventory', title: '库管' },
+  { key: '/purchase', title: '采购' },
+  { key: '/sales', title: '销售' },
+  { key: '/manufacturing', title: '生产' },
+  { key: '/logistics', title: '物流' },
+  { key: '/finance', title: '财务' },
+  { key: '/general-ledger', title: '总账' },
+  { key: '/crm', title: '客户' },
+  { key: '/hr', title: '人事' }
+]
+
+const visibleMenus = computed(() => auth.menus.filter((item) => item.menuType !== 'BUTTON' && item.visible !== 0))
+const openKeys = computed(() => {
+  const keys: string[] = []
+  collectOpenKeys(visibleMenus.value, keys)
+  return keys
+})
+
+function collectOpenKeys(items: MenuNode[], keys: string[]) {
+  items.forEach((item) => {
+    if (route.path.startsWith(item.routePath || '---') && item.children?.length) {
+      keys.push(String(item.id))
+    }
+    collectOpenKeys(item.children || [], keys)
+  })
+}
+
+function renderMenu(item: MenuNode): VNode {
+  const children = (item.children || []).filter((child) => child.menuType !== 'BUTTON' && child.visible !== 0)
+  if (children.length) {
+    return h(Menu.SubMenu, { key: String(item.id), title: item.menuName }, () => children.map((child) => renderMenu(child)))
+  }
+  return h(Menu.Item, { key: item.routePath, onClick: () => item.routePath && router.push(item.routePath) }, () => item.menuName)
+}
 
 async function logout() {
   await auth.logout()
@@ -65,12 +89,25 @@ async function logout() {
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   height: 56px;
-  padding: 0 20px;
+  padding: 0 18px;
   color: #fff;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   line-height: 56px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  background: #1677ff;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
 .header {
@@ -82,6 +119,13 @@ async function logout() {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
   line-height: 56px;
+}
+
+.header-sub {
+  margin-left: 12px;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 .user-name {

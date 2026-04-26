@@ -18,6 +18,7 @@ export interface MenuNode {
   routePath?: string
   permissionCode?: string
   icon?: string
+  visible?: number
   children: MenuNode[]
 }
 
