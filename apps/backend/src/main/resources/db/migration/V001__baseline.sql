@@ -1,0 +1,2 @@
+-- Baseline migration for yize-erp.
+-- Business tables will be introduced step by step from the blueprint.
