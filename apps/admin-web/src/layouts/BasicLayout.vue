@@ -183,7 +183,7 @@ const referenceMenus: ReferenceMenu[] = [
   {
     name: '人事',
     groups: [
-      { name: '人事管理', items: named(['员工信息', '薪资设置', '业绩目标', '月度工资']) },
+      { name: '人事管理', items: [{ name: '薪资设置', route: '/hr/salary-settings' }, ...named(['员工信息', '业绩目标', '月度工资'])] },
       { name: '考勤工资', items: named(['打卡记录', '考勤统计', '计件工资', '计时工资', '工资汇总']) }
     ]
   },

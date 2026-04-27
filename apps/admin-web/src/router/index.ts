@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import BasicLayout from '@/layouts/BasicLayout.vue'
 import DashboardView from '@/views/dashboard/DashboardView.vue'
 import LoginView from '@/views/LoginView.vue'
+import SalarySettingsView from '@/views/hr/SalarySettingsView.vue'
 import MasterDataView from '@/views/masterdata/MasterDataView.vue'
 import MenuManageView from '@/views/system/MenuManageView.vue'
 import SystemListView from '@/views/system/SystemListView.vue'
@@ -17,6 +18,7 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/dashboard' },
         { path: 'dashboard', component: DashboardView },
+        { path: 'hr/salary-settings', component: SalarySettingsView },
         { path: 'system/menus', component: MenuManageView },
         { path: 'system/:kind(users|roles|dicts|number-rules|logs)', component: SystemListView },
         { path: 'master-data/:kind(products|product-attrs|suppliers|projects|logistics)', component: MasterDataView }
