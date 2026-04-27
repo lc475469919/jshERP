@@ -23,21 +23,57 @@
           <h1 class="page-title">{{ config.title }}</h1>
           <p class="page-desc">{{ config.description }}</p>
         </div>
-        <a-space>
+      </div>
+
+      <div class="filter-panel">
+        <a-space wrap>
           <a-input v-model:value="keyword" :placeholder="config.keywordPlaceholder" allow-clear @press-enter="load" />
+          <a-input v-if="config.kind === 'products'" v-model:value="productFilters.shelfNo" placeholder="仓位/货架号" allow-clear @press-enter="load" />
+          <a-input v-if="config.kind === 'products'" v-model:value="productFilters.supplierName" placeholder="供应商名称（选择器待补）" disabled />
+          <a-input v-if="config.kind === 'products'" v-model:value="productFilters.brandName" placeholder="品牌名称（选择器待补）" disabled />
+          <a-select v-if="config.kind === 'products'" v-model:value="status" class="status-select" @change="load">
+            <a-select-option :value="1">有效</a-select-option>
+            <a-select-option :value="0">无效</a-select-option>
+          </a-select>
+          <a-select v-if="config.kind === 'products'" v-model:value="productFilters.detailStatus" class="detail-select">
+            <a-select-option value="">详情描述</a-select-option>
+            <a-select-option value="SET">有设置</a-select-option>
+            <a-select-option value="UNSET">未设置</a-select-option>
+          </a-select>
           <a-select v-if="config.statusTabs" v-model:value="status" class="status-select" @change="load">
             <a-select-option :value="1">使用中</a-select-option>
             <a-select-option :value="0">已停用</a-select-option>
           </a-select>
           <a-button @click="load">查询</a-button>
+          <a-button @click="resetSearch">重置</a-button>
+        </a-space>
+      </div>
+
+      <div class="action-toolbar">
+        <a-space wrap>
           <a-button type="primary" @click="openCreate">新增</a-button>
           <a-button :disabled="!selectedRow" @click="openEdit">修改</a-button>
+          <a-button v-if="config.kind === 'products'" :disabled="!selectedRow" @click="copySelected">复制</a-button>
           <a-popconfirm title="确认删除选中数据？" @confirm="remove">
             <a-button danger :disabled="!selectedRow">删除</a-button>
           </a-popconfirm>
-          <a-button v-if="config.canDisable" :disabled="!selectedRow" @click="setStatus(0)">停用</a-button>
-          <a-button v-if="config.canDisable" :disabled="!selectedRow" @click="setStatus(1)">启用</a-button>
+          <a-button v-if="config.canDisable" :disabled="!selectedRows.length" @click="setStatus(0)">停用</a-button>
+          <a-button v-if="config.canDisable" :disabled="!selectedRows.length" @click="setStatus(1)">启用</a-button>
+          <a-button v-if="config.kind === 'products'" disabled>分享</a-button>
           <a-button disabled>导入</a-button>
+          <a-dropdown v-if="config.kind === 'products'">
+            <a-button :disabled="!selectedRows.length">批量操作</a-button>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="edit" disabled>批量修改</a-menu-item>
+                <a-menu-item key="barcode" disabled>打印条形码</a-menu-item>
+                <a-menu-item key="code" disabled>修改商品编号</a-menu-item>
+                <a-menu-item key="price" disabled>修改商品价格</a-menu-item>
+                <a-menu-item key="tax" disabled>修改商品税率</a-menu-item>
+                <a-menu-item key="stock" disabled>修改库存预警</a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
           <a-button disabled>导出</a-button>
         </a-space>
       </div>
@@ -55,9 +91,16 @@
         :columns="columns"
         :data-source="records"
         :pagination="pagination"
-        :row-selection="{ type: 'radio', selectedRowKeys, onChange: onSelectChange }"
+        :scroll="{ x: config.tableWidth || 1200 }"
+        :row-selection="{ type: 'checkbox', selectedRowKeys, onChange: onSelectChange }"
         @change="handleTableChange"
-      />
+      >
+        <template #bodyCell="{ column, text }">
+          <a-tag v-if="column.key === 'status'" :color="text === 1 ? 'green' : 'default'">{{ text === 1 ? '有效' : '无效' }}</a-tag>
+          <a-tag v-else-if="booleanColumnKeys.includes(String(column.key))" :color="text === 1 ? 'blue' : 'default'">{{ text === 1 ? '是' : '否' }}</a-tag>
+          <span v-else>{{ text }}</span>
+        </template>
+      </a-table>
     </section>
 
     <a-drawer v-model:open="drawerOpen" width="560" :title="editingId ? `修改${config.shortTitle}` : `新增${config.shortTitle}`">
@@ -126,9 +169,11 @@ const categoryOpen = ref(false)
 const keyword = ref('')
 const status = ref(1)
 const attrType = ref('UNIT')
+const productFilters = reactive({ shelfNo: '', supplierName: '', brandName: '', detailStatus: '' })
 const records = ref<Row[]>([])
 const categories = ref<Row[]>([])
 const selectedRow = ref<Row | null>(null)
+const selectedRows = ref<Row[]>([])
 const selectedRowKeys = ref<number[]>([])
 const selectedCategoryId = ref<number | null>(null)
 const editingId = ref<number | null>(null)
@@ -150,18 +195,28 @@ const configs: Record<string, any> = {
     categoryTitle: '商品类别',
     keywordPlaceholder: '商品编号/名称/助记码/规格',
     canDisable: true,
+    tableWidth: 2520,
     columns: [
       ['productCode', '编号', 100], ['productName', '名称', 150], ['categoryId', '类别', 90],
-      ['barcode', '条形码', 120], ['brandId', '品牌', 90], ['specification', '规格型号', 110],
+      ['barcode', '条形码', 120], ['brandId', '品牌', 90], ['imageUrl', '图片', 90], ['specification', '规格型号', 110],
       ['supplierId', '供应商名称', 120], ['shelfNo', '仓位/货架号', 110], ['defaultUnitId', '默认单位', 90],
       ['purchasePrice', '采购价', 90], ['costPrice', '成本价', 90], ['wholesalePrice', '批发价', 90],
-      ['retailPrice', '零售价', 90], ['status', '状态', 80], ['remark', '备注', 160]
+      ['retailPrice', '零售价', 90], ['purchaseTaxRate', '采购税率(%)', 110], ['saleTaxRate', '销售税率(%)', 110],
+      ['minStock', '最低库存数', 110], ['maxStock', '最高库存数', 110], ['colorNames', '颜色', 120],
+      ['serialEnabled', '序列号', 90], ['batchEnabled', '批次号', 90], ['expiryEnabled', '有效期', 90],
+      ['saleEnabled', '可销售', 90], ['purchaseEnabled', '可采购', 90], ['selfMadeEnabled', '可自制', 90],
+      ['outsourcingEnabled', '可委外', 90], ['status', '状态', 80], ['remark', '备注', 160], ['productionDepartment', '生产部门', 110]
     ],
     fields: [
       ['productCode', '编号'], ['productName', '名称'], ['mnemonicCode', '助记码'], ['barcode', '条形码'],
-      ['specification', '规格型号'], ['shelfNo', '仓位/货架号'], ['purchasePrice', '采购价', 'number'],
+      ['imageUrl', '图片地址'], ['specification', '规格型号'], ['shelfNo', '仓位/货架号'], ['purchasePrice', '采购价', 'number'],
       ['costPrice', '成本价', 'number'], ['wholesalePrice', '批发价', 'number'], ['retailPrice', '零售价', 'number'],
-      ['status', '状态', 'status', 1], ['remark', '备注', 'textarea']
+      ['purchaseTaxRate', '采购税率(%)', 'number', 0], ['saleTaxRate', '销售税率(%)', 'number', 0],
+      ['minStock', '最低库存数', 'number', 0], ['maxStock', '最高库存数', 'number', 0], ['colorNames', '颜色'],
+      ['serialEnabled', '序列号', 'status', 0], ['batchEnabled', '批次号', 'status', 0], ['expiryEnabled', '有效期', 'status', 0],
+      ['saleEnabled', '可销售', 'status', 1], ['purchaseEnabled', '可采购', 'status', 1],
+      ['selfMadeEnabled', '可自制', 'status', 0], ['outsourcingEnabled', '可委外', 'status', 0],
+      ['status', '状态', 'status', 1], ['productionDepartment', '生产部门'], ['detailDescription', '详情描述', 'textarea'], ['remark', '备注', 'textarea']
     ]
   },
   'product-attrs': {
@@ -216,12 +271,15 @@ const columns = computed(() => config.value.columns.map(([key, title, width]: an
 const activeFields = computed<Field[]>(() => config.value.fields.map(([key, label, type = 'text', defaultValue]: any[]) => ({ key, label, type, defaultValue })))
 const pagination = computed<TablePaginationConfig>(() => ({ current: page.value, pageSize: pageSize.value, total: total.value, showSizeChanger: true }))
 const categoryTree = computed(() => categories.value.map((item) => ({ title: item.categoryName, key: item.id })))
+const booleanColumnKeys = ['serialEnabled', 'batchEnabled', 'expiryEnabled', 'saleEnabled', 'purchaseEnabled', 'selfMadeEnabled', 'outsourcingEnabled', 'invoiceEnabled']
 
 async function load() {
   loading.value = true
   try {
     const params: Row = { page: page.value, pageSize: pageSize.value }
     if (keyword.value) params.keyword = keyword.value
+    if (config.value.kind === 'products' && productFilters.shelfNo) params.shelfNo = productFilters.shelfNo
+    if (config.value.kind === 'products' && productFilters.detailStatus) params.detailStatus = productFilters.detailStatus
     if (config.value.kind === 'product-attrs') params.attrType = attrType.value
     if (config.value.kind === 'projects') params.projectName = keyword.value
     if (config.value.kind === 'projects') params.status = status.value
@@ -248,6 +306,12 @@ function resetForm(row?: Row) {
 
 function openCreate() { editingId.value = null; resetForm(); drawerOpen.value = true }
 function openEdit() { if (!selectedRow.value) return; editingId.value = selectedRow.value.id; resetForm(selectedRow.value); drawerOpen.value = true }
+function copySelected() {
+  if (!selectedRow.value) return
+  editingId.value = null
+  resetForm({ ...selectedRow.value, productCode: `${selectedRow.value.productCode || ''}-COPY`, productName: `${selectedRow.value.productName || ''} 副本` })
+  drawerOpen.value = true
+}
 
 async function save() {
   saving.value = true
@@ -270,13 +334,27 @@ async function remove() {
 }
 
 async function setStatus(value: number) {
-  if (!selectedRow.value) return
-  const next = { ...selectedRow.value, status: value }
-  await putData<void>(`${config.value.endpoint}/${selectedRow.value.id}`, next)
+  const targets = selectedRows.value.length ? selectedRows.value : selectedRow.value ? [selectedRow.value] : []
+  await Promise.all(targets.map((row) => putData<void>(`${config.value.endpoint}/${row.id}`, { ...row, status: value })))
   await load()
 }
 
-function onSelectChange(keys: any[], rows: Row[]) { selectedRowKeys.value = keys as number[]; selectedRow.value = rows[0] || null }
+function resetSearch() {
+  keyword.value = ''
+  status.value = 1
+  productFilters.shelfNo = ''
+  productFilters.supplierName = ''
+  productFilters.brandName = ''
+  productFilters.detailStatus = ''
+  page.value = 1
+  load()
+}
+
+function onSelectChange(keys: any[], rows: Row[]) {
+  selectedRowKeys.value = keys as number[]
+  selectedRows.value = rows
+  selectedRow.value = rows[0] || null
+}
 function handleTableChange(next: TablePaginationConfig) { page.value = next.current || 1; pageSize.value = next.pageSize || 20; load() }
 function selectCategory(keys: any[]) { selectedCategoryId.value = keys[0] || null; load() }
 
@@ -289,7 +367,7 @@ function openCategoryEdit() { const row = categories.value.find((item) => item.i
 async function saveCategory() { if (categoryEditingId.value) await putData<void>(`/master-data/categories/${categoryEditingId.value}`, categoryForm); else await postData<void>('/master-data/categories', categoryForm); categoryOpen.value = false; await loadCategories() }
 async function removeCategory() { if (!selectedCategoryId.value) return; await deleteData<void>(`/master-data/categories/${selectedCategoryId.value}`); selectedCategoryId.value = null; await loadCategories(); await load() }
 
-watch(() => route.params.kind, async () => { page.value = 1; records.value = []; selectedRow.value = null; selectedCategoryId.value = null; await loadCategories(); await load() })
+watch(() => route.params.kind, async () => { page.value = 1; records.value = []; selectedRow.value = null; selectedRows.value = []; selectedRowKeys.value = []; selectedCategoryId.value = null; await loadCategories(); await load() })
 onMounted(async () => { await loadCategories(); await load() })
 </script>
 
@@ -300,4 +378,6 @@ onMounted(async () => { await loadCategories(); await load() })
 .tree-actions { margin-bottom: 12px; }
 .list-panel { flex: 1; min-width: 0; }
 .status-select { width: 120px; }
+.detail-select { width: 120px; }
+.filter-panel, .action-toolbar { margin-bottom: 12px; padding: 12px; background: #fff; border: 1px solid #e5e7eb; }
 </style>

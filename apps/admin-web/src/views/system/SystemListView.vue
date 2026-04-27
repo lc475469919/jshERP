@@ -56,6 +56,14 @@
             <a-select-option :value="1">启用</a-select-option>
             <a-select-option :value="0">停用</a-select-option>
           </a-select>
+          <a-select
+            v-else-if="field.type === 'roleSelect'"
+            v-model:value="form[field.key]"
+            mode="multiple"
+            placeholder="请选择角色"
+            option-filter-prop="label"
+            :options="roleOptions"
+          />
           <a-tree
             v-else-if="field.type === 'menuTree'"
             v-model:checkedKeys="form[field.key]"
@@ -140,7 +148,7 @@ import { useRoute } from 'vue-router'
 import { deleteData, getData, postData, putData, type PageResult } from '@/api/http'
 
 type RecordRow = Record<string, any>
-type FieldType = 'text' | 'password' | 'number' | 'status' | 'textarea' | 'menuTree' | 'dictItems'
+type FieldType = 'text' | 'password' | 'number' | 'status' | 'textarea' | 'roleSelect' | 'menuTree' | 'dictItems'
 
 interface FieldConfig {
   key: string
@@ -171,6 +179,7 @@ const keyword = ref('')
 const records = ref<RecordRow[]>([])
 const dictItems = ref<RecordRow[]>([])
 const menuTree = ref<RecordRow[]>([])
+const roles = ref<RecordRow[]>([])
 const form = reactive<RecordRow>({})
 const dictItemForm = reactive<RecordRow>({})
 const editingId = ref<number | null>(null)
@@ -202,6 +211,7 @@ const configs: Record<string, ListConfig> = {
       { key: 'name', label: '姓名', type: 'text' },
       { key: 'mobile', label: '手机号', type: 'text' },
       { key: 'password', label: '密码', type: 'password' },
+      { key: 'roleIds', label: '角色', type: 'roleSelect', defaultValue: [] },
       { key: 'status', label: '状态', type: 'status', defaultValue: 1 },
       { key: 'remark', label: '备注', type: 'textarea' }
     ]
@@ -305,6 +315,7 @@ const tableColumns = computed(() => {
   return [...config.value.columns, { title: '操作', dataIndex: 'operation', key: 'operation', width: 150 }]
 })
 const menuTreeOptions = computed(() => toTreeOptions(menuTree.value))
+const roleOptions = computed(() => roles.value.map((role) => ({ value: role.id, label: role.roleName })))
 const pagination = computed<TablePaginationConfig>(() => ({
   current: page.value,
   pageSize: pageSize.value,
@@ -354,6 +365,9 @@ async function openCreate() {
   editingId.value = null
   dictItems.value = []
   resetForm()
+  if (config.value.kind === 'users') {
+    await loadRoles()
+  }
   if (config.value.kind === 'roles') {
     menuTree.value = await getData<RecordRow[]>('/system/menus/tree')
   }
@@ -363,6 +377,11 @@ async function openCreate() {
 async function openEdit(row: RecordRow) {
   editingId.value = Number(row.id)
   resetForm(row)
+  if (config.value.kind === 'users') {
+    await loadRoles()
+    form.roleIds = await getData<number[]>(`/system/users/${editingId.value}/role-ids`)
+    form.password = ''
+  }
   if (config.value.kind === 'roles') {
     menuTree.value = await getData<RecordRow[]>('/system/menus/tree')
     form.menuIds = await getData<number[]>(`/system/roles/${editingId.value}/menu-ids`)
@@ -371,6 +390,11 @@ async function openEdit(row: RecordRow) {
     await loadDictItems()
   }
   drawerOpen.value = true
+}
+
+async function loadRoles() {
+  const result = await getData<PageResult<RecordRow>>('/system/roles', { page: 1, pageSize: 200 })
+  roles.value = result.records.filter((role) => role.status === 1)
 }
 
 async function save() {

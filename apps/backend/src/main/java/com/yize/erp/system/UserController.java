@@ -69,6 +69,16 @@ public class UserController {
         return ApiResponse.ok(user);
     }
 
+    @GetMapping("/{id}/role-ids")
+    public ApiResponse<List<Long>> roleIds(@PathVariable Long id) {
+        List<Long> roleIds = userRoleMapper.selectList(new LambdaQueryWrapper<SysUserRole>()
+                        .eq(SysUserRole::getUserId, id))
+                .stream()
+                .map(SysUserRole::getRoleId)
+                .toList();
+        return ApiResponse.ok(roleIds);
+    }
+
     @PostMapping
     @LogOperation(module = "用户管理", operation = "新增用户")
     public ApiResponse<Void> create(@RequestBody UserSaveRequest request) {

@@ -30,7 +30,12 @@ router.beforeEach(async (to) => {
   if (to.path === '/login') return true
   if (!auth.token) return '/login'
   if (!auth.user) {
-    await auth.loadCurrent()
+    try {
+      await auth.loadCurrent()
+    } catch {
+      auth.clear()
+      return '/login'
+    }
   }
   return true
 })

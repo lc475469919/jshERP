@@ -199,12 +199,17 @@ public class MasterDataController {
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "20") long pageSize,
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String shelfNo,
+            @RequestParam(required = false) String detailStatus,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Integer status
     ) {
         LambdaQueryWrapper<MdProduct> query = new LambdaQueryWrapper<MdProduct>()
                 .eq(categoryId != null, MdProduct::getCategoryId, categoryId)
                 .eq(status != null, MdProduct::getStatus, status)
+                .like(shelfNo != null && !shelfNo.isBlank(), MdProduct::getShelfNo, shelfNo)
+                .isNotNull("SET".equals(detailStatus), MdProduct::getDetailDescription)
+                .isNull("UNSET".equals(detailStatus), MdProduct::getDetailDescription)
                 .and(keyword != null && !keyword.isBlank(), wrapper -> wrapper
                         .like(MdProduct::getProductCode, keyword)
                         .or()
@@ -391,6 +396,7 @@ public class MasterDataController {
         product.setCategoryId(request.categoryId());
         product.setBarcode(request.barcode());
         product.setBrandId(request.brandId());
+        product.setImageUrl(request.imageUrl());
         product.setSpecification(request.specification());
         product.setSupplierId(request.supplierId());
         product.setShelfNo(request.shelfNo());
@@ -399,8 +405,22 @@ public class MasterDataController {
         product.setCostPrice(request.costPrice() == null ? BigDecimal.ZERO : request.costPrice());
         product.setWholesalePrice(request.wholesalePrice() == null ? BigDecimal.ZERO : request.wholesalePrice());
         product.setRetailPrice(request.retailPrice() == null ? BigDecimal.ZERO : request.retailPrice());
+        product.setPurchaseTaxRate(request.purchaseTaxRate() == null ? BigDecimal.ZERO : request.purchaseTaxRate());
+        product.setSaleTaxRate(request.saleTaxRate() == null ? BigDecimal.ZERO : request.saleTaxRate());
+        product.setMinStock(request.minStock() == null ? BigDecimal.ZERO : request.minStock());
+        product.setMaxStock(request.maxStock() == null ? BigDecimal.ZERO : request.maxStock());
+        product.setColorNames(request.colorNames());
+        product.setSerialEnabled(SystemHelper.enabled(request.serialEnabled()));
+        product.setBatchEnabled(SystemHelper.enabled(request.batchEnabled()));
+        product.setExpiryEnabled(SystemHelper.enabled(request.expiryEnabled()));
+        product.setSaleEnabled(SystemHelper.enabled(request.saleEnabled()));
+        product.setPurchaseEnabled(SystemHelper.enabled(request.purchaseEnabled()));
+        product.setSelfMadeEnabled(SystemHelper.enabled(request.selfMadeEnabled()));
+        product.setOutsourcingEnabled(SystemHelper.enabled(request.outsourcingEnabled()));
         product.setStatus(SystemHelper.enabled(request.status()));
         product.setRemark(request.remark());
+        product.setDetailDescription(request.detailDescription());
+        product.setProductionDepartment(request.productionDepartment());
     }
 
     private void copy(MdSupplier supplier, SupplierSaveRequest request) {
