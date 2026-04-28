@@ -123,7 +123,7 @@ const referenceMenus: ReferenceMenu[] = [
   {
     name: '采购',
     groups: [
-      { name: '采购业务', items: entries([['请购单', '/inv/invQgd/list'], ['采购订单', '/inv/invCgdd/list?shzt=&ddzt='], ['采购单', '/inv/invCgd/list?shzt=&ddzt='], ['采购退货单', '/inv/invCgth/list?shzt=&ddzt='], ['采购发票登记', '/inv/cgdkp/list']]) },
+      { name: '采购业务', items: entries([['请购单', '/inv/invQgd/list'], ['采购订单', '/inv/invCgdd/list?shzt=&ddzt=', '/purchase/orders'], ['采购单', '/inv/invCgd/list?shzt=&ddzt='], ['采购退货单', '/inv/invCgth/list?shzt=&ddzt='], ['采购发票登记', '/inv/cgdkp/list']]) },
       { name: '采购报表', items: entries([['采购汇总表', '/inv/invCgbb/invCghz'], ['采购订单明细', '/inv/invCgbb/invCgddmx'], ['采购单明细', '/inv/invCgbb/invCgmx'], ['采购开票统计', '/inv/invCgbb/invCgkptj']]) }
     ]
   },
