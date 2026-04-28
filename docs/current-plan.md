@@ -48,7 +48,7 @@
 
 模块并行任务板见 `docs/specs/module-task-board.md`。生产、采购、销售、库管的菜单级规格分别见 `docs/specs/production.md`、`docs/specs/purchase.md`、`docs/specs/sales.md`、`docs/specs/inventory.md`。
 物流、财务、总账、客户、设置的菜单级规格分别见 `docs/specs/logistics.md`、`docs/specs/finance.md`、`docs/specs/general-ledger.md`、`docs/specs/customer.md`、`docs/specs/settings.md`。
-开发任务体系见 `docs/specs/development-task-set.md`，当前任务包为 T03 销售订单详细采集。
+开发任务体系见 `docs/specs/development-task-set.md`，当前任务包为 T03 销售模块。任务编号只按模块划分，页面作为模块任务下的子项推进。
 
 所有模块都必须优先参考用户提供的制造业版系统。业务逻辑和界面布局都要参考；如需优化，先记录优化理由并等待确认，未确认则按参考系统实现。
 
@@ -89,7 +89,7 @@
 - 采集并实现序列号打印。
 - T02 采购订单列表已按参考系统完成筛选、工具栏、表格列、状态、高级搜索和前端页面接入。
 - T03 销售订单列表已按参考系统完成页签、筛选、工具栏、表格列、高级搜索和前端页面接入。
-- 下一步继续按任务体系进入 T04 生产任务详细采集，或补 T02/T03 新增/编辑表单的完整字段和正式接口。
+- 下一步继续在 T03 销售模块内补齐报价单、网店订单、销售单、退货、零售和销售报表；或切换到 T04 生产模块时，以“生产模块”为一个完整任务推进。
 
 ## 暂不开发
 
