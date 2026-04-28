@@ -184,7 +184,7 @@ const referenceMenus: ReferenceMenu[] = [
   {
     name: '客户',
     groups: [
-      { name: '客户管理', items: entries([['客户信息', '/inv/invKh/list'], ['潜在商机', '/inv/invKh/listGh'], ['客户跟进', '/inv/khgj/list']]) },
+      { name: '客户管理', items: entries([['客户信息', '/inv/invKh/list', '/customer/customers'], ['潜在商机', '/inv/invKh/listGh'], ['客户跟进', '/inv/khgj/list']]) },
       { name: '会员管理', items: entries([['会员等级维护', '/inv/invHydj/list'], ['会员信息管理', '/inv/invHyxx/list'], ['会员参数', '/inv/invHyxx/hycsList']]) },
       { name: '客户报表', items: entries([['睡眠客户统计', '/inv/khreport/smkhList'], ['流失客户统计', '/inv/khreport/lskhList']]) },
       { name: '其他信息', items: entries([['跟进类别', '/inv/khgjlb/list']]) }

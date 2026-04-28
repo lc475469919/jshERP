@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BasicLayout from '@/layouts/BasicLayout.vue'
 import DashboardView from '@/views/dashboard/DashboardView.vue'
+import CustomerInfoView from '@/views/customer/CustomerInfoView.vue'
 import LoginView from '@/views/LoginView.vue'
 import SalarySettingsView from '@/views/hr/SalarySettingsView.vue'
 import MasterDataView from '@/views/masterdata/MasterDataView.vue'
@@ -19,6 +20,7 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/dashboard' },
         { path: 'dashboard', component: DashboardView },
+        { path: 'customer/customers', component: CustomerInfoView },
         { path: 'reference-pending', component: ReferencePendingView },
         { path: 'hr/salary-settings', component: SalarySettingsView },
         { path: 'system/menus', component: MenuManageView },

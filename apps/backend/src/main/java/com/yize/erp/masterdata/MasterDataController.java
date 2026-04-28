@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yize.erp.common.ApiResponse;
 import com.yize.erp.common.PageResult;
 import com.yize.erp.masterdata.dto.BusinessCategorySaveRequest;
+import com.yize.erp.masterdata.dto.CustomerSaveRequest;
 import com.yize.erp.masterdata.dto.LogisticsCompanySaveRequest;
 import com.yize.erp.masterdata.dto.ProductAttrSaveRequest;
 import com.yize.erp.masterdata.dto.ProductSaveRequest;
@@ -12,6 +13,7 @@ import com.yize.erp.masterdata.dto.ProjectSaveRequest;
 import com.yize.erp.masterdata.dto.SenderSaveRequest;
 import com.yize.erp.masterdata.dto.SupplierSaveRequest;
 import com.yize.erp.masterdata.entity.MdBusinessCategory;
+import com.yize.erp.masterdata.entity.MdCustomer;
 import com.yize.erp.masterdata.entity.MdLogisticsCompany;
 import com.yize.erp.masterdata.entity.MdProduct;
 import com.yize.erp.masterdata.entity.MdProductAttr;
@@ -19,6 +21,7 @@ import com.yize.erp.masterdata.entity.MdProject;
 import com.yize.erp.masterdata.entity.MdSender;
 import com.yize.erp.masterdata.entity.MdSupplier;
 import com.yize.erp.masterdata.mapper.MdBusinessCategoryMapper;
+import com.yize.erp.masterdata.mapper.MdCustomerMapper;
 import com.yize.erp.masterdata.mapper.MdLogisticsCompanyMapper;
 import com.yize.erp.masterdata.mapper.MdProductMapper;
 import com.yize.erp.masterdata.mapper.MdProductAttrMapper;
@@ -48,6 +51,7 @@ public class MasterDataController {
     private final MdProjectMapper projectMapper;
     private final MdProductMapper productMapper;
     private final MdSupplierMapper supplierMapper;
+    private final MdCustomerMapper customerMapper;
     private final MdLogisticsCompanyMapper logisticsCompanyMapper;
     private final MdSenderMapper senderMapper;
 
@@ -57,6 +61,7 @@ public class MasterDataController {
             MdProjectMapper projectMapper,
             MdProductMapper productMapper,
             MdSupplierMapper supplierMapper,
+            MdCustomerMapper customerMapper,
             MdLogisticsCompanyMapper logisticsCompanyMapper,
             MdSenderMapper senderMapper
     ) {
@@ -65,6 +70,7 @@ public class MasterDataController {
         this.projectMapper = projectMapper;
         this.productMapper = productMapper;
         this.supplierMapper = supplierMapper;
+        this.customerMapper = customerMapper;
         this.logisticsCompanyMapper = logisticsCompanyMapper;
         this.senderMapper = senderMapper;
     }
@@ -303,6 +309,66 @@ public class MasterDataController {
         return ApiResponse.ok();
     }
 
+    @GetMapping("/customers")
+    public ApiResponse<PageResult<MdCustomer>> customers(
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "20") long pageSize,
+            @RequestParam(required = false) String customerCode,
+            @RequestParam(required = false) String customerName,
+            @RequestParam(required = false) String contactName,
+            @RequestParam(required = false) String contactPhone,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String salespersonName,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Integer status
+    ) {
+        LambdaQueryWrapper<MdCustomer> query = new LambdaQueryWrapper<MdCustomer>()
+                .eq(categoryId != null, MdCustomer::getCategoryId, categoryId)
+                .eq(status != null, MdCustomer::getStatus, status)
+                .like(customerCode != null && !customerCode.isBlank(), MdCustomer::getCustomerCode, customerCode)
+                .like(customerName != null && !customerName.isBlank(), MdCustomer::getCustomerName, customerName)
+                .like(contactName != null && !contactName.isBlank(), MdCustomer::getContactName, contactName)
+                .and(contactPhone != null && !contactPhone.isBlank(), wrapper -> wrapper
+                        .like(MdCustomer::getMobile, contactPhone)
+                        .or()
+                        .like(MdCustomer::getTelephone, contactPhone))
+                .like(country != null && !country.isBlank(), MdCustomer::getCountry, country)
+                .like(address != null && !address.isBlank(), MdCustomer::getAddress, address)
+                .like(salespersonName != null && !salespersonName.isBlank(), MdCustomer::getSalespersonName, salespersonName)
+                .orderByDesc(MdCustomer::getId);
+        Page<MdCustomer> result = customerMapper.selectPage(Page.of(page, pageSize), query);
+        return ApiResponse.ok(new PageResult<>(result.getTotal(), page, pageSize, result.getRecords()));
+    }
+
+    @PostMapping("/customers")
+    @LogOperation(module = "客户信息", operation = "新增客户")
+    public ApiResponse<Void> createCustomer(@RequestBody CustomerSaveRequest request) {
+        MdCustomer customer = new MdCustomer();
+        copy(customer, request);
+        customerMapper.insert(customer);
+        return ApiResponse.ok();
+    }
+
+    @PutMapping("/customers/{id}")
+    @LogOperation(module = "客户信息", operation = "编辑客户")
+    public ApiResponse<Void> updateCustomer(@PathVariable Long id, @RequestBody CustomerSaveRequest request) {
+        MdCustomer customer = customerMapper.selectById(id);
+        if (customer == null) {
+            throw new IllegalArgumentException("客户不存在");
+        }
+        copy(customer, request);
+        customerMapper.updateById(customer);
+        return ApiResponse.ok();
+    }
+
+    @DeleteMapping("/customers/{id}")
+    @LogOperation(module = "客户信息", operation = "删除客户")
+    public ApiResponse<Void> deleteCustomer(@PathVariable Long id) {
+        customerMapper.deleteById(id);
+        return ApiResponse.ok();
+    }
+
     @GetMapping("/logistics")
     public ApiResponse<PageResult<MdLogisticsCompany>> logistics(
             @RequestParam(defaultValue = "1") long page,
@@ -436,6 +502,32 @@ public class MasterDataController {
         supplier.setInvoiceEnabled(SystemHelper.zero(request.invoiceEnabled()));
         supplier.setStatus(SystemHelper.enabled(request.status()));
         supplier.setRemark(request.remark());
+    }
+
+    private void copy(MdCustomer customer, CustomerSaveRequest request) {
+        customer.setCustomerCode(SystemHelper.requireText(request.customerCode(), "客户编号不能为空"));
+        customer.setCustomerName(SystemHelper.requireText(request.customerName(), "客户名称不能为空"));
+        customer.setCategoryId(request.categoryId());
+        customer.setContactName(request.contactName());
+        customer.setMobile(request.mobile());
+        customer.setTelephone(request.telephone());
+        customer.setEmail(request.email());
+        customer.setCountry(request.country());
+        customer.setAddress(request.address());
+        customer.setSalespersonName(request.salespersonName());
+        customer.setLogisticsCompany(request.logisticsCompany());
+        customer.setLinkedSupplier(request.linkedSupplier());
+        customer.setPrepaidAmount(request.prepaidAmount() == null ? BigDecimal.ZERO : request.prepaidAmount());
+        customer.setMemberLevel(request.memberLevel());
+        customer.setSelfOrderEnabled(SystemHelper.zero(request.selfOrderEnabled()));
+        customer.setLoginAccount(request.loginAccount());
+        customer.setCreditLimit(request.creditLimit() == null ? BigDecimal.ZERO : request.creditLimit());
+        customer.setInvoiceEnabled(SystemHelper.zero(request.invoiceEnabled()));
+        customer.setStatus(SystemHelper.enabled(request.status()));
+        customer.setTags(request.tags());
+        customer.setRemark(request.remark());
+        if (customer.getFollowCount() == null) customer.setFollowCount(0);
+        if (customer.getTotalDealAmount() == null) customer.setTotalDealAmount(BigDecimal.ZERO);
     }
 
     private void copy(MdLogisticsCompany logistics, LogisticsCompanySaveRequest request) {

@@ -48,6 +48,7 @@
 
 模块并行任务板见 `docs/specs/module-task-board.md`。生产、采购、销售、库管的菜单级规格分别见 `docs/specs/production.md`、`docs/specs/purchase.md`、`docs/specs/sales.md`、`docs/specs/inventory.md`。
 物流、财务、总账、客户、设置的菜单级规格分别见 `docs/specs/logistics.md`、`docs/specs/finance.md`、`docs/specs/general-ledger.md`、`docs/specs/customer.md`、`docs/specs/settings.md`。
+开发任务体系见 `docs/specs/development-task-set.md`，当前任务包为 T01 客户信息。
 
 所有模块都必须优先参考用户提供的制造业版系统。业务逻辑和界面布局都要参考；如需优化，先记录优化理由并等待确认，未确认则按参考系统实现。
 
