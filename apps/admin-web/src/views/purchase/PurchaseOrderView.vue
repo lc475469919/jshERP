@@ -300,11 +300,11 @@ function chooseSupplier() {
 <style scoped>
 .purchase-order-page { padding: 14px; }
 .filter-panel, .action-toolbar { margin-bottom: 12px; padding: 12px; background: #fff; border: 1px solid #dfe6ee; }
-.filter-input { width: 170px; }
-.supplier-picker { display: inline-flex; width: 220px; }
-.supplier-input { width: 170px; }
-.status-select { width: 110px; }
-.goods-input { width: 230px; }
+.filter-input { width: 145px; }
+.supplier-picker { display: inline-flex; width: 190px; }
+.supplier-input { width: 142px; }
+.status-select { width: 100px; }
+.goods-input { width: 190px; }
 .full-input { width: 100%; }
 .detail-title { margin: 8px 0 10px; font-weight: 600; color: #1f2d3d; }
 .column-setting { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; }
