@@ -9,6 +9,7 @@ import MenuManageView from '@/views/system/MenuManageView.vue'
 import PurchaseOrderView from '@/views/purchase/PurchaseOrderView.vue'
 import ReferencePendingView from '@/views/reference/ReferencePendingView.vue'
 import SalesQuoteView from '@/views/sales/SalesQuoteView.vue'
+import SalesOnlineOrderView from '@/views/sales/SalesOnlineOrderView.vue'
 import SalesOrderView from '@/views/sales/SalesOrderView.vue'
 import SystemListView from '@/views/system/SystemListView.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -26,6 +27,7 @@ const router = createRouter({
         { path: 'customer/customers', component: CustomerInfoView },
         { path: 'purchase/orders', component: PurchaseOrderView },
         { path: 'sales/quotes', component: SalesQuoteView },
+        { path: 'sales/online-orders', component: SalesOnlineOrderView },
         { path: 'sales/orders', component: SalesOrderView },
         { path: 'reference-pending', component: ReferencePendingView },
         { path: 'hr/salary-settings', component: SalarySettingsView },
