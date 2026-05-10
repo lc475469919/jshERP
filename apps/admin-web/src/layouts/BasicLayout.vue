@@ -130,7 +130,7 @@ const referenceMenus: ReferenceMenu[] = [
   {
     name: '销售',
     groups: [
-      { name: '批发业务', items: entries([['报价单', '/inv/invBjd/list', '/sales/quotes'], ['网店订单', '/inv/invWddd/list?shzt=&ddzt=', '/sales/online-orders'], ['销售订单', '/inv/invXsdd/list?shzt=&ddzt=', '/sales/orders'], ['销售单', '/inv/invXsd/list?shzt=&ddzt=', '/sales/bills'], ['销售退货单', '/inv/invXsth/list?shzt=&ddzt='], ['销售返修单', '/inv/xsfxd/list'], ['销售发票登记', '/inv/xsdkp/list'], ['销售回款情况', '/inv/xshk/list']]) },
+      { name: '批发业务', items: entries([['报价单', '/inv/invBjd/list', '/sales/quotes'], ['网店订单', '/inv/invWddd/list?shzt=&ddzt=', '/sales/online-orders'], ['销售订单', '/inv/invXsdd/list?shzt=&ddzt=', '/sales/orders'], ['销售单', '/inv/invXsd/list?shzt=&ddzt=', '/sales/bills'], ['销售退货单', '/inv/invXsth/list?shzt=&ddzt=', '/sales/returns'], ['销售返修单', '/inv/xsfxd/list'], ['销售发票登记', '/inv/xsdkp/list'], ['销售回款情况', '/inv/xshk/list']]) },
       { name: '零售业务', items: entries([['零售收银', '/inv/invDsdPos/toPos'], ['零售收银历史', '/inv/invDsdPos/sylsList']]) },
       { name: '其他', items: entries([['销售订单明细', '/inv/invXsbb/invXsddmx'], ['销售单明细', '/inv/invXsbb/invXsmx'], ['销售退货单明细', '/inv/invXsbb/invXsthmx'], ['无成本销售明细', '/inv/invXsbb/wcbXsmx']]) },
       { name: '销售报表', items: entries([['销售汇总', '/inv/invXsbb/invXshz'], ['销量分析表', '/inv/invSpxlfxb/splbxlfx'], ['进销对比统计', '/inv/invKcxx/spcrkHz'], ['销售趋势分析', '/inv/invSpxlqsfxb/list'], ['销量排行榜', '/inv/invSpxlphb/tab'], ['销售业绩分析', '/inv/invYjfxForXsr/invYjfx'], ['销售成本分析', '/inv/invXsbb/invXscb'], ['销售成本明细分析', '/inv/invXsbb/invXscbmx'], ['销售提成统计', '/inv/invXsbb/invXstcHz'], ['销售提成明细', '/inv/invXsbb/invXstcMx'], ['销售开票统计', '/inv/invXsbb/invXstjkp']]) }
